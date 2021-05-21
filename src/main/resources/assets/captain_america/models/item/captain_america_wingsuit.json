@@ -1,0 +1,14 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "captain_america:item/captain_america_wingsuit"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "broken": 1
+            },
+            "model": "captain_america:item/broken_captain_america_wingsuit"
+        }
+    ]
+}
