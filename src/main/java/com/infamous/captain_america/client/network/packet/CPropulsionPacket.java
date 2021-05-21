@@ -1,6 +1,6 @@
 package com.infamous.captain_america.client.network.packet;
 
-import com.infamous.captain_america.server.ServerNetworkHandler;
+import com.infamous.captain_america.server.network.ServerNetworkHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -12,15 +12,15 @@ public class CPropulsionPacket {
 
     }
 
-    public static CPropulsionPacket read(PacketBuffer packetBuffer){
+    public static CPropulsionPacket decodePacket(PacketBuffer packetBuffer){
         return new CPropulsionPacket();
     }
 
-    public static void write(CPropulsionPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(CPropulsionPacket packet, PacketBuffer packetBuffer){
 
     }
 
-    public static void handle(CPropulsionPacket packet, Supplier<NetworkEvent.Context> ctx){
+    public static void handlePacket(CPropulsionPacket packet, Supplier<NetworkEvent.Context> ctx){
         ServerNetworkHandler.handlePropulsion(packet, ctx);
     }
 }

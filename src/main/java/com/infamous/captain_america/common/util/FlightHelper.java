@@ -18,7 +18,7 @@ public class FlightHelper {
     }
 
     public static boolean canPropel(PlayerEntity player) {
-        return player.isFallFlying() && canFalconFly(player);
+        return isFalconFlying(player);
     }
 
     public static boolean canFalconFly(PlayerEntity player) {
@@ -31,13 +31,17 @@ public class FlightHelper {
         player.startFallFlying();
     }
 
-    public static void stopFalconFlight(PlayerEntity player) {
+    public static boolean isFalconFlying(PlayerEntity playerEntity){
+        return playerEntity.isFallFlying() && canFalconFly(playerEntity);
+    }
+
+    public static void haltFalconFlight(PlayerEntity player) {
         player.stopFallFlying();
     }
 
     /**
      * Propels the fall-flying player similar to how a FireworkRocketEntity does
-     * This needs to be called both on the client and the server
+     * This needs to be called on both the client and the server
      * @param player The PlayerEntity that is to be propelled using their EXO-7 Falcon
      */
     public static void propelFalconFlight(PlayerEntity player) {

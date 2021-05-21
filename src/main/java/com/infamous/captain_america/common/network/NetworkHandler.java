@@ -1,8 +1,10 @@
 package com.infamous.captain_america.common.network;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.client.network.packet.CHaltPacket;
 import com.infamous.captain_america.client.network.packet.CPropulsionPacket;
 import com.infamous.captain_america.client.network.packet.CTakeoffPacket;
+import com.infamous.captain_america.server.network.packet.SPropulsionPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -29,17 +31,33 @@ public final class NetworkHandler {
         INSTANCE.registerMessage(
                 getPacketID(),
                 CTakeoffPacket.class,
-                CTakeoffPacket::write,
-                CTakeoffPacket::read,
-                CTakeoffPacket::handle,
+                CTakeoffPacket::encodePacket,
+                CTakeoffPacket::decodePacket,
+                CTakeoffPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
                 getPacketID(),
                 CPropulsionPacket.class,
-                CPropulsionPacket::write,
-                CPropulsionPacket::read,
-                CPropulsionPacket::handle,
+                CPropulsionPacket::encodePacket,
+                CPropulsionPacket::decodePacket,
+                CPropulsionPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        INSTANCE.registerMessage(
+                getPacketID(),
+                SPropulsionPacket.class,
+                SPropulsionPacket::encodePacket,
+                SPropulsionPacket::decodePacket,
+                SPropulsionPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        INSTANCE.registerMessage(
+                getPacketID(),
+                CHaltPacket.class,
+                CHaltPacket::encodePacket,
+                CHaltPacket::decodePacket,
+                CHaltPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
 
