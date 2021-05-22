@@ -1,11 +1,12 @@
 package com.infamous.captain_america.client;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.client.network.packet.CHaltPacket;
-import com.infamous.captain_america.client.network.packet.CPropulsionPacket;
-import com.infamous.captain_america.client.network.packet.CTakeoffPacket;
+import com.infamous.captain_america.client.network.packet.CFlightHaltPacket;
+import com.infamous.captain_america.client.network.packet.CFlightBoostPacket;
+import com.infamous.captain_america.client.network.packet.CFlightTakeoffPacket;
+import com.infamous.captain_america.client.network.packet.CFlightVerticalPacket;
 import com.infamous.captain_america.common.network.NetworkHandler;
-import com.infamous.captain_america.common.util.FlightHelper;
+import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,45 +33,50 @@ public class ForgeClientEventHandler {
         boolean sprintKeyDown = minecraft.options.keySprint.isDown();
         boolean shiftKeyDown = minecraft.options.keyShift.isDown();
 
-        boolean jumpInput = !jumpFired && jumpKeyDown;
+        boolean flyUpInput = !jumpFired && jumpKeyDown;
         boolean takeOffInput = !sprintFired && sprintKeyDown;
         boolean haltInput = !shiftFired && shiftKeyDown;
 
         if(takeOffInput){
             sprintFired = true;
-            if(!haltInput && FlightHelper.canTakeOff(clientPlayer) && canClientTakeOff(clientPlayer)){
-                FlightHelper.takeOffFalconFlight(clientPlayer);
+            if(!haltInput && FalconFlightHelper.canTakeOff(clientPlayer) && canClientTakeOff(clientPlayer)){
+                FalconFlightHelper.takeOff(clientPlayer);
                 CaptainAmerica.LOGGER.info("Client player {} wants to take off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
-                NetworkHandler.INSTANCE.sendToServer(new CTakeoffPacket());
+                NetworkHandler.INSTANCE.sendToServer(new CFlightTakeoffPacket());
            }
         } else {
             sprintFired = shiftKeyDown;
-             if(!haltInput && sprintKeyDown && FlightHelper.canPropel(clientPlayer)){
-                CaptainAmerica.LOGGER.info("Client player {} wants to propel using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
+             if(!haltInput && sprintKeyDown && FalconFlightHelper.canBoostFlight(clientPlayer)){
+                CaptainAmerica.LOGGER.info("Client player {} wants to boost their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
                 //FlightHelper.propelFalconFlight(clientPlayer);
-                NetworkHandler.INSTANCE.sendToServer(new CPropulsionPacket());
+                NetworkHandler.INSTANCE.sendToServer(new CFlightBoostPacket());
             }
         }
 
         if(haltInput){
-            if(FlightHelper.isFalconFlying(clientPlayer)){
+            shiftFired = true;
+            if(FalconFlightHelper.isFlying(clientPlayer)){
                 CaptainAmerica.LOGGER.info("Client player {} has halted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
-                FlightHelper.haltFalconFlight(clientPlayer);
-                NetworkHandler.INSTANCE.sendToServer(new CHaltPacket());
+                FalconFlightHelper.haltFlight(clientPlayer);
+                NetworkHandler.INSTANCE.sendToServer(new CFlightHaltPacket());
             }
         } else {
             shiftFired = shiftKeyDown;
         }
 
-        if(jumpInput){
-            // TODO: For hovering
+        if(flyUpInput){
+            jumpFired = true;
         } else {
             jumpFired = jumpKeyDown;
+            if(jumpKeyDown && FalconFlightHelper.canFlyUp(clientPlayer) && canClientFlyUp(clientPlayer)){
+                CaptainAmerica.LOGGER.info("Client player {} wants to fly up using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
+                NetworkHandler.INSTANCE.sendToServer(new CFlightVerticalPacket());
+            }
         }
-
     }
 
     private static boolean canClientTakeOff(ClientPlayerEntity clientPlayer){
+        /*
         boolean canTriggerFlyAbility = false;
         if (clientPlayer.abilities.mayfly) {
             if (Minecraft.getInstance().gameMode.isAlwaysFlying()) {
@@ -84,8 +90,16 @@ public class ForgeClientEventHandler {
             }
         }
 
-        return !canTriggerFlyAbility
-                && !clientPlayer.abilities.flying
+         */
+
+        return //!canTriggerFlyAbility&&
+                !clientPlayer.abilities.flying
+                && !clientPlayer.isPassenger()
+                && !clientPlayer.onClimbable();
+    }
+
+    private static boolean canClientFlyUp(ClientPlayerEntity clientPlayer){
+        return !clientPlayer.abilities.flying
                 && !clientPlayer.isPassenger()
                 && !clientPlayer.onClimbable();
     }
