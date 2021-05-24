@@ -1,7 +1,7 @@
-package com.infamous.captain_america.client.layers;
+package com.infamous.captain_america.client.layer;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.items.EXO7FalconItem;
+import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.ItemRegistry;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;

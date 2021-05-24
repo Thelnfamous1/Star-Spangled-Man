@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.items;
+package com.infamous.captain_america.common.item;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;

@@ -1,12 +1,10 @@
 package com.infamous.captain_america.common.network;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.client.network.packet.CFlightHaltPacket;
-import com.infamous.captain_america.client.network.packet.CFlightBoostPacket;
-import com.infamous.captain_america.client.network.packet.CFlightTakeoffPacket;
-import com.infamous.captain_america.client.network.packet.CFlightVerticalPacket;
-import com.infamous.captain_america.server.network.packet.SFlightBoostPacket;
-import com.infamous.captain_america.server.network.packet.SFlightVerticalPacket;
+import com.infamous.captain_america.client.network.packet.CFlightPacket;
+import com.infamous.captain_america.client.network.packet.CRedwingPacket;
+import com.infamous.captain_america.client.network.packet.CShieldPacket;
+import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -32,51 +30,35 @@ public final class NetworkHandler {
 
         INSTANCE.registerMessage(
                 getPacketID(),
-                CFlightTakeoffPacket.class,
-                CFlightTakeoffPacket::encodePacket,
-                CFlightTakeoffPacket::decodePacket,
-                CFlightTakeoffPacket::handlePacket,
+                CFlightPacket.class,
+                CFlightPacket::encodePacket,
+                CFlightPacket::decodePacket,
+                CFlightPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
                 getPacketID(),
-                CFlightBoostPacket.class,
-                CFlightBoostPacket::encodePacket,
-                CFlightBoostPacket::decodePacket,
-                CFlightBoostPacket::handlePacket,
-                Optional.of(NetworkDirection.PLAY_TO_SERVER));
-
-        INSTANCE.registerMessage(
-                getPacketID(),
-                SFlightBoostPacket.class,
-                SFlightBoostPacket::encodePacket,
-                SFlightBoostPacket::decodePacket,
-                SFlightBoostPacket::handlePacket,
+                SFlightPacket.class,
+                SFlightPacket::encodePacket,
+                SFlightPacket::decodePacket,
+                SFlightPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         INSTANCE.registerMessage(
                 getPacketID(),
-                CFlightHaltPacket.class,
-                CFlightHaltPacket::encodePacket,
-                CFlightHaltPacket::decodePacket,
-                CFlightHaltPacket::handlePacket,
+                CRedwingPacket.class,
+                CRedwingPacket::encodePacket,
+                CRedwingPacket::decodePacket,
+                CRedwingPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
                 getPacketID(),
-                CFlightVerticalPacket.class,
-                CFlightVerticalPacket::encodePacket,
-                CFlightVerticalPacket::decodePacket,
-                CFlightVerticalPacket::handlePacket,
+                CShieldPacket.class,
+                CShieldPacket::encodePacket,
+                CShieldPacket::decodePacket,
+                CShieldPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
-
-        INSTANCE.registerMessage(
-                getPacketID(),
-                SFlightVerticalPacket.class,
-                SFlightVerticalPacket::encodePacket,
-                SFlightVerticalPacket::decodePacket,
-                SFlightVerticalPacket::handlePacket,
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
 
         CaptainAmerica.LOGGER.debug("Finished registering network!");

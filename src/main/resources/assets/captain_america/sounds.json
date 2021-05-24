@@ -1,0 +1,7 @@
+{
+  "flight_boost": {
+    "category": "entity",
+    "subtitle": "subtitles.flight_boost",
+    "sounds": [ "captain_america:flight_boost" ]
+  }
+}

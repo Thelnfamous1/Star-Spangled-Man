@@ -1,15 +1,16 @@
 package com.infamous.captain_america.server.network;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.client.network.packet.CFlightHaltPacket;
-import com.infamous.captain_america.client.network.packet.CFlightBoostPacket;
-import com.infamous.captain_america.client.network.packet.CFlightTakeoffPacket;
-import com.infamous.captain_america.client.network.packet.CFlightVerticalPacket;
+import com.infamous.captain_america.client.network.packet.*;
+import com.infamous.captain_america.common.capability.CapabilityHelper;
+import com.infamous.captain_america.common.capability.IDroneController;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import com.infamous.captain_america.server.network.packet.SFlightBoostPacket;
-import com.infamous.captain_america.server.network.packet.SFlightVerticalPacket;
+import com.infamous.captain_america.common.util.VibraniumShieldHelper;
+import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -17,59 +18,116 @@ import java.util.function.Supplier;
 
 public class ServerNetworkHandler {
 
-    public static void handleTakeoff(CFlightTakeoffPacket packet, Supplier<NetworkEvent.Context> ctx){
+    public static void handleFlight(CFlightPacket packet, Supplier<NetworkEvent.Context> ctx){
         ctx.get().enqueueWork(() -> {
             ServerPlayerEntity serverPlayer = ctx.get().getSender();
             if(serverPlayer == null){
                 return;
             }
-            if (FalconFlightHelper.canTakeOff(serverPlayer)) {
-                FalconFlightHelper.takeOff(serverPlayer);
-                CaptainAmerica.LOGGER.info("Server player {} has taken off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
-            } else {
-                CaptainAmerica.LOGGER.info("Server player {} cannot take off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
-                FalconFlightHelper.haltFlight(serverPlayer);
+            switch (packet.getAction()){
+                case TAKEOFF_FLIGHT:
+                    if (FalconFlightHelper.canTakeOff(serverPlayer) || FalconFlightHelper.canBoostFlight(serverPlayer)) {
+                        FalconFlightHelper.playFlightBoostSound(serverPlayer);
+                        CaptainAmerica.LOGGER.debug("Server player {} has taken off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TAKEOFF_FLIGHT));
+                    } else {
+                        CaptainAmerica.LOGGER.debug("Server player {} cannot take off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                    }
+                    break;
+                case BOOST_FLIGHT:
+                    if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
+                        FalconFlightHelper.boostFlight(serverPlayer);
+                        CaptainAmerica.LOGGER.debug("Server player {} has boosted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.BOOST_FLIGHT));
+                    } else {
+                        CaptainAmerica.LOGGER.debug("Server player {} cannot boost their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                    }
+                    break;
+                case HALT_FLIGHT:
+                    FalconFlightHelper.haltFlight(serverPlayer);
+                    CaptainAmerica.LOGGER.debug("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                    break;
+                case HOVER:
+                    if (FalconFlightHelper.canHover(serverPlayer)) {
+                        FalconFlightHelper.hover(serverPlayer);
+                        CaptainAmerica.LOGGER.debug("Server player {} is hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.HOVER));
+                    } else {
+                        CaptainAmerica.LOGGER.debug("Server player {} cannot hover using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                    }
+                    break;
             }
         });
     }
 
-    public static void handleBoost(CFlightBoostPacket packet, Supplier<NetworkEvent.Context> ctx){
-        ctx.get().enqueueWork(() -> {
-            ServerPlayerEntity serverPlayer = ctx.get().getSender();
-            if(serverPlayer == null){
-                return;
-            }
-            if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
-                FalconFlightHelper.boostFlight(serverPlayer);
-                CaptainAmerica.LOGGER.info("Server player {} has boosted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightBoostPacket());
-            } else {
-                CaptainAmerica.LOGGER.info("Server player {} cannot boost their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
-            }
-        });
-    }
-
-    public static void handleHalt(CFlightHaltPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayerEntity serverPlayer = ctx.get().getSender();
-            if(serverPlayer == null){
-                return;
-            }
-            FalconFlightHelper.haltFlight(serverPlayer);
-            CaptainAmerica.LOGGER.info("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
-        });
-    }
-
-    public static void handleFlyUp(CFlightVerticalPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handleRedwing(CRedwingPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             ServerPlayerEntity serverPlayer = ctx.get().getSender();
             if(serverPlayer == null){
                 return;
             }
-            if (FalconFlightHelper.canFlyUp(serverPlayer)) {
-                FalconFlightHelper.flyUp(serverPlayer);
-                CaptainAmerica.LOGGER.info("Server player {} is flying up using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightVerticalPacket());
+            switch (packet.getAction()){
+                case DEPLOY: {
+                    IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
+                    if(droneControllerCap != null){
+                        if(droneControllerCap.deployDrone(serverPlayer)){
+                            CaptainAmerica.LOGGER.debug("Server player {} has deployed a Redwing drone!", serverPlayer.getDisplayName().getString());
+                            serverPlayer.sendMessage(new TranslationTextComponent("action.redwing.deployed"), Util.NIL_UUID);
+                        }
+                    }
+                }
+                break;
+
+                case RECALL: {
+                    IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
+                    if(droneControllerCap != null){
+                        boolean wasDronePatrolling = droneControllerCap.isDronePatrolling();
+                         if(droneControllerCap.toggleRecallDrone(serverPlayer)){
+                            CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's recall!", serverPlayer.getDisplayName().getString());
+                             boolean droneRecalled = droneControllerCap.isDroneRecalled();
+                             boolean dronePatrolling = droneControllerCap.isDronePatrolling();
+                             serverPlayer.sendMessage(new TranslationTextComponent(droneRecalled ? "action.redwing.recallOn" : "action.redwing.recallOff"), Util.NIL_UUID);
+                             if(wasDronePatrolling && droneRecalled && !dronePatrolling){
+                                 serverPlayer.sendMessage(new TranslationTextComponent("action.redwing.patrolOff"), Util.NIL_UUID);
+                             }
+                        }
+                    }
+                }
+                break;
+                case PATROL:{
+                    IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
+                    if(droneControllerCap != null){
+                        boolean wasDroneRecalled = droneControllerCap.isDroneRecalled();
+                        if(droneControllerCap.toggleDronePatrol(serverPlayer)){
+                            CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's patrol mode!", serverPlayer.getDisplayName().getString());
+                            boolean dronePatrolling = droneControllerCap.isDronePatrolling();
+                            boolean droneRecalled = droneControllerCap.isDroneRecalled();
+                            serverPlayer.sendMessage(new TranslationTextComponent(dronePatrolling ? "action.redwing.patrolOn" : "action.redwing.patrolOff"), Util.NIL_UUID);
+                            if(wasDroneRecalled && dronePatrolling && !droneRecalled){
+                                serverPlayer.sendMessage(new TranslationTextComponent("action.redwing.recallOff"), Util.NIL_UUID);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        });
+    }
+
+    public static void handleShield(CShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() ->{
+            ServerPlayerEntity serverPlayer = ctx.get().getSender();
+            if(serverPlayer == null){
+                return;
+            }
+            if (packet.getAction() == CShieldPacket.Action.THROW_SHIELD) {
+                if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
+                    if(VibraniumShieldHelper.throwShield(serverPlayer)){
+                        CaptainAmerica.LOGGER.info("Server player {} has thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                    } else{
+                        CaptainAmerica.LOGGER.info("Server player {} has failed to throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                    }
+                }
             }
         });
     }

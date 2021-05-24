@@ -1,4 +1,30 @@
 {
   "item.captain_america.captain_america_wingsuit": "Captain America's Wingsuit",
-  "item.captain_america.falcon_wingsuit": "Falcon's Wingsuit"
+  "item.captain_america.falcon_wingsuit": "Falcon's Wingsuit",
+  "item.captain_america.vibranium_shield": "Vibranium Shield",
+  "item.captain_america.captain_america_shield": "Captain America's Shield",
+
+  "entity.captain_america.redwing": "Redwing",
+  "entity.captain_america.vibranium_shield": "Vibranium Shield",
+  "entity.captain_america.captain_america_shield": "Captain America's Shield",
+
+  "action.redwing.deployed": "Deployed Redwing!",
+  "action.redwing.attached": "Attached Redwing!",
+  "action.redwing.recallOn": "Redwing has been recalled!",
+  "action.redwing.recallOff": "Redwing has no longer been recalled!",
+  "action.redwing.patrolOn": "Redwing is now patrolling!",
+  "action.redwing.patrolOff": "Redwing is no longer patrolling!",
+
+  "key.categories.falconTech": "Falcon Tech",
+  "key.hover": "Hover",
+  "key.haltFlight": "Halt Flight",
+  "key.boostFlight": "Boost Flight",
+  "key.deployRedwing": "Deploy Redwing",
+  "key.toggleRedwingRecall": "Toggle Redwing Recall",
+  "key.toggleRedwingPatrol": "Toggle Redwing Patrol",
+
+  "key.categories.capTech": "Captain America Tech",
+  "key.throwVibraniumShield": "Throw Vibranium Shield",
+
+  "subtitles.flight_boost": "Flight boost"
 }
