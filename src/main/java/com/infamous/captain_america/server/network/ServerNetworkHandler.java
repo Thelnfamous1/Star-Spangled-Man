@@ -114,19 +114,33 @@ public class ServerNetworkHandler {
         });
     }
 
-    public static void handleShield(CShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handleThrowShield(CThrowShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             ServerPlayerEntity serverPlayer = ctx.get().getSender();
             if(serverPlayer == null){
                 return;
             }
-            if (packet.getAction() == CShieldPacket.Action.THROW_SHIELD) {
-                if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
-                    if(VibraniumShieldHelper.throwShield(serverPlayer)){
-                        CaptainAmerica.LOGGER.info("Server player {} has thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
-                    } else{
-                        CaptainAmerica.LOGGER.info("Server player {} has failed to throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+            switch (packet.getThrowType()){
+                case BOOMERANG_THROW:{
+                    if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
+                        if(VibraniumShieldHelper.throwShield(serverPlayer, packet.getThrowType())){
+                            CaptainAmerica.LOGGER.info("Server player {} has boomerang-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                        } else{
+                            CaptainAmerica.LOGGER.info("Server player {} has failed to boomerang-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                        }
                     }
+                    break;
+                }
+
+                case RICOCHET_THROW:{
+                    if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
+                        if(VibraniumShieldHelper.throwShield(serverPlayer, packet.getThrowType())){
+                            CaptainAmerica.LOGGER.info("Server player {} has ricochet-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                        } else{
+                            CaptainAmerica.LOGGER.info("Server player {} has failed to ricochet-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
+                        }
+                    }
+                    break;
                 }
             }
         });

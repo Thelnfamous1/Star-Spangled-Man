@@ -2,6 +2,7 @@ package com.infamous.captain_america.client.keybindings;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
+import com.infamous.captain_america.common.entity.VibraniumShieldEntity;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
@@ -61,6 +62,7 @@ public class CAKeyBinding extends KeyBinding{
     public static final int O_KEYCODE = GLFW.GLFW_KEY_O;
     public static final int I_KEYCODE = GLFW.GLFW_KEY_I;
     public static final int K_KEYCODE = GLFW.GLFW_KEY_K;
+    public static final int C_KEYCODE = GLFW.GLFW_KEY_C;
     public static final int V_KEYCODE = GLFW.GLFW_KEY_V;
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
@@ -78,7 +80,7 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if(FalconFlightHelper.canHover(clientPlayer) && canClientHover(clientPlayer)){
+                        if(FalconFlightHelper.canHover(clientPlayer) && canClientFalconFly(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to hover using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HOVER));
                         }
@@ -117,7 +119,8 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if(FalconFlightHelper.canTakeOff(clientPlayer) || FalconFlightHelper.canBoostFlight(clientPlayer)){
+                        if((FalconFlightHelper.canTakeOff(clientPlayer) && canClientFalconFly(clientPlayer))
+                                || FalconFlightHelper.canBoostFlight(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to take off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
                         }
@@ -193,9 +196,9 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                     });
 
-    public static final CAKeyBinding keyThrowVibraniumShield =
+    public static final CAKeyBinding keyBoomerangThrowShield =
             new CAKeyBinding(
-                    "key.throwVibraniumShield",
+                    "key.boomerangThrowShield",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
                     V_KEYCODE,
@@ -204,8 +207,28 @@ public class CAKeyBinding extends KeyBinding{
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
                         if(VibraniumShieldHelper.hasVibraniumShield(clientPlayer)){
-                            CaptainAmerica.LOGGER.info("Client player {} wants to throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(CShieldPacket.Action.THROW_SHIELD));
+                            CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity.ThrowType.BOOMERANG_THROW));
+                        }
+                    },
+                    () -> {
+                    },
+                    () -> {
+                    });
+
+    public static final CAKeyBinding keyRicochetThrowShield =
+            new CAKeyBinding(
+                    "key.ricochetThrowShield",
+                    KeyConflictContext.IN_GAME,
+                    InputMappings.Type.KEYSYM,
+                    C_KEYCODE,
+                    CAP_TECH_KEY_CATEGORY,
+                    () -> {
+                        ClientPlayerEntity clientPlayer = getClient();
+                        if (clientPlayer == null) return;
+                        if(VibraniumShieldHelper.hasVibraniumShield(clientPlayer)){
+                            CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity.ThrowType.RICOCHET_THROW));
                         }
                     },
                     () -> {
@@ -218,7 +241,7 @@ public class CAKeyBinding extends KeyBinding{
         return minecraft.player;
     }
 
-    private static boolean canClientHover(ClientPlayerEntity clientPlayer){
+    private static boolean canClientFalconFly(ClientPlayerEntity clientPlayer){
         return !clientPlayer.abilities.flying
                 && !clientPlayer.isPassenger()
                 && !clientPlayer.onClimbable();

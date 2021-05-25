@@ -3,7 +3,7 @@ package com.infamous.captain_america.common.network;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.client.network.packet.CRedwingPacket;
-import com.infamous.captain_america.client.network.packet.CShieldPacket;
+import com.infamous.captain_america.client.network.packet.CThrowShieldPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -20,7 +20,7 @@ public final class NetworkHandler {
             .networkProtocolVersion(() -> "1")
             .simpleChannel();
 
-    protected static int packetID = 0;
+    protected static int PACKET_COUNTER = 0;
 
     public NetworkHandler() {
     }
@@ -29,7 +29,7 @@ public final class NetworkHandler {
         CaptainAmerica.LOGGER.debug("Registering network");
 
         INSTANCE.registerMessage(
-                getPacketID(),
+                getAndIncrementPacketCounter(),
                 CFlightPacket.class,
                 CFlightPacket::encodePacket,
                 CFlightPacket::decodePacket,
@@ -37,7 +37,7 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
-                getPacketID(),
+                getAndIncrementPacketCounter(),
                 SFlightPacket.class,
                 SFlightPacket::encodePacket,
                 SFlightPacket::decodePacket,
@@ -45,7 +45,7 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         INSTANCE.registerMessage(
-                getPacketID(),
+                getAndIncrementPacketCounter(),
                 CRedwingPacket.class,
                 CRedwingPacket::encodePacket,
                 CRedwingPacket::decodePacket,
@@ -53,19 +53,19 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
-                getPacketID(),
-                CShieldPacket.class,
-                CShieldPacket::encodePacket,
-                CShieldPacket::decodePacket,
-                CShieldPacket::handlePacket,
+                getAndIncrementPacketCounter(),
+                CThrowShieldPacket.class,
+                CThrowShieldPacket::encodePacket,
+                CThrowShieldPacket::decodePacket,
+                CThrowShieldPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
 
         CaptainAmerica.LOGGER.debug("Finished registering network!");
     }
 
-    public static int getPacketID() {
-        return packetID++;
+    public static int getAndIncrementPacketCounter() {
+        return PACKET_COUNTER++;
     }
 
 }

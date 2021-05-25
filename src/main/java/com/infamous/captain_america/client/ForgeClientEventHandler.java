@@ -30,8 +30,11 @@ public class ForgeClientEventHandler {
         if(event.getKey() == CAKeyBinding.keyTogglePatrolRedwing.getKey().getValue()){
             CAKeyBinding.keyTogglePatrolRedwing.handleKey();
         }
-        if(event.getKey() == CAKeyBinding.keyThrowVibraniumShield.getKey().getValue()){
-            CAKeyBinding.keyThrowVibraniumShield.handleKey();
+        if(event.getKey() == CAKeyBinding.keyBoomerangThrowShield.getKey().getValue()){
+            CAKeyBinding.keyBoomerangThrowShield.handleKey();
+        }
+        if(event.getKey() == CAKeyBinding.keyRicochetThrowShield.getKey().getValue()){
+            CAKeyBinding.keyRicochetThrowShield.handleKey();
         }
     }
 }

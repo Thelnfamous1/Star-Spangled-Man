@@ -42,7 +42,8 @@ public class ModClientEventHandler {
 
     private static void registerEntityRenderers() {
         CaptainAmerica.LOGGER.info("Registering entity renderers!");
-        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.REDWING.get(), RedwingRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.FALCON_REDWING.get(), RedwingRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD.get(), VibraniumShieldRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.VIBRANIUM_SHIELD.get(), VibraniumShieldRenderer::new);
         CaptainAmerica.LOGGER.info("Finished registering entity renderers!");
@@ -56,7 +57,8 @@ public class ModClientEventHandler {
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyDeployRedwing);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyToggleRedwingRecall);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyTogglePatrolRedwing);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyThrowVibraniumShield);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyBoomerangThrowShield);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyRicochetThrowShield);
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");
     }
 

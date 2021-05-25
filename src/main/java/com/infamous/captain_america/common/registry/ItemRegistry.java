@@ -26,7 +26,8 @@ public class ItemRegistry{
 
     public static final RegistryObject<Item> FALCON_WINGSUIT = ITEMS.register(
             "falcon_wingsuit", () ->
-                    new EXO7FalconItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.CHEST,
+                    new EXO7FalconItem(EntityTypeRegistry.FALCON_REDWING,
+                            CAArmorMaterial.FALCON_WINGSUIT,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -53,7 +54,8 @@ public class ItemRegistry{
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_WINGSUIT = ITEMS.register(
             "captain_america_wingsuit", () ->
-                    new EXO7FalconItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.CHEST,
+                    new EXO7FalconItem(EntityTypeRegistry.FALCON_REDWING,
+                            CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );

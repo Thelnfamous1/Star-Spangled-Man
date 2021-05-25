@@ -26,6 +26,7 @@ public class ModCommonEvents {
 
     @SubscribeEvent
     public static void createEntityAttributes(EntityAttributeCreationEvent event){
-        event.put(EntityTypeRegistry.REDWING.get(), RedwingEntity.createAttributes().build());
+        event.put(EntityTypeRegistry.FALCON_REDWING.get(), RedwingEntity.createAttributes().build());
+        event.put(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingEntity.createAttributes().build());
     }
 }

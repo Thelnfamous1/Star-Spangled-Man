@@ -31,12 +31,13 @@ public class FalconFlightHelper {
     }
 
     public static boolean canFalconFly(LivingEntity living) {
+        ItemStack chestPlateStack = living.getItemBySlot(EXO7FalconItem.SLOT);
         return hasEXO7Falcon(living) &&
-                EXO7FalconItem.isFlightEnabled(living.getItemBySlot(EquipmentSlotType.CHEST));
+                EXO7FalconItem.isFlightEnabled(chestPlateStack);
     }
 
     public static boolean hasEXO7Falcon(LivingEntity living) {
-        ItemStack chestplateStack = living.getItemBySlot(EquipmentSlotType.CHEST);
+        ItemStack chestplateStack = living.getItemBySlot(EXO7FalconItem.SLOT);
         return chestplateStack.getItem() instanceof EXO7FalconItem;
     }
 

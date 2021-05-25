@@ -4,11 +4,10 @@ import com.infamous.captain_america.common.entity.IDrone;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Util;
 import net.minecraft.world.server.ServerWorld;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,17 +19,19 @@ public interface IDroneController {
 
     CompoundNBT getDroneNBT();
 
-    @Nullable
     UUID getDroneUUID();
 
-    default <T extends MobEntity & IDrone> boolean deployDrone(LivingEntity controller) {
+    default <T extends Entity & IDrone> boolean deployDrone(LivingEntity controller) {
         if(this.canControlDrone(controller)){
-            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() == null){
-                T drone = this.createDrone(controller);
-                boolean deployed = controller.level.addFreshEntity(drone);
-                if(deployed){
-                    this.setDroneUUID(drone.getUUID());
-                    return true;
+            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() != Util.NIL_UUID){
+                Optional<T> optionalDrone = this.createDrone(controller);
+                if(optionalDrone.isPresent()){
+                    T drone = optionalDrone.get();
+                    boolean deployed = controller.level.addFreshEntity(drone);
+                    if(deployed){
+                        this.setDroneUUID(drone.getUUID());
+                        return true;
+                    }
                 }
             } else if(!this.getDroneNBT().isEmpty()){
                 Optional<Entity> optionalEntity = EntityType.create(this.getDroneNBT(), controller.level);
@@ -45,63 +46,48 @@ public interface IDroneController {
                             this.setDroneUUID(entity.getUUID());
                             this.setDroneNBT(new CompoundNBT());
                             return true;
-                        } else{
-                            this.setDroneUUID(null);
-                            this.setDroneNBT(new CompoundNBT());
                         }
-                    } else {
-                        this.setDroneUUID(null);
-                        this.setDroneNBT(new CompoundNBT());
                     }
-                } else {
-                    this.setDroneUUID(null);
-                    this.setDroneNBT(new CompoundNBT());
                 }
             }
+            this.setDroneUUID(Util.NIL_UUID);
+            this.setDroneNBT(new CompoundNBT());
         }
         return false;
     }
 
     boolean canControlDrone(LivingEntity controller);
 
-    <T extends MobEntity & IDrone> T createDrone(LivingEntity controller);
+    <T extends Entity & IDrone> Optional<T> createDrone(LivingEntity controller);
 
     default boolean toggleRecallDrone(LivingEntity controller) {
         if(this.canControlDrone(controller)){
-            if(this.isDeployed()){
+            if(this.getDroneNBT().isEmpty() && this.getDroneUUID()  != Util.NIL_UUID){
                 Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
                 if(entity instanceof IDrone){
                     IDrone drone = (IDrone) entity;
                     drone.setRecalled(!drone.isRecalled());
                     return true;
-                } else {
-                    this.setDroneUUID(null);
-                    return false;
                 }
             }
+            this.setDroneUUID(Util.NIL_UUID);
         }
         return false;
     }
 
     default boolean toggleDronePatrol(LivingEntity controller) {
         if(this.canControlDrone(controller)){
-            if(this.isDeployed()){
+            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() != Util.NIL_UUID){
                 Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
                 if(entity instanceof IDrone){
                     IDrone drone = (IDrone) entity;
                     drone.setPatrolling(!drone.isPatrolling());
                     return true;
-                } else {
-                    this.setDroneUUID(null);
-                    return false;
                 }
             }
+            this.setDroneUUID(Util.NIL_UUID);
         }
         return false;
-    }
-
-    default boolean isDeployed() {
-        return this.getDroneNBT().isEmpty() && this.getDroneUUID() != null;
     }
 
     default boolean attachDrone(CompoundNBT droneNBT) {

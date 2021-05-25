@@ -1,9 +1,7 @@
 package com.infamous.captain_america.common.entity;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.IDroneController;
-import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.infamous.captain_america.server.ai.goals.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -42,12 +40,6 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     protected static final DataParameter<Optional<UUID>> DATA_OWNER_UUID = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.OPTIONAL_UUID);
     private boolean patrolling;
     private boolean recalled;
-
-    public RedwingEntity(LivingEntity player){
-        this(EntityTypeRegistry.REDWING.get(), player.level);
-        this.setPos(player.getX(), player.getY() + 2.0D, player.getZ());
-        this.own(player);
-    }
 
     public RedwingEntity(EntityType<? extends RedwingEntity> type, World world) {
         super(type, world);

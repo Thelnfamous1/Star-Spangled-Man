@@ -2,12 +2,17 @@ package com.infamous.captain_america.common.capability;
 
 import com.infamous.captain_america.common.entity.IDrone;
 import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Util;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RedwingController implements IDroneController{
@@ -18,7 +23,7 @@ public class RedwingController implements IDroneController{
 
     public RedwingController(){
         this.droneNBT = new CompoundNBT();
-        this.droneUUID = null;
+        this.droneUUID = Util.NIL_UUID;
         this.droneRecalled = false;
         this.dronePatrolling = false;
     }
@@ -38,7 +43,6 @@ public class RedwingController implements IDroneController{
         return this.droneNBT;
     }
 
-    @Nullable
     @Override
     public UUID getDroneUUID() {
         return this.droneUUID;
@@ -50,8 +54,20 @@ public class RedwingController implements IDroneController{
     }
 
     @Override
-    public <T extends MobEntity & IDrone> T createDrone(LivingEntity controller) {
-        return (T) new RedwingEntity(controller);
+    public <T extends Entity & IDrone> Optional<T> createDrone(LivingEntity controller) {
+        ItemStack chestStack = controller.getItemBySlot(EXO7FalconItem.SLOT);
+        Optional<EntityType<? extends RedwingEntity>> optionalEntityType =
+                EXO7FalconItem.getRedwingType(chestStack);
+        if(optionalEntityType.isPresent()){
+            RedwingEntity redwingEntity = optionalEntityType.get().create(controller.level);
+            if (redwingEntity != null) {
+                redwingEntity.setPos(controller.getX(), controller.getEyeY(), controller.getZ());
+                redwingEntity.own(controller);
+                //noinspection unchecked
+                return (Optional<T>) Optional.of(redwingEntity);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

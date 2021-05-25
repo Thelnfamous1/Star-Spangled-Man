@@ -2,6 +2,7 @@ package com.infamous.captain_america.client.renderer;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -15,14 +16,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RedwingRenderer extends MobRenderer<RedwingEntity, PhantomModel<RedwingEntity>> {
-   private static final ResourceLocation REDWING_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/redwing.png");
+   private static final ResourceLocation FALCON_REDWING_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_redwing.png");
+   private static final ResourceLocation CAPTAIN_AMERICA_REDWING_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_redwing.png");
 
    public RedwingRenderer(EntityRendererManager entityRendererManager) {
       super(entityRendererManager, new PhantomModel<>(), 0.75F);
    }
 
-   public ResourceLocation getTextureLocation(RedwingEntity p_110775_1_) {
-      return REDWING_LOCATION;
+   public ResourceLocation getTextureLocation(RedwingEntity redwingEntity) {
+      if(redwingEntity.getType() == EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get()){
+         return CAPTAIN_AMERICA_REDWING_LOCATION;
+      }
+      return FALCON_REDWING_LOCATION;
    }
 
    protected void scale(RedwingEntity redwing, MatrixStack matrixStack, float p_225620_3_) {

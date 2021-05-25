@@ -12,7 +12,9 @@
   "item.captain_america.vibranium_shield": "Vibranium Shield",
   "item.captain_america.captain_america_shield": "Captain America's Shield",
 
-  "entity.captain_america.redwing": "Redwing",
+  "entity.captain_america.falcon_redwing": "Falcon's Redwing",
+  "entity.captain_america.captain_america_redwing": "Captain America's Redwing",
+
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
 
@@ -32,7 +34,8 @@
   "key.toggleRedwingPatrol": "Toggle Redwing Patrol",
 
   "key.categories.capTech": "Captain America Tech",
-  "key.throwVibraniumShield": "Throw Vibranium Shield",
+  "key.boomerangThrowShield": "Boomerang-Throw Shield",
+  "key.ricochetThrowShield": "Ricochet-Throw Shield",
 
   "subtitles.flight_boost": "Flight boost"
 }

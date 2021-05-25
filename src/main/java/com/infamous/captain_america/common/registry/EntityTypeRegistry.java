@@ -14,11 +14,19 @@ public class EntityTypeRegistry {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, CaptainAmerica.MODID);
 
-    public static final RegistryObject<EntityType<RedwingEntity>> REDWING = ENTITY_TYPES.register("redwing",
+    public static final RegistryObject<EntityType<? extends RedwingEntity>> FALCON_REDWING = ENTITY_TYPES.register("falcon_redwing",
             () -> EntityType.Builder.<RedwingEntity>of(RedwingEntity::new, EntityClassification.CREATURE)
                     .sized(0.7F, 0.6F)
                     .clientTrackingRange(8)
-                    .build("redwing")
+                    .build("falcon_redwing")
+    );
+
+    public static final RegistryObject<EntityType<? extends RedwingEntity>> CAPTAIN_AMERICA_REDWING = ENTITY_TYPES.register("captain_america_redwing",
+            () -> EntityType.Builder.<RedwingEntity>of(RedwingEntity::new, EntityClassification.CREATURE)
+                    .sized(0.7F, 0.6F)
+                    .fireImmune()
+                    .clientTrackingRange(8)
+                    .build("captain_america_redwing")
     );
 
     public static final RegistryObject<EntityType<VibraniumShieldEntity>> CAPTAIN_AMERICA_SHIELD = ENTITY_TYPES.register("captain_america_shield",
