@@ -24,6 +24,7 @@ public class EntityTypeRegistry {
     public static final RegistryObject<EntityType<VibraniumShieldEntity>> CAPTAIN_AMERICA_SHIELD = ENTITY_TYPES.register("captain_america_shield",
             () -> EntityType.Builder.<VibraniumShieldEntity>of(VibraniumShieldEntity::new, EntityClassification.MISC)
                     .sized(1.0F, 0.25F)
+                    .fireImmune()
                     .clientTrackingRange(4)
                     .updateInterval(10)
                     .build("captain_america_shield")
@@ -32,6 +33,7 @@ public class EntityTypeRegistry {
     public static final RegistryObject<EntityType<VibraniumShieldEntity>> VIBRANIUM_SHIELD = ENTITY_TYPES.register("vibranium_shield",
             () -> EntityType.Builder.<VibraniumShieldEntity>of(VibraniumShieldEntity::new, EntityClassification.MISC)
                     .sized(1.0F, 0.25F)
+                    .fireImmune()
                     .clientTrackingRange(4)
                     .updateInterval(10)
                     .build("vibranium_shield")

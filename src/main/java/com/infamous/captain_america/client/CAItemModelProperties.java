@@ -11,7 +11,7 @@ public class CAItemModelProperties {
     public static void register(){
         CaptainAmerica.LOGGER.info("Registering item model properties!");
 
-        ItemModelsProperties.register(ItemRegistry.FALCONS_WINGSUIT.get(),
+        ItemModelsProperties.register(ItemRegistry.FALCON_WINGSUIT.get(),
                 new ResourceLocation("broken"),
                 (itemStack, clientWorld, livingEntity) -> EXO7FalconItem.isFlightEnabled(itemStack) ? 0.0F : 1.0F);
 

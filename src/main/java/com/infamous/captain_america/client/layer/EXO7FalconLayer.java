@@ -25,7 +25,7 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
 
     @Override
     public ResourceLocation getElytraTexture(ItemStack stack, T entity) {
-        if(stack.getItem() == ItemRegistry.FALCONS_WINGSUIT.get()){
+        if(stack.getItem() == ItemRegistry.FALCON_WINGSUIT.get()){
             return FALCON_WINGSUIT_TEXTURE;
         } else if(stack.getItem() == ItemRegistry.CAPTAIN_AMERICA_WINGSUIT.get()){
             return CAPTAIN_AMERICA_WINGSUIT_TEXTURE;

@@ -15,34 +15,45 @@ import org.lwjgl.glfw.GLFW;
 
 public class CAKeyBinding extends KeyBinding{
 
-    private boolean fired;
-    private final Runnable onFired;
+    private boolean held;
+    private boolean initialPress;
+    private boolean initialRelease;
+
+    private final Runnable onInitialPress;
     private final Runnable onHeld;
+    private final Runnable onInitialRelease;
 
     public CAKeyBinding(String description,
                         IKeyConflictContext keyConflictContext,
                         final InputMappings.Type inputType,
                         final int keyCode,
                         String category,
-                        Runnable onFired,
-                        Runnable onHeld){
+                        Runnable onInitialPress,
+                        Runnable onHeld,
+                        Runnable onInitialRelease){
         super(description, keyConflictContext, inputType, keyCode, category);
-        this.onFired = onFired;
+        this.onInitialPress = onInitialPress;
         this.onHeld = onHeld;
+        this.onInitialRelease = onInitialRelease;
+    }
+
+    public void handleKey(){
+        if(this.initialPress){
+           this.onInitialPress.run();
+        } else if(this.held){
+            this.onHeld.run();
+        } else if(this.initialRelease){
+            this.onInitialRelease.run();
+        }
     }
 
     @Override
     public void setDown(boolean down) {
+        boolean wasDown = this.isDown();
         super.setDown(down);
-        if(!fired && down){
-            fired = true;
-            this.onFired.run();
-        } else{
-            fired = down;
-            if(down){
-                this.onHeld.run();
-            }
-        }
+        this.initialPress = !wasDown && this.isDown();
+        this.held = wasDown && this.isDown();
+        this.initialRelease = wasDown && !this.isDown();
     }
 
     public static final int SPACEBAR_KEYCODE = GLFW.GLFW_KEY_SPACE;
@@ -71,6 +82,8 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.debug("Client player {} wants to hover using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HOVER));
                         }
+                    },
+                    () -> {
                     });
 
     public static final CAKeyBinding keyHaltFlight =
@@ -88,6 +101,8 @@ public class CAKeyBinding extends KeyBinding{
                             FalconFlightHelper.haltFlight(clientPlayer);
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
                         }
+                    },
+                    () -> {
                     },
                     () -> {
                     });
@@ -114,6 +129,8 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.debug("Client player {} wants to boost their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.BOOST_FLIGHT));
                         }
+                    },
+                    () -> {
                     });
 
     public static final CAKeyBinding keyDeployRedwing =
@@ -130,6 +147,8 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.debug("Client player {} wants to deploy their Redwing drone!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CRedwingPacket(CRedwingPacket.Action.DEPLOY));
                         }
+                    },
+                    () -> {
                     },
                     () -> {
                     });
@@ -150,6 +169,8 @@ public class CAKeyBinding extends KeyBinding{
                         }
                     },
                     () -> {
+                    },
+                    () -> {
                     });
 
     public static final CAKeyBinding keyTogglePatrolRedwing =
@@ -168,6 +189,8 @@ public class CAKeyBinding extends KeyBinding{
                         }
                     },
                     () -> {
+                    },
+                    () -> {
                     });
 
     public static final CAKeyBinding keyThrowVibraniumShield =
@@ -184,6 +207,8 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.info("Client player {} wants to throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(CShieldPacket.Action.THROW_SHIELD));
                         }
+                    },
+                    () -> {
                     },
                     () -> {
                     });

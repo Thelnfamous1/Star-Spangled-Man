@@ -14,6 +14,7 @@ public class VibraniumShieldItem extends ShieldItem {
     public VibraniumShieldItem(Properties properties) {
         super(properties
                 .stacksTo(1)
+                .fireResistant()
                 .setISTER(VibraniumShieldItem::getISTER));
     }
 

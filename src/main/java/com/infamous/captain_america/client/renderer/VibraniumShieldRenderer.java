@@ -29,8 +29,11 @@ public class VibraniumShieldRenderer extends EntityRenderer<VibraniumShieldEntit
    public void render(VibraniumShieldEntity vibraniumShield, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225623_6_) {
       matrixStack.pushPose();
       matrixStack.scale(1.0F, -1.0F, -1.0F);
-      matrixStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(p_225623_3_, vibraniumShield.yRotO, vibraniumShield.yRot) - 90.0F));
-      matrixStack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.lerp(p_225623_3_, vibraniumShield.xRotO, vibraniumShield.xRot) + 90.0F));
+      matrixStack.mulPose(Vector3f.XP.rotationDegrees(90));
+      matrixStack.mulPose(Vector3f.ZP.rotationDegrees(90));
+      matrixStack.mulPose(Vector3f.YP.rotationDegrees(vibraniumShield.yRot));
+      //matrixStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(p_225623_3_, vibraniumShield.yRotO, vibraniumShield.yRot) - 90.0F));
+      //matrixStack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.lerp(p_225623_3_, vibraniumShield.xRotO, vibraniumShield.xRot) + 90.0F));
       IVertexBuilder vertexBuilder = net.minecraft.client.renderer.ItemRenderer.getFoilBufferDirect(renderTypeBuffer, this.shieldModel.renderType(this.getTextureLocation(vibraniumShield)), false, vibraniumShield.isFoil());
       this.shieldModel.renderToBuffer(matrixStack, vertexBuilder, p_225623_6_, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
       matrixStack.popPose();
