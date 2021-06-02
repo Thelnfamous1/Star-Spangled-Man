@@ -1,6 +1,11 @@
 package com.infamous.captain_america.common.entity;
 
+import com.google.common.collect.Lists;
+import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
+import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
+import com.infamous.captain_america.server.network.packet.SShieldPacket;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -27,8 +32,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
 
 public class VibraniumShieldEntity2 extends ProjectileEntity {
    private static final DataParameter<Byte> ID_FLAGS = EntityDataManager.defineId(VibraniumShieldEntity2.class, DataSerializers.BYTE);
@@ -57,6 +65,9 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
    private boolean canRecall;
    public int clientSideReturnShieldTickCount;
 
+   private IntOpenHashSet hitIgnoreEntityIds;
+   private List<Entity> hitEntities;
+
    public VibraniumShieldEntity2(EntityType<? extends VibraniumShieldEntity2> entityType, World world) {
       super(entityType, world);
    }
@@ -77,6 +88,11 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
 
    public void setSoundEvent(SoundEvent soundEvent) {
       this.soundEvent = soundEvent;
+   }
+
+   @Override
+   public boolean shouldRender(double x, double y, double z) {
+      return true;
    }
 
    @OnlyIn(Dist.CLIENT)
@@ -315,6 +331,9 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
       if (this.pickup != VibraniumShieldEntity2.PickupStatus.ALLOWED || loyaltyLevel <= 0) {
          ++this.life;
          if (this.life >= MAX_LIFE_TICKS) {
+            if (this.pickup == PickupStatus.ALLOWED) {
+               this.spawnAtLocation(this.getPickupItem(), 0.1F);
+            }
             this.remove();
          }
       }
@@ -326,6 +345,8 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
       Entity hitEntity = entityRTR.getEntity();
       float deltaMoveLength = (float)this.getDeltaMovement().length();
       int damage = MathHelper.ceil(MathHelper.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
+
+      this.handleHitEntities(hitEntity);
 
       if (this.isCritShield()) {
          long critBonus = (long)this.random.nextInt(damage / 2 + 2);
@@ -367,11 +388,25 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
             }
 
             this.doPostHurtEffects(livingHit);
-            /*
-            if (livingHit != owner && livingHit instanceof PlayerEntity && owner instanceof ServerPlayerEntity && !this.isSilent()) {
-               ((ServerPlayerEntity)owner).connection.send(new SChangeGameStatePacket(SChangeGameStatePacket.ARROW_HIT_PLAYER, 0.0F));
+
+            if (livingHit instanceof PlayerEntity && owner instanceof ServerPlayerEntity && !this.isSilent()) {
+               ServerPlayerEntity serverPlayer = (ServerPlayerEntity) owner;
+               NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SShieldPacket(SShieldPacket.Action.SHIELD_HIT_PLAYER));
             }
-             */
+
+            if (this.hitEntities != null) {
+               this.hitEntities.add(livingHit);
+            }
+
+            if (!this.level.isClientSide && owner instanceof ServerPlayerEntity) {
+               ServerPlayerEntity serverPlayer = (ServerPlayerEntity)owner;
+               if (this.hitEntities != null) {
+                  CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, this.hitEntities);
+               } else {
+                  CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, Arrays.asList(livingHit));
+               }
+            }
+
          }
 
       } else {
@@ -408,6 +443,7 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
          this.inGround = true;
          this.setCritShield(false);
          this.setSoundEvent(SoundEvents.SHIELD_BLOCK);
+         this.resetHitEntities();
       } else{
          //TODO: Marker
          this.handleThrowImpact(blockRTR);
@@ -505,6 +541,29 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
       }
    }
 
+   private void handleHitEntities(Entity hitEntity) {
+      if (this.hitIgnoreEntityIds == null) {
+         this.hitIgnoreEntityIds = new IntOpenHashSet(3);
+      }
+
+      if (this.hitEntities == null) {
+         this.hitEntities = Lists.newArrayListWithCapacity(3);
+      }
+
+      this.hitIgnoreEntityIds.add(hitEntity.getId());
+   }
+
+   private void resetHitEntities() {
+      if (this.hitEntities != null) {
+         this.hitEntities.clear();
+      }
+
+      if (this.hitIgnoreEntityIds != null) {
+         this.hitIgnoreEntityIds.clear();
+      }
+
+   }
+
    protected SoundEvent getDefaultHitGroundSoundEvent() {
       return SoundEvents.SHIELD_BLOCK;
    }
@@ -600,7 +659,11 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
                          || this.pickup == VibraniumShieldEntity2.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild
                          || this.isNoPhysics() && this.getOwner() != null && this.getOwner().getUUID() == player.getUUID();
          ItemStack pickupItem = this.getPickupItem();
-         if (canPickUp && !player.inventory.add(pickupItem)) {
+
+         boolean addedToHand = canPickUp
+                 && (this.setShieldInHand(player, Hand.OFF_HAND) || this.setShieldInHand(player, Hand.MAIN_HAND));
+
+         if (canPickUp && !addedToHand && !player.inventory.add(pickupItem)) {
             canPickUp = false;
          }
 
@@ -610,6 +673,14 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
          }
 
       }
+   }
+
+   private boolean setShieldInHand(PlayerEntity player, Hand hand) {
+      if(player.getItemInHand(hand).isEmpty()){
+         player.setItemInHand(hand, this.getPickupItem());
+         return true;
+      }
+      return false;
    }
 
    private Boolean getLeftOwner() {

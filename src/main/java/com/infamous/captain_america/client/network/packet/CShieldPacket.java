@@ -7,32 +7,32 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class CThrowShieldPacket {
+public class CShieldPacket {
     private VibraniumShieldEntity2.ThrowType throwType;
     private int data;
 
-    public CThrowShieldPacket(VibraniumShieldEntity2.ThrowType throwType, int data){
+    public CShieldPacket(VibraniumShieldEntity2.ThrowType throwType, int data){
         this.throwType = throwType;
         this.data = data;
     }
 
-    public CThrowShieldPacket(VibraniumShieldEntity2.ThrowType throwType){
+    public CShieldPacket(VibraniumShieldEntity2.ThrowType throwType){
         this(throwType, 0);
     }
 
-    public static CThrowShieldPacket decodePacket(PacketBuffer packetBuffer){
+    public static CShieldPacket decodePacket(PacketBuffer packetBuffer){
         VibraniumShieldEntity2.ThrowType throwType = packetBuffer.readEnum(VibraniumShieldEntity2.ThrowType.class);
         int data = packetBuffer.readVarInt();
-        return new CThrowShieldPacket(throwType, data);
+        return new CShieldPacket(throwType, data);
     }
 
-    public static void encodePacket(CThrowShieldPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(CShieldPacket packet, PacketBuffer packetBuffer){
         packetBuffer.writeEnum(packet.throwType);
         packetBuffer.writeVarInt(packet.data);
     }
 
-    public static void handlePacket(CThrowShieldPacket packet, Supplier<NetworkEvent.Context> ctx){
-        ServerNetworkHandler.handleThrowShield(packet, ctx);
+    public static void handlePacket(CShieldPacket packet, Supplier<NetworkEvent.Context> ctx){
+        ServerNetworkHandler.handleShield(packet, ctx);
     }
 
     public VibraniumShieldEntity2.ThrowType getThrowType() {

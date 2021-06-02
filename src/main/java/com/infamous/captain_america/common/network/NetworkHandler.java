@@ -3,8 +3,9 @@ package com.infamous.captain_america.common.network;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.client.network.packet.CRedwingPacket;
-import com.infamous.captain_america.client.network.packet.CThrowShieldPacket;
+import com.infamous.captain_america.client.network.packet.CShieldPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -54,11 +55,19 @@ public final class NetworkHandler {
 
         INSTANCE.registerMessage(
                 getAndIncrementPacketCounter(),
-                CThrowShieldPacket.class,
-                CThrowShieldPacket::encodePacket,
-                CThrowShieldPacket::decodePacket,
-                CThrowShieldPacket::handlePacket,
+                CShieldPacket.class,
+                CShieldPacket::encodePacket,
+                CShieldPacket::decodePacket,
+                CShieldPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        INSTANCE.registerMessage(
+                getAndIncrementPacketCounter(),
+                SShieldPacket.class,
+                SShieldPacket::encodePacket,
+                SShieldPacket::decodePacket,
+                SShieldPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
 
         CaptainAmerica.LOGGER.debug("Finished registering network!");

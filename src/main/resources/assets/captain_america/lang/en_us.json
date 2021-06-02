@@ -37,5 +37,12 @@
   "key.boomerangThrowShield": "Boomerang-Throw Shield",
   "key.ricochetThrowShield": "Ricochet-Throw Shield",
 
-  "subtitles.flight_boost": "Flight boost"
+  "subtitles.flight_boost": "Flight boost",
+
+  "advancements.adventure.ol_faithful.title": "Ol' Faithful",
+  "advancements.adventure.ol_faithful.description": "Throw a vibranium shield",
+  "advancements.adventure.a_star_out_of_the_blue.title": "A Star Out Of The Blue",
+  "advancements.adventure.a_star_out_of_the_blue.description": "Throw a vibranium shield at something",
+  "advancements.adventure.shield_master.title": "Shield Master",
+  "advancements.adventure.shield_master.description": "Hit three unique mobs with one vibranium shield toss"
 }

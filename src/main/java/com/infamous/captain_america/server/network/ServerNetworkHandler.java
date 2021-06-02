@@ -117,7 +117,7 @@ public class ServerNetworkHandler {
         });
     }
 
-    public static void handleThrowShield(CThrowShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handleShield(CShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             ServerPlayerEntity serverPlayer = ctx.get().getSender();
             if(serverPlayer == null){

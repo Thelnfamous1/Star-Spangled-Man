@@ -1,6 +1,7 @@
 package com.infamous.captain_america.common;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerStorage;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.capability.drone_controller.RedwingController;
@@ -13,6 +14,7 @@ import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -23,7 +25,12 @@ public class ModCommonEvents {
     @SubscribeEvent
     public static void setup(final FMLCommonSetupEvent event)
     {
-        NetworkHandler.init();
+        DeferredWorkQueue.runLater(
+                CACriteriaTriggers::init
+        );
+        DeferredWorkQueue.runLater(
+                NetworkHandler::init
+        );
         CapabilityManager.INSTANCE.register(IDroneController.class, new DroneControllerStorage(), RedwingController::new);
         CapabilityManager.INSTANCE.register(IShieldThrower.class, new ShieldThrowerStorage(), ShieldThrower::new);
     }

@@ -1,6 +1,7 @@
 package com.infamous.captain_america.common.item;
 
 import com.infamous.captain_america.client.renderer.VibraniumShieldISTER;
+import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.enchantment.Enchantment;
@@ -9,6 +10,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Hand;
@@ -98,6 +100,12 @@ public class VibraniumShieldItem extends ShieldItem {
                     if(threwShield){
                         ItemStack singletonShield = itemStack.split(1);
                         shieldEntity.setShieldItem(singletonShield);
+
+                        if (thrower instanceof ServerPlayerEntity) {
+                            ServerPlayerEntity serverPlayer = (ServerPlayerEntity)thrower;
+                            CACriteriaTriggers.THREW_SHIELD.trigger(serverPlayer, singletonShield);
+                            serverPlayer.awardStat(Stats.ITEM_USED.get(singletonShield.getItem()));
+                        }
                     }
                 }
 
@@ -109,7 +117,7 @@ public class VibraniumShieldItem extends ShieldItem {
                         SoundCategory.PLAYERS,
                         1.0F,
                         1.0F / (random.nextFloat() * 0.4F + 1.2F) + shieldChargingScale * 0.5F);
-                playerThrower.awardStat(Stats.ITEM_USED.get(this));
+
                 return threwShield;
             }
         }

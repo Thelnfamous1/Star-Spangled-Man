@@ -8,12 +8,10 @@ import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import com.infamous.captain_america.common.util.VibraniumShieldHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.IJumpingMount;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -147,8 +145,7 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if((FalconFlightHelper.canTakeOff(clientPlayer) && canClientFalconFly(clientPlayer))
-                                || FalconFlightHelper.canBoostFlight(clientPlayer)){
+                        if(FalconFlightHelper.canBoostFlight(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to take off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
                         }
@@ -241,7 +238,7 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
-                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity2.ThrowType.BOOMERANG_THROW, shieldCharge));
+                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity2.ThrowType.BOOMERANG_THROW, shieldCharge));
                         }
                     });
     public static final CAKeyBinding keyRicochetThrowShield =
@@ -261,7 +258,7 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
-                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity2.ThrowType.RICOCHET_THROW, shieldCharge));
+                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity2.ThrowType.RICOCHET_THROW, shieldCharge));
                         }
                     });
 
