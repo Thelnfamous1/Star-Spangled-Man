@@ -348,7 +348,9 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
          hitEntity.setSecondsOnFire(5);
       }
 
-      if (hitEntity.hurt(damagesource, (float)damage)) {
+      boolean doHurt = hitEntity != owner && hitEntity.hurt(damagesource, (float) damage);
+
+      if (doHurt) {
          if (hitEntity instanceof LivingEntity) {
             LivingEntity livingHit = (LivingEntity)hitEntity;
 
@@ -372,19 +374,15 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
              */
          }
 
-         this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
       } else {
          hitEntity.setRemainingFireTicks(hitFireTicks);
-         /*
-         double scaleFactor = -1.0D;
-         this.setDeltaMovement(this.getDeltaMovement().scale(scaleFactor));
-         this.yRot += 180.0F;
-         this.yRotO += 180.0F;
-          */
-         //this.checkNotMoving();
+         this.checkNotMoving();
       }
-      //TODO: Marker
-      this.handleThrowImpact(entityRTR);
+
+      if(hitEntity != owner){
+         this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+         this.handleThrowImpact(entityRTR);
+      }
    }
 
    private void checkNotMoving() {
@@ -423,7 +421,7 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
       if(!this.inGround){
          switch (VibraniumShieldEntity2.ThrowType.byOrdinal(this.getThrowTypeData())){
             case BOOMERANG_THROW:
-               this.boomerang(rayTraceResult);
+               this.handleBoomerang(rayTraceResult);
                break;
             case RICOCHET_THROW:
                this.handleRicochet(rayTraceResult);
@@ -432,21 +430,29 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
       }
    }
 
-   private void boomerang(RayTraceResult rayTraceResult) {
-      this.setDeltaMovement(this.getDeltaMovement().scale(-1.0D));
-      this.yRot += 180.0F;
-      this.yRotO += 180.0F;
-
+   private void handleBoomerang(RayTraceResult rayTraceResult) {
       if(rayTraceResult instanceof EntityRayTraceResult){
          Entity entity = ((EntityRayTraceResult) rayTraceResult).getEntity();
-         this.lastHitEntityId = entity.getId();
+         if(this.lastHitEntityId != entity.getId()){
+            this.lastHitEntityId = entity.getId();
+            this.boomerang();
+         }
          this.lastHitBlockState = null;
       }
       else if(rayTraceResult instanceof BlockRayTraceResult){
          BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
-         this.lastHitBlockState = this.level.getBlockState(blockPos);
+         if(this.lastHitBlockState != this.level.getBlockState(blockPos)) {
+            this.lastHitBlockState = this.level.getBlockState(blockPos);
+            this.boomerang();
+         }
          this.lastHitEntityId = -1;
       }
+   }
+
+   private void boomerang() {
+      this.setDeltaMovement(this.getDeltaMovement().scale(-1.0D));
+      this.yRot += 180.0F;
+      this.yRotO += 180.0F;
    }
 
    private void handleRicochet(RayTraceResult rayTraceResult) {
@@ -454,7 +460,6 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
          Entity entity = ((EntityRayTraceResult) rayTraceResult).getEntity();
          if(this.lastHitEntityId != entity.getId()){
             this.lastHitEntityId = entity.getId();
-            //TODO:
             this.ricochetOffEntity(entity);
          }
          this.lastHitBlockState = null;
@@ -462,7 +467,6 @@ public class VibraniumShieldEntity2 extends ProjectileEntity {
          BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
          if(this.lastHitBlockState != this.level.getBlockState(blockPos)){
             this.lastHitBlockState = this.level.getBlockState(blockPos);
-            //TODO:
             this.ricochetOffBlock();
          }
          this.lastHitEntityId = -1;
