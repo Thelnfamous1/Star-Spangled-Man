@@ -3,17 +3,20 @@ package com.infamous.captain_america.server.network;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
-import com.infamous.captain_america.common.capability.IDroneController;
+import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import com.infamous.captain_america.common.util.VibraniumShieldHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ServerNetworkHandler {
@@ -122,8 +125,11 @@ public class ServerNetworkHandler {
             }
             switch (packet.getThrowType()){
                 case BOOMERANG_THROW:{
-                    if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
-                        if(VibraniumShieldHelper.throwShield(serverPlayer, packet.getThrowType())){
+                    if (VibraniumShieldItem.hasVibraniumShield(serverPlayer)) {
+                        Hand shieldHoldingHand = VibraniumShieldItem.getShieldHoldingHand(serverPlayer);
+                        ItemStack heldShield = serverPlayer.getItemInHand(shieldHoldingHand);
+                        Optional<VibraniumShieldItem> optionalShield = VibraniumShieldItem.getShieldItem(heldShield);
+                        if(optionalShield.isPresent() && optionalShield.get().throwShield(heldShield, serverPlayer.level, serverPlayer, packet.getThrowType(), packet.getData())){
                             CaptainAmerica.LOGGER.info("Server player {} has boomerang-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
                         } else{
                             CaptainAmerica.LOGGER.info("Server player {} has failed to boomerang-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
@@ -133,8 +139,11 @@ public class ServerNetworkHandler {
                 }
 
                 case RICOCHET_THROW:{
-                    if (VibraniumShieldHelper.hasVibraniumShield(serverPlayer)) {
-                        if(VibraniumShieldHelper.throwShield(serverPlayer, packet.getThrowType())){
+                    if (VibraniumShieldItem.hasVibraniumShield(serverPlayer)) {
+                        Hand shieldHoldingHand = VibraniumShieldItem.getShieldHoldingHand(serverPlayer);
+                        ItemStack heldShield = serverPlayer.getItemInHand(shieldHoldingHand);
+                        Optional<VibraniumShieldItem> optionalShield = VibraniumShieldItem.getShieldItem(heldShield);
+                        if(optionalShield.isPresent() && optionalShield.get().throwShield(heldShield, serverPlayer.level, serverPlayer, packet.getThrowType(), packet.getData())){
                             CaptainAmerica.LOGGER.info("Server player {} has ricochet-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
                         } else{
                             CaptainAmerica.LOGGER.info("Server player {} has failed to ricochet-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());

@@ -76,14 +76,14 @@ public class ItemRegistry{
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_SHIELD = ITEMS.register(
             "captain_america_shield", () ->
-                    new VibraniumShieldItem(
+                    new VibraniumShieldItem(EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> VIBRANIUM_SHIELD = ITEMS.register(
             "vibranium_shield", () ->
-                    new VibraniumShieldItem(
+                    new VibraniumShieldItem(EntityTypeRegistry.VIBRANIUM_SHIELD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );

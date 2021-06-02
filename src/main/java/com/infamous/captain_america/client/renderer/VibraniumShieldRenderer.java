@@ -1,7 +1,7 @@
 package com.infamous.captain_america.client.renderer;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity;
+import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -11,13 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.model.ShieldModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class VibraniumShieldRenderer extends EntityRenderer<VibraniumShieldEntity> {
+public class VibraniumShieldRenderer extends EntityRenderer<VibraniumShieldEntity2> {
    public static final ResourceLocation VIBRANIUM_SHIELD_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/shield/vibranium_shield.png");
    public static final ResourceLocation CAPTAIN_AMERICA_SHIELD_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/shield/captain_america_shield.png");
    private final ShieldModel shieldModel = new ShieldModel();
@@ -26,7 +25,7 @@ public class VibraniumShieldRenderer extends EntityRenderer<VibraniumShieldEntit
       super(entityRendererManager);
    }
 
-   public void render(VibraniumShieldEntity vibraniumShield, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225623_6_) {
+   public void render(VibraniumShieldEntity2 vibraniumShield, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225623_6_) {
       matrixStack.pushPose();
       matrixStack.scale(1.0F, -1.0F, -1.0F);
       matrixStack.mulPose(Vector3f.XP.rotationDegrees(270));
@@ -40,7 +39,7 @@ public class VibraniumShieldRenderer extends EntityRenderer<VibraniumShieldEntit
       super.render(vibraniumShield, p_225623_2_, p_225623_3_, matrixStack, renderTypeBuffer, p_225623_6_);
    }
 
-   public ResourceLocation getTextureLocation(VibraniumShieldEntity vibraniumShield) {
+   public ResourceLocation getTextureLocation(VibraniumShieldEntity2 vibraniumShield) {
       if(vibraniumShield.getType() == EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD.get()){
          return CAPTAIN_AMERICA_SHIELD_TEXTURE;
       }

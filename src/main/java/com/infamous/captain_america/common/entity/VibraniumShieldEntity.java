@@ -22,6 +22,8 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.network.NetworkHooks;
 
@@ -35,6 +37,7 @@ public class VibraniumShieldEntity extends ThrowableEntity {
 
     private int life;
     private double baseDamage = 2.0D;
+    private int knockback;
     public VibraniumShieldEntity.PickupStatus pickup = PickupStatus.ALLOWED;
 
     @Nullable
@@ -154,6 +157,14 @@ public class VibraniumShieldEntity extends ThrowableEntity {
             float deltaMovementLength = (float)this.getDeltaMovement().length();
             int damage = MathHelper.ceil(MathHelper.clamp((double)deltaMovementLength * this.getBaseDamage(), 0.0D, 2.147483647E9D));
             entity.hurt(DamageSource.thrown(this, this.getOwner()), (float)damage);
+
+            if (this.knockback > 0) {
+                Vector3d knockbackVector = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double)this.knockback * 0.6D);
+                if (knockbackVector.lengthSqr() > 0.0D) {
+                    entity.push(knockbackVector.x, 0.1D, knockbackVector.z);
+                }
+            }
+
             this.handleThrowImpact(entityRayTraceResult);
         }
         this.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 1.0F);
@@ -249,6 +260,14 @@ public class VibraniumShieldEntity extends ThrowableEntity {
         if(VibraniumShieldHelper.checkRicochetEntityWithBlockCheck(this, zMovement, entity)){
             this.setDeltaMovement(deltaMovement.x, deltaMovement.y, -deltaMovement.z);
         }
+    }
+
+    public void setKnockback(int knockback) {
+        this.knockback = knockback;
+    }
+
+    public double getKnockback() {
+        return this.knockback;
     }
 
     public void setBaseDamage(double baseDamage) {
@@ -367,6 +386,20 @@ public class VibraniumShieldEntity extends ThrowableEntity {
         compoundNBT.putBoolean("inGround", this.inGround);
 
 
+    }
+
+    @Override
+    public void shoot(double p_70186_1_, double p_70186_3_, double p_70186_5_, float p_70186_7_, float p_70186_8_) {
+        super.shoot(p_70186_1_, p_70186_3_, p_70186_5_, p_70186_7_, p_70186_8_);
+        this.life = 0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void lerpMotion(double p_70016_1_, double p_70016_3_, double p_70016_5_) {
+        super.lerpMotion(p_70016_1_, p_70016_3_, p_70016_5_);
+
+        this.life = 0;
     }
 
     @Override

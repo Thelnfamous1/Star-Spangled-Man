@@ -1,5 +1,7 @@
-package com.infamous.captain_america.common.capability;
+package com.infamous.captain_america.common.capability.drone_controller;
 
+import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.entity.IDrone;
 import com.infamous.captain_america.common.entity.RedwingEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
@@ -7,15 +9,14 @@ import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Util;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RedwingController implements IDroneController{
+public class RedwingController implements IDroneController {
     private CompoundNBT droneNBT;
     private UUID droneUUID;
     private boolean droneRecalled;
@@ -23,9 +24,17 @@ public class RedwingController implements IDroneController{
 
     public RedwingController(){
         this.droneNBT = new CompoundNBT();
-        this.droneUUID = Util.NIL_UUID;
+        this.droneUUID = null;
         this.droneRecalled = false;
         this.dronePatrolling = false;
+    }
+
+    @Override
+    public void copyValuesFrom(IDroneController droneController) {
+        this.droneNBT = droneController.getDroneNBT();
+        this.droneUUID = droneController.getDroneUUID();
+        this.droneRecalled = droneController.isDroneRecalled();
+        this.dronePatrolling = droneController.isDronePatrolling();
     }
 
     @Override
@@ -34,7 +43,7 @@ public class RedwingController implements IDroneController{
     }
 
     @Override
-    public void setDroneUUID(UUID droneUUID) {
+    public void setDroneUUID(@Nullable UUID droneUUID) {
         this.droneUUID = droneUUID;
     }
 
@@ -43,6 +52,7 @@ public class RedwingController implements IDroneController{
         return this.droneNBT;
     }
 
+    @Nullable
     @Override
     public UUID getDroneUUID() {
         return this.droneUUID;
@@ -55,6 +65,7 @@ public class RedwingController implements IDroneController{
 
     @Override
     public <T extends Entity & IDrone> Optional<T> createDrone(LivingEntity controller) {
+        CaptainAmerica.LOGGER.info("Creating drone!");
         ItemStack chestStack = controller.getItemBySlot(EXO7FalconItem.SLOT);
         Optional<EntityType<? extends RedwingEntity>> optionalEntityType =
                 EXO7FalconItem.getRedwingType(chestStack);
@@ -63,10 +74,12 @@ public class RedwingController implements IDroneController{
             if (redwingEntity != null) {
                 redwingEntity.setPos(controller.getX(), controller.getEyeY(), controller.getZ());
                 redwingEntity.own(controller);
+                CaptainAmerica.LOGGER.info("Created drone!");
                 //noinspection unchecked
                 return (Optional<T>) Optional.of(redwingEntity);
             }
         }
+        CaptainAmerica.LOGGER.info("Failed to create drone!");
         return Optional.empty();
     }
 

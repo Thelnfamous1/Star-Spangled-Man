@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.capability;
+package com.infamous.captain_america.common.capability.drone_controller;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;

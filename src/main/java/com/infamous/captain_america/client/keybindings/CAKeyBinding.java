@@ -2,7 +2,10 @@ package com.infamous.captain_america.client.keybindings;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity;
+import com.infamous.captain_america.common.capability.CapabilityHelper;
+import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
+import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
@@ -10,6 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.IJumpingMount;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
@@ -67,6 +72,29 @@ public class CAKeyBinding extends KeyBinding{
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
+
+    public static final Runnable SHIELD_THROW_ON_INITIAL_PRESS = () -> {
+        ClientPlayerEntity clientPlayer = getClient();
+        if (clientPlayer == null) return;
+        IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
+        if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
+            shieldThrowerCap.setShieldChargingTicks(0);
+            shieldThrowerCap.setShieldChargingScale(0.0F);
+        }
+    };
+    public static final Runnable SHIELD_THROW_ON_HELD = () -> {
+        ClientPlayerEntity clientPlayer = getClient();
+        if (clientPlayer == null) return;
+        IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
+        if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
+            shieldThrowerCap.addShieldChargingTicks(1);
+            if (shieldThrowerCap.getShieldChargingTicks() < 10) {
+                shieldThrowerCap.setShieldChargingScale((float) shieldThrowerCap.getShieldChargingTicks() * 0.1F);
+            } else {
+                shieldThrowerCap.setShieldChargingScale(0.8F + 2.0F / (float) (shieldThrowerCap.getShieldChargingTicks() - 9) * 0.1F);
+            }
+        }
+    };
 
     public static final CAKeyBinding keyHover =
             new CAKeyBinding(
@@ -203,19 +231,19 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     V_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
+                    SHIELD_THROW_ON_INITIAL_PRESS,
+                    SHIELD_THROW_ON_HELD,
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if(VibraniumShieldHelper.hasVibraniumShield(clientPlayer)){
+                        IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
+                        if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity.ThrowType.BOOMERANG_THROW));
+                            shieldThrowerCap.setShieldChargingTicks(-10);
+                            int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
+                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity2.ThrowType.BOOMERANG_THROW, shieldCharge));
                         }
-                    },
-                    () -> {
-                    },
-                    () -> {
                     });
-
     public static final CAKeyBinding keyRicochetThrowShield =
             new CAKeyBinding(
                     "key.ricochetThrowShield",
@@ -223,17 +251,18 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     C_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
+                    SHIELD_THROW_ON_INITIAL_PRESS,
+                    SHIELD_THROW_ON_HELD,
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if(VibraniumShieldHelper.hasVibraniumShield(clientPlayer)){
+                        IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
+                        if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity.ThrowType.RICOCHET_THROW));
+                            shieldThrowerCap.setShieldChargingTicks(-10);
+                            int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
+                            NetworkHandler.INSTANCE.sendToServer(new CThrowShieldPacket(VibraniumShieldEntity2.ThrowType.RICOCHET_THROW, shieldCharge));
                         }
-                    },
-                    () -> {
-                    },
-                    () -> {
                     });
 
     private static ClientPlayerEntity getClient() {

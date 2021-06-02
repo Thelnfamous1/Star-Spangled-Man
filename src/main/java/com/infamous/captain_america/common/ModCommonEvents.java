@@ -1,9 +1,12 @@
 package com.infamous.captain_america.common;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.capability.RedwingController;
-import com.infamous.captain_america.common.capability.DroneControllerStorage;
-import com.infamous.captain_america.common.capability.IDroneController;
+import com.infamous.captain_america.common.capability.drone_controller.DroneControllerStorage;
+import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.drone_controller.RedwingController;
+import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
+import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrower;
+import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerStorage;
 import com.infamous.captain_america.common.entity.RedwingEntity;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
@@ -22,6 +25,7 @@ public class ModCommonEvents {
     {
         NetworkHandler.init();
         CapabilityManager.INSTANCE.register(IDroneController.class, new DroneControllerStorage(), RedwingController::new);
+        CapabilityManager.INSTANCE.register(IShieldThrower.class, new ShieldThrowerStorage(), ShieldThrower::new);
     }
 
     @SubscribeEvent

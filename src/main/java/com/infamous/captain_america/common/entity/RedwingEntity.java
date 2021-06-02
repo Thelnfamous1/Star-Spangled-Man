@@ -1,7 +1,7 @@
 package com.infamous.captain_america.common.entity;
 
 import com.infamous.captain_america.common.capability.CapabilityHelper;
-import com.infamous.captain_america.common.capability.IDroneController;
+import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.server.ai.goals.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
