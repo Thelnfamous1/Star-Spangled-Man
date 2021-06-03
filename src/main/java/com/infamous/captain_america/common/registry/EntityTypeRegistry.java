@@ -2,7 +2,7 @@ package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
-import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -30,8 +30,8 @@ public class EntityTypeRegistry {
                     .build("captain_america_redwing")
     );
 
-    public static final RegistryObject<EntityType<? extends VibraniumShieldEntity2>> CAPTAIN_AMERICA_SHIELD = ENTITY_TYPES.register("captain_america_shield",
-            () -> EntityType.Builder.<VibraniumShieldEntity2>of(VibraniumShieldEntity2::new, EntityClassification.MISC)
+    public static final RegistryObject<EntityType<? extends VibraniumShieldEntity>> CAPTAIN_AMERICA_SHIELD = ENTITY_TYPES.register("captain_america_shield",
+            () -> EntityType.Builder.<VibraniumShieldEntity>of(VibraniumShieldEntity::new, EntityClassification.MISC)
                     .sized(1.0F, 0.25F)
                     .fireImmune()
                     .clientTrackingRange(4)
@@ -39,8 +39,8 @@ public class EntityTypeRegistry {
                     .build("captain_america_shield")
     );
 
-    public static final RegistryObject<EntityType<? extends VibraniumShieldEntity2>> VIBRANIUM_SHIELD = ENTITY_TYPES.register("vibranium_shield",
-            () -> EntityType.Builder.<VibraniumShieldEntity2>of(VibraniumShieldEntity2::new, EntityClassification.MISC)
+    public static final RegistryObject<EntityType<? extends VibraniumShieldEntity>> VIBRANIUM_SHIELD = ENTITY_TYPES.register("vibranium_shield",
+            () -> EntityType.Builder.<VibraniumShieldEntity>of(VibraniumShieldEntity::new, EntityClassification.MISC)
                     .sized(1.0F, 0.25F)
                     .fireImmune()
                     .clientTrackingRange(4)

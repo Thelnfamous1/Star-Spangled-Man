@@ -1,6 +1,6 @@
 package com.infamous.captain_america.common.util;
 
-import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.play.server.SCollectItemPacket;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class VibraniumShieldHelper {
 
     public static void take(LivingEntity pickerUpper, Entity pickingUp, int pickUpAmount) {
-        if (!pickingUp.removed && !pickerUpper.level.isClientSide && (pickingUp instanceof VibraniumShieldEntity2)) {
+        if (!pickingUp.removed && !pickerUpper.level.isClientSide && (pickingUp instanceof VibraniumShieldEntity)) {
             ((ServerWorld)pickerUpper.level).getChunkSource().broadcast(pickingUp, new SCollectItemPacket(pickingUp.getId(), pickerUpper.getId(), pickUpAmount));
         }
 

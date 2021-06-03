@@ -1,8 +1,6 @@
 package com.infamous.captain_america.common.advancements.criterion;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 
 import java.util.*;
@@ -13,7 +11,6 @@ import net.minecraft.advancements.criterion.CriterionInstance;
 import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.loot.ConditionArrayParser;
 import net.minecraft.loot.ConditionArraySerializer;
@@ -31,30 +28,40 @@ public class HitByShieldTrigger extends AbstractCriterionTrigger<HitByShieldTrig
    @Override
    public HitByShieldTrigger.Instance createInstance(JsonObject jsonObject, EntityPredicate.AndPredicate andPredicate, ConditionArrayParser conditionArrayParser) {
       EntityPredicate.AndPredicate[] aentitypredicate$andpredicate = EntityPredicate.AndPredicate.fromJsonArray(jsonObject, "victims", conditionArrayParser);
-      MinMaxBounds.IntBound minmaxbounds$intbound = MinMaxBounds.IntBound.fromJson(jsonObject.get("unique_entity_types"));
+      MinMaxBounds.IntBound minmaxbounds$intbound = MinMaxBounds.IntBound.fromJson(jsonObject.get("unique_entities"));
       return new HitByShieldTrigger.Instance(andPredicate, aentitypredicate$andpredicate, minmaxbounds$intbound);
    }
 
+   /*
+    Non-javadoc comment: Original vanilla implementation of KilledByCrossbow Trigger
+    requires that all the hit entities be of different types, rather than just simply unique
+    mobs differentiated by their network ids. I found that to be an unnecessary requirement
+    for this trigger, so I changed it below.
+    */
    public void trigger(ServerPlayerEntity serverPlayer, Collection<Entity> entityCollection) {
       List<LootContext> list = Lists.newArrayList();
-      Set<EntityType<?>> set = Sets.newHashSet();
+      //Set<EntityType<?>> set = Sets.newHashSet();
 
       for(Entity entity : entityCollection) {
-         set.add(entity.getType());
+         //set.add(entity.getType());
          list.add(EntityPredicate.createContext(serverPlayer, entity));
       }
 
-      this.trigger(serverPlayer, (instance) -> instance.matches(list, set.size()));
+      this.trigger(serverPlayer, (instance) -> {
+         //int hitEntityCount = set.size();
+         int hitEntityCount = list.size();
+         return instance.matches(list, hitEntityCount);
+      });
    }
 
    public static class Instance extends CriterionInstance {
       private final EntityPredicate.AndPredicate[] victims;
-      private final MinMaxBounds.IntBound uniqueEntityTypes;
+      private final MinMaxBounds.IntBound uniqueEntities;
 
       public Instance(EntityPredicate.AndPredicate andPredicate, EntityPredicate.AndPredicate[] andPredicates, MinMaxBounds.IntBound minMaxBounds) {
          super(HitByShieldTrigger.ID, andPredicate);
          this.victims = andPredicates;
-         this.uniqueEntityTypes = minMaxBounds;
+         this.uniqueEntities = minMaxBounds;
       }
 
       public static HitByShieldTrigger.Instance shieldHit(EntityPredicate.Builder... builders) {
@@ -96,14 +103,14 @@ public class HitByShieldTrigger extends AbstractCriterionTrigger<HitByShieldTrig
             }
          }
 
-         return this.uniqueEntityTypes.matches(value);
+         return this.uniqueEntities.matches(value);
       }
 
       @Override
       public JsonObject serializeToJson(ConditionArraySerializer serializer) {
          JsonObject jsonobject = super.serializeToJson(serializer);
          jsonobject.add("victims", EntityPredicate.AndPredicate.toJson(this.victims, serializer));
-         jsonobject.add("unique_entity_types", this.uniqueEntityTypes.serializeToJson());
+         jsonobject.add("unique_entities", this.uniqueEntities.serializeToJson());
          return jsonobject;
       }
    }

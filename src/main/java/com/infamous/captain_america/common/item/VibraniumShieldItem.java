@@ -2,7 +2,7 @@ package com.infamous.captain_america.common.item;
 
 import com.infamous.captain_america.client.renderer.VibraniumShieldISTER;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
-import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -36,9 +36,9 @@ public class VibraniumShieldItem extends ShieldItem {
                     || enchantment == Enchantments.PUNCH_ARROWS
                     || enchantment == Enchantments.LOYALTY;
 
-    private final Supplier<EntityType<? extends VibraniumShieldEntity2>> registeredShieldType;
+    private final Supplier<EntityType<? extends VibraniumShieldEntity>> registeredShieldType;
 
-    public VibraniumShieldItem(Supplier<EntityType<? extends VibraniumShieldEntity2>> registeredShieldType,
+    public VibraniumShieldItem(Supplier<EntityType<? extends VibraniumShieldEntity>> registeredShieldType,
                                Properties properties) {
         super(properties
                 .stacksTo(1)
@@ -47,7 +47,7 @@ public class VibraniumShieldItem extends ShieldItem {
         this.registeredShieldType = registeredShieldType;
     }
 
-    public boolean throwShield(ItemStack itemStack, World world, LivingEntity thrower, VibraniumShieldEntity2.ThrowType throwType, int shieldCharge) {
+    public boolean throwShield(ItemStack itemStack, World world, LivingEntity thrower, VibraniumShieldEntity.ThrowType throwType, int shieldCharge) {
         if (thrower instanceof PlayerEntity) {
             PlayerEntity playerThrower = (PlayerEntity)thrower;
 
@@ -57,11 +57,11 @@ public class VibraniumShieldItem extends ShieldItem {
                 boolean threwShield = false;
                 if (!world.isClientSide) {
 
-                    Optional<? extends VibraniumShieldEntity2> optionalShieldEntity =
+                    Optional<? extends VibraniumShieldEntity> optionalShieldEntity =
                             createShield(world, itemStack, playerThrower, throwType);
                     if(!optionalShieldEntity.isPresent()) return false;
 
-                    VibraniumShieldEntity2 shieldEntity = optionalShieldEntity.get();
+                    VibraniumShieldEntity shieldEntity = optionalShieldEntity.get();
 
                     float offset = 0.0F;
                     Vector3d upVector = thrower.getUpVector(1.0F);
@@ -93,7 +93,7 @@ public class VibraniumShieldItem extends ShieldItem {
                     }
 
                     if (playerThrower.abilities.instabuild) {
-                        shieldEntity.pickup = VibraniumShieldEntity2.PickupStatus.CREATIVE_ONLY;
+                        shieldEntity.pickup = VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY;
                     }
 
                     threwShield = world.addFreshEntity(shieldEntity);
@@ -140,16 +140,16 @@ public class VibraniumShieldItem extends ShieldItem {
         return SHIELD_PREDICATE.test(living.getMainHandItem().getItem()) ? Hand.MAIN_HAND : Hand.OFF_HAND;
     }
 
-    public static Optional<? extends VibraniumShieldEntity2> createShield(World world, ItemStack stack, LivingEntity thrower, VibraniumShieldEntity2.ThrowType throwType){
-        Optional<EntityType<? extends VibraniumShieldEntity2>> shieldType = getShieldType(stack);
+    public static Optional<? extends VibraniumShieldEntity> createShield(World world, ItemStack stack, LivingEntity thrower, VibraniumShieldEntity.ThrowType throwType){
+        Optional<EntityType<? extends VibraniumShieldEntity>> shieldType = getShieldType(stack);
         if(shieldType.isPresent()){
-            VibraniumShieldEntity2 shieldEntity = new VibraniumShieldEntity2(shieldType.get(), thrower, world, throwType);
+            VibraniumShieldEntity shieldEntity = new VibraniumShieldEntity(shieldType.get(), thrower, world, throwType);
             return Optional.of(shieldEntity);
         }
         return Optional.empty();
     }
 
-    public static Optional<EntityType<? extends VibraniumShieldEntity2>> getShieldType(ItemStack stack){
+    public static Optional<EntityType<? extends VibraniumShieldEntity>> getShieldType(ItemStack stack){
         Item item = stack.getItem();
         if(item instanceof VibraniumShieldItem){
             VibraniumShieldItem shieldItem = (VibraniumShieldItem) item;
@@ -158,7 +158,7 @@ public class VibraniumShieldItem extends ShieldItem {
         else return Optional.empty();
     }
 
-    public EntityType<? extends VibraniumShieldEntity2> getShieldType(){
+    public EntityType<? extends VibraniumShieldEntity> getShieldType(){
         return this.registeredShieldType.get();
     }
 

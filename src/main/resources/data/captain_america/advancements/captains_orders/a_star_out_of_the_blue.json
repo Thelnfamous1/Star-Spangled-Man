@@ -1,15 +1,15 @@
 {
-  "parent": "minecraft:adventure/kill_a_mob",
+  "parent": "captain_america:captains_orders/ol_faithful",
   "display": {
     "icon": {
       "item": "captain_america:captain_america_shield",
       "nbt": "{Damage:0}"
     },
     "title": {
-      "translate": "advancements.adventure.a_star_out_of_the_blue.title"
+      "translate": "advancements.captain_america.captains_orders.a_star_out_of_the_blue.title"
     },
     "description": {
-      "translate": "advancements.adventure.a_star_out_of_the_blue.description"
+      "translate": "advancements.captain_america.captains_orders.a_star_out_of_the_blue.description"
     },
     "frame": "task",
     "show_toast": true,

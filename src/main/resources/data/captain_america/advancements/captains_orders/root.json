@@ -1,0 +1,43 @@
+{
+  "display": {
+    "icon": {
+      "item": "captain_america:captain_america_shield",
+      "nbt": "{Damage:0}"
+    },
+    "title": {
+      "translate": "advancements.captain_america.captains_orders.root.title"
+    },
+    "description": {
+      "translate": "advancements.captain_america.captains_orders.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+  },
+  "criteria": {
+    "vibranium_shield": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "item": {
+          "item": "captain_america:vibranium_shield"
+        }
+      }
+    },
+    "captain_america_shield": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "item": {
+          "item": "captain_america:captain_america_shield"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "vibranium_shield",
+      "captain_america_shield"
+    ]
+  ]
+}

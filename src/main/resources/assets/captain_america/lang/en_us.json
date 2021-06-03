@@ -28,7 +28,7 @@
   "action.redwing.patrolOn": "Redwing is now patrolling!",
   "action.redwing.patrolOff": "Redwing is no longer patrolling!",
 
-  "key.categories.falconTech": "Falcon Tech",
+  "key.categories.falconTech": "Falcon Techniques",
   "key.hover": "Hover",
   "key.toggleFlight": "Toggle Flight",
   "key.haltFlight": "Halt Flight",
@@ -37,16 +37,23 @@
   "key.toggleRedwingRecall": "Toggle Redwing Recall",
   "key.toggleRedwingPatrol": "Toggle Redwing Patrol",
 
-  "key.categories.capTech": "Captain America Tech",
+  "key.categories.capTech": "Captain America Techniques",
   "key.boomerangThrowShield": "Boomerang-Throw Shield",
   "key.ricochetThrowShield": "Ricochet-Throw Shield",
 
   "subtitles.flight_boost": "Flight boost",
 
-  "advancements.adventure.ol_faithful.title": "Ol' Faithful",
-  "advancements.adventure.ol_faithful.description": "Throw a vibranium shield",
-  "advancements.adventure.a_star_out_of_the_blue.title": "A Star Out Of The Blue",
-  "advancements.adventure.a_star_out_of_the_blue.description": "Throw a vibranium shield at something",
-  "advancements.adventure.captain_quarterback.title": "Captain Quarterback",
-  "advancements.adventure.captain_quarterback.description": "Hit three unique mobs with one vibranium shield toss"
+  "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
+  "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",
+  "advancements.captain_america.captains_orders.ol_faithful.title": "Ol' Faithful",
+  "advancements.captain_america.captains_orders.ol_faithful.description": "Throw a vibranium shield",
+  "advancements.captain_america.captains_orders.a_star_out_of_the_blue.title": "A Star Out Of The Blue",
+  "advancements.captain_america.captains_orders.a_star_out_of_the_blue.description": "Throw a vibranium shield at something",
+  "advancements.captain_america.captains_orders.righteous_ricochet.title": "Righteous Ricochet",
+  "advancements.captain_america.captains_orders.righteous_ricochet.description": "Hit three different mobs with one vibranium shield toss",
+
+  "advancements.captain_america.air_superiority.root.title": "Air Superiority",
+  "advancements.captain_america.air_superiority.root.description": "Take to the skies as the Falcon",
+  "advancements.captain_america.air_superiority.bird_costume.title": "Bird Costume",
+  "advancements.captain_america.air_superiority.bird_costume.description": "Get a full suit of Falcon's armor"
 }

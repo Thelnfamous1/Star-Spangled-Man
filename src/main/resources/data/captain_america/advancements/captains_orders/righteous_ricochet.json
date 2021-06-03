@@ -1,35 +1,35 @@
 {
-  "parent": "captain_america:adventure/a_star_out_of_the_blue",
+  "parent": "captain_america:captains_orders/a_star_out_of_the_blue",
   "display": {
     "icon": {
       "item": "captain_america:captain_america_shield",
       "nbt": "{Damage:0}"
     },
     "title": {
-      "translate": "advancements.adventure.captain_quarterback.title"
+      "translate": "advancements.captain_america.captains_orders.righteous_ricochet.title"
     },
     "description": {
-      "translate": "advancements.adventure.captain_quarterback.description"
+      "translate": "advancements.captain_america.captains_orders.righteous_ricochet.description"
     },
     "frame": "challenge",
     "show_toast": true,
     "announce_to_chat": true,
-    "hidden": true
+    "hidden": false
   },
   "rewards": {
     "experience": 85
   },
   "criteria": {
-    "captain_quarterback": {
+    "righteous_ricochet": {
       "trigger": "captain_america:hit_by_shield",
       "conditions": {
-        "unique_entity_types": 3
+        "unique_entities": 3
       }
     }
   },
   "requirements": [
     [
-      "captain_quarterback"
+      "righteous_ricochet"
     ]
   ]
 }

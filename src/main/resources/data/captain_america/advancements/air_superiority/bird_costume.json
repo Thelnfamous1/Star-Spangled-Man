@@ -1,0 +1,48 @@
+{
+  "parent": "captain_america:air_superiority/root",
+  "display": {
+    "icon": {
+      "item": "captain_america:falcon_wingsuit",
+      "nbt": "{Damage:0}"
+    },
+    "title": {
+      "translate": "advancements.captain_america.air_superiority.bird_costume.title"
+    },
+    "description": {
+      "translate": "advancements.captain_america.air_superiority.bird_costume.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "rewards": {
+    "experience": 100
+  },
+  "criteria": {
+    "falcon_armor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "captain_america:falcon_goggles"
+          },
+          {
+            "item": "captain_america:falcon_wingsuit"
+          },
+          {
+            "item": "captain_america:falcon_leggings"
+          },
+          {
+            "item": "captain_america:falcon_greaves"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "falcon_armor"
+    ]
+  ]
+}

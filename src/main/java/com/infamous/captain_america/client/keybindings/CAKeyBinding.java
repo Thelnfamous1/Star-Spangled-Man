@@ -4,7 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
-import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -263,7 +263,7 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
-                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity2.ThrowType.BOOMERANG_THROW, shieldCharge));
+                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.BOOMERANG_THROW, shieldCharge));
                         }
                     });
     public static final CAKeyBinding keyRicochetThrowShield =
@@ -283,7 +283,7 @@ public class CAKeyBinding extends KeyBinding{
                             CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
-                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity2.ThrowType.RICOCHET_THROW, shieldCharge));
+                            NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.RICOCHET_THROW, shieldCharge));
                         }
                     });
 
