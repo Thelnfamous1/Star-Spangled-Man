@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.infamous.captain_america.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "refmap": "captain_america.refmap.json",
+  "mixins": [
+    "PlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

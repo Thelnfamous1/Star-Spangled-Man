@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.entity;
+package com.infamous.captain_america.common.entity.drone;
 
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;

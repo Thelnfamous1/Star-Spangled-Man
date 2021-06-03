@@ -18,6 +18,9 @@
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
 
+  "action.falcon.flightOn": "Activated Falcon wings!",
+  "action.falcon.flightOff": "Deactivated Falcon wings!",
+
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
   "action.redwing.recallOn": "Redwing has been recalled!",
@@ -27,6 +30,7 @@
 
   "key.categories.falconTech": "Falcon Tech",
   "key.hover": "Hover",
+  "key.toggleFlight": "Toggle Flight",
   "key.haltFlight": "Halt Flight",
   "key.boostFlight": "Boost Flight",
   "key.deployRedwing": "Deploy Redwing",
@@ -43,6 +47,6 @@
   "advancements.adventure.ol_faithful.description": "Throw a vibranium shield",
   "advancements.adventure.a_star_out_of_the_blue.title": "A Star Out Of The Blue",
   "advancements.adventure.a_star_out_of_the_blue.description": "Throw a vibranium shield at something",
-  "advancements.adventure.shield_master.title": "Shield Master",
-  "advancements.adventure.shield_master.description": "Hit three unique mobs with one vibranium shield toss"
+  "advancements.adventure.captain_quarterback.title": "Captain Quarterback",
+  "advancements.adventure.captain_quarterback.description": "Hit three unique mobs with one vibranium shield toss"
 }

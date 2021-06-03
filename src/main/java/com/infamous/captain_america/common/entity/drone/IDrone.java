@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.entity;
+package com.infamous.captain_america.common.entity.drone;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.TameableEntity;
@@ -58,7 +58,7 @@ public interface IDrone {
     default boolean wantsToAttack(LivingEntity target, LivingEntity owner) {
         if (target instanceof WolfEntity) {
             WolfEntity wolfentity = (WolfEntity)target;
-            return !wolfentity.isTame() || wolfentity.getOwner() != target;
+            return !wolfentity.isTame() || wolfentity.getOwner() != owner;
         } else if (target instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).canHarmPlayer((PlayerEntity)target)) {
             return false;
         } else if (target instanceof AbstractHorseEntity && ((AbstractHorseEntity)target).isTamed()) {

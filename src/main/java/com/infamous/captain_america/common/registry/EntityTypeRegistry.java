@@ -1,8 +1,8 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.entity.RedwingEntity;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.drone.RedwingEntity;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -17,6 +17,7 @@ public class EntityTypeRegistry {
     public static final RegistryObject<EntityType<? extends RedwingEntity>> FALCON_REDWING = ENTITY_TYPES.register("falcon_redwing",
             () -> EntityType.Builder.<RedwingEntity>of(RedwingEntity::new, EntityClassification.CREATURE)
                     .sized(0.7F, 0.6F)
+                    .fireImmune()
                     .clientTrackingRange(8)
                     .build("falcon_redwing")
     );

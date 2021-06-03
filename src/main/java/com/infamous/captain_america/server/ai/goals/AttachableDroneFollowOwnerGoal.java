@@ -1,7 +1,7 @@
 package com.infamous.captain_america.server.ai.goals;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.entity.IAttachableDrone;
+import com.infamous.captain_america.common.entity.drone.IAttachableDrone;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Util;

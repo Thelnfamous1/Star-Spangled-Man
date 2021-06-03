@@ -6,10 +6,10 @@
       "nbt": "{Damage:0}"
     },
     "title": {
-      "translate": "advancements.adventure.shield_master.title"
+      "translate": "advancements.adventure.captain_quarterback.title"
     },
     "description": {
-      "translate": "advancements.adventure.shield_master.description"
+      "translate": "advancements.adventure.captain_quarterback.description"
     },
     "frame": "challenge",
     "show_toast": true,
@@ -20,7 +20,7 @@
     "experience": 85
   },
   "criteria": {
-    "shield_master": {
+    "captain_quarterback": {
       "trigger": "captain_america:hit_by_shield",
       "conditions": {
         "unique_entity_types": 3
@@ -29,7 +29,7 @@
   },
   "requirements": [
     [
-      "shield_master"
+      "captain_quarterback"
     ]
   ]
 }

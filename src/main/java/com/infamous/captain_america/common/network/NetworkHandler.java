@@ -2,7 +2,7 @@ package com.infamous.captain_america.common.network;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
-import com.infamous.captain_america.client.network.packet.CRedwingPacket;
+import com.infamous.captain_america.client.network.packet.CDronePacket;
 import com.infamous.captain_america.client.network.packet.CShieldPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
@@ -30,7 +30,7 @@ public final class NetworkHandler {
         CaptainAmerica.LOGGER.debug("Registering network");
 
         INSTANCE.registerMessage(
-                getAndIncrementPacketCounter(),
+                incrementAndGetPacketCounter(),
                 CFlightPacket.class,
                 CFlightPacket::encodePacket,
                 CFlightPacket::decodePacket,
@@ -38,7 +38,7 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
-                getAndIncrementPacketCounter(),
+                incrementAndGetPacketCounter(),
                 SFlightPacket.class,
                 SFlightPacket::encodePacket,
                 SFlightPacket::decodePacket,
@@ -46,15 +46,15 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         INSTANCE.registerMessage(
-                getAndIncrementPacketCounter(),
-                CRedwingPacket.class,
-                CRedwingPacket::encodePacket,
-                CRedwingPacket::decodePacket,
-                CRedwingPacket::handlePacket,
+                incrementAndGetPacketCounter(),
+                CDronePacket.class,
+                CDronePacket::encodePacket,
+                CDronePacket::decodePacket,
+                CDronePacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
-                getAndIncrementPacketCounter(),
+                incrementAndGetPacketCounter(),
                 CShieldPacket.class,
                 CShieldPacket::encodePacket,
                 CShieldPacket::decodePacket,
@@ -62,7 +62,7 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         INSTANCE.registerMessage(
-                getAndIncrementPacketCounter(),
+                incrementAndGetPacketCounter(),
                 SShieldPacket.class,
                 SShieldPacket::encodePacket,
                 SShieldPacket::decodePacket,
@@ -73,7 +73,7 @@ public final class NetworkHandler {
         CaptainAmerica.LOGGER.debug("Finished registering network!");
     }
 
-    public static int getAndIncrementPacketCounter() {
+    public static int incrementAndGetPacketCounter() {
         return PACKET_COUNTER++;
     }
 

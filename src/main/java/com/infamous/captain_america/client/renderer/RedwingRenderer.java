@@ -1,14 +1,12 @@
 package com.infamous.captain_america.client.renderer;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.PhantomEyesLayer;
 import net.minecraft.client.renderer.entity.model.PhantomModel;
-import net.minecraft.entity.monster.PhantomEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;

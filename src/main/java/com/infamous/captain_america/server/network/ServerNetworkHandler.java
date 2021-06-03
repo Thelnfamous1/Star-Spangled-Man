@@ -4,6 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -28,8 +29,20 @@ public class ServerNetworkHandler {
                 return;
             }
             switch (packet.getAction()){
+                case TOGGLE_FLIGHT:
+                    if (FalconFlightHelper.hasEXO7Falcon(serverPlayer)) {
+                        boolean toggledTo = FalconFlightHelper.toggleEXO7Falcon(serverPlayer);
+                        int toggleValue = toggledTo ? 1 : 0;
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_FLIGHT, toggleValue));
+                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their EXO-7 Falcon flight to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
+                        TranslationTextComponent flightToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.flightOn") : new TranslationTextComponent("action.falcon.flightOff");
+                        serverPlayer.sendMessage(flightToggleMessage, Util.NIL_UUID);
+                    } else {
+                        CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                    }
+                    break;
                 case TAKEOFF_FLIGHT:
-                    if (FalconFlightHelper.canTakeOff(serverPlayer) || FalconFlightHelper.canBoostFlight(serverPlayer)) {
+                    if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
                         FalconFlightHelper.playFlightBoostSound(serverPlayer);
                         CaptainAmerica.LOGGER.debug("Server player {} has taken off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TAKEOFF_FLIGHT));
@@ -63,7 +76,7 @@ public class ServerNetworkHandler {
         });
     }
 
-    public static void handleRedwing(CRedwingPacket packet, Supplier<NetworkEvent.Context> ctx) {
+    public static void handleDrone(CDronePacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             ServerPlayerEntity serverPlayer = ctx.get().getSender();
             if(serverPlayer == null){

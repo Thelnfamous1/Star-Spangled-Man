@@ -1,7 +1,7 @@
 package com.infamous.captain_america.client.renderer;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;

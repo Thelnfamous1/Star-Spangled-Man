@@ -1,6 +1,6 @@
 package com.infamous.captain_america.common.capability.drone_controller;
 
-import com.infamous.captain_america.common.entity.IDrone;
+import com.infamous.captain_america.common.entity.drone.IDrone;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

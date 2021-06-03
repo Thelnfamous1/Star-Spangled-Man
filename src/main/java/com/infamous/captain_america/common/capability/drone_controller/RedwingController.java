@@ -1,9 +1,8 @@
 package com.infamous.captain_america.common.capability.drone_controller;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
-import com.infamous.captain_america.common.entity.IDrone;
-import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.entity.drone.IDrone;
+import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.entity.Entity;

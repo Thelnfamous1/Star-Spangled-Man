@@ -2,7 +2,7 @@ package com.infamous.captain_america.common.item;
 
 import com.infamous.captain_america.client.renderer.VibraniumShieldISTER;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -31,7 +31,7 @@ public class VibraniumShieldItem extends ShieldItem {
 
     public static final Predicate<Item> SHIELD_PREDICATE =
             item -> item instanceof VibraniumShieldItem;
-    public static final Predicate<Enchantment> ENCHANTMENT_PREDICATE =
+    public static final Predicate<Enchantment> SHIELD_ENCHANTMENT_PREDICATE =
             enchantment -> enchantment == Enchantments.POWER_ARROWS
                     || enchantment == Enchantments.PUNCH_ARROWS
                     || enchantment == Enchantments.LOYALTY;
@@ -174,7 +174,7 @@ public class VibraniumShieldItem extends ShieldItem {
 
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        if(ENCHANTMENT_PREDICATE.test(enchantment)){
+        if(SHIELD_ENCHANTMENT_PREDICATE.test(enchantment)){
             return true;
         }
         return super.canApplyAtEnchantingTable(stack, enchantment);

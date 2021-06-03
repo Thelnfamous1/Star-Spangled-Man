@@ -1,6 +1,6 @@
 package com.infamous.captain_america.common.item;
 
-import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -8,20 +8,20 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class EXO7FalconItem extends ArmorItem {
     public static final EquipmentSlotType SLOT = EquipmentSlotType.CHEST;
-    private final Supplier<EntityType<? extends RedwingEntity>> registeredRedwingType;
+    private final Supplier<EntityType<? extends RedwingEntity>> redwingTypeSupplier;
 
-    public EXO7FalconItem(Supplier<EntityType<? extends RedwingEntity>> registeredRedwingType,
+    public EXO7FalconItem(Supplier<EntityType<? extends RedwingEntity>> redwingTypeSupplier,
                           IArmorMaterial armorMaterial,
                           Properties properties) {
         super(armorMaterial, SLOT, properties);
-        this.registeredRedwingType = registeredRedwingType;
+        this.redwingTypeSupplier = redwingTypeSupplier;
     }
 
     public static Optional<EntityType<? extends RedwingEntity>> getRedwingType(ItemStack itemStack){
@@ -34,11 +34,24 @@ public class EXO7FalconItem extends ArmorItem {
     }
 
     public EntityType<? extends RedwingEntity> getRedwingType() {
-        return registeredRedwingType.get();
+        return redwingTypeSupplier.get();
+    }
+
+    public static boolean isBroken(ItemStack stack){
+        return stack.getDamageValue() >= stack.getMaxDamage() - 1;
     }
 
     public static boolean isFlightEnabled(ItemStack stack) {
-        return stack.getDamageValue() < stack.getMaxDamage() - 1;
+        if(isBroken(stack)){
+            return false;
+        }
+        CompoundNBT compoundnbt = stack.getTag();
+        return compoundnbt != null && compoundnbt.getBoolean("FlightEnabled");
+    }
+
+    public static void setFlightEnabled(ItemStack stack, boolean flightEnabled) {
+        CompoundNBT compoundnbt = stack.getOrCreateTag();
+        compoundnbt.putBoolean("FlightEnabled", flightEnabled);
     }
 
     @Override

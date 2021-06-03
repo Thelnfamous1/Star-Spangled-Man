@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.entity;
+package com.infamous.captain_america.common.entity.projectile;
 
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
 import net.minecraft.block.BlockState;

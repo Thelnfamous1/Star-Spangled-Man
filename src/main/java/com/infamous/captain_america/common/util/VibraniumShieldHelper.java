@@ -1,12 +1,8 @@
 package com.infamous.captain_america.common.util;
 
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
-import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.network.play.server.SCollectItemPacket;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;

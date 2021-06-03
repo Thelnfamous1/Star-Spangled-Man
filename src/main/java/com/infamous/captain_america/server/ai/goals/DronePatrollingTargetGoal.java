@@ -1,6 +1,6 @@
 package com.infamous.captain_america.server.ai.goals;
 
-import com.infamous.captain_america.common.entity.IDrone;
+import com.infamous.captain_america.common.entity.drone.IDrone;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;

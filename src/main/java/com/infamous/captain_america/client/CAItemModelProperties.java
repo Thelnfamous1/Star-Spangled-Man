@@ -13,11 +13,11 @@ public class CAItemModelProperties {
 
         ItemModelsProperties.register(ItemRegistry.FALCON_WINGSUIT.get(),
                 new ResourceLocation("broken"),
-                (itemStack, clientWorld, livingEntity) -> EXO7FalconItem.isFlightEnabled(itemStack) ? 0.0F : 1.0F);
+                (itemStack, clientWorld, livingEntity) -> EXO7FalconItem.isBroken(itemStack) ? 1.0F : 0.0F);
 
         ItemModelsProperties.register(ItemRegistry.CAPTAIN_AMERICA_WINGSUIT.get(),
                 new ResourceLocation("broken"),
-                (itemStack, clientWorld, livingEntity) -> EXO7FalconItem.isFlightEnabled(itemStack) ? 0.0F : 1.0F);
+                (itemStack, clientWorld, livingEntity) -> EXO7FalconItem.isBroken(itemStack) ? 1.0F : 0.0F);
 
         ItemModelsProperties.register(ItemRegistry.CAPTAIN_AMERICA_SHIELD.get(),
                 new ResourceLocation("blocking"),

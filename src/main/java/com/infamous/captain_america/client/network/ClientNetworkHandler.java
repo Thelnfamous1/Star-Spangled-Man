@@ -22,6 +22,12 @@ public class ClientNetworkHandler {
                 return;
             }
             switch (packet.getAction()){
+                case TOGGLE_FLIGHT:
+                    int toggleValue = packet.getData();
+                    boolean toggleTo = toggleValue > 0;
+                    FalconFlightHelper.toggleEXO7FalconTo(clientPlayer, toggleTo);
+                    CaptainAmerica.LOGGER.debug("Client player {} has toggled their EXO-7 Falcon flight to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
+                    break;
                 case TAKEOFF_FLIGHT:
                     FalconFlightHelper.playFlightBoostSound(clientPlayer);
                     CaptainAmerica.LOGGER.debug("Client player {} has taken off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());

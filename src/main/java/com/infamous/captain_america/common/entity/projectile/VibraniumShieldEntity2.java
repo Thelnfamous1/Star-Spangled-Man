@@ -1,4 +1,4 @@
-package com.infamous.captain_america.common.entity;
+package com.infamous.captain_america.common.entity.projectile;
 
 import com.google.common.collect.Lists;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;

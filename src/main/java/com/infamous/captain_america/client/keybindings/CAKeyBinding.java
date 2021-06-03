@@ -4,7 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
-import com.infamous.captain_america.common.entity.VibraniumShieldEntity2;
+import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity2;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -67,6 +67,7 @@ public class CAKeyBinding extends KeyBinding{
     public static final int K_KEYCODE = GLFW.GLFW_KEY_K;
     public static final int C_KEYCODE = GLFW.GLFW_KEY_C;
     public static final int V_KEYCODE = GLFW.GLFW_KEY_V;
+    public static final int ALT_KEYCODE = GLFW.GLFW_KEY_LEFT_ALT;
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
@@ -94,6 +95,7 @@ public class CAKeyBinding extends KeyBinding{
         }
     };
 
+
     public static final CAKeyBinding keyHover =
             new CAKeyBinding(
                     "key.hover",
@@ -114,20 +116,21 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                     });
 
-    public static final CAKeyBinding keyHaltFlight =
+
+    public static final CAKeyBinding keyToggleFlight =
             new CAKeyBinding(
-                    "key.haltFlight",
+                    "key.toggleFlight",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    R_KEYCODE,
+                    ALT_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     () -> {
                         ClientPlayerEntity clientPlayer = getClient();
                         if (clientPlayer == null) return;
-                        if(FalconFlightHelper.isFlying(clientPlayer)){
-                            CaptainAmerica.LOGGER.debug("Client player {} has halted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
-                            FalconFlightHelper.haltFlight(clientPlayer);
-                            NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
+
+                        if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
+                            CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_FLIGHT));
                         }
                     },
                     () -> {
@@ -161,6 +164,28 @@ public class CAKeyBinding extends KeyBinding{
                     () -> {
                     });
 
+    public static final CAKeyBinding keyHaltFlight =
+            new CAKeyBinding(
+                    "key.haltFlight",
+                    KeyConflictContext.IN_GAME,
+                    InputMappings.Type.KEYSYM,
+                    R_KEYCODE,
+                    FALCON_TECH_KEY_CATEGORY,
+                    () -> {
+                        ClientPlayerEntity clientPlayer = getClient();
+                        if (clientPlayer == null) return;
+                        if(FalconFlightHelper.isFlying(clientPlayer)){
+                            CaptainAmerica.LOGGER.debug("Client player {} has halted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                            FalconFlightHelper.haltFlight(clientPlayer);
+                            NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
+                        }
+                    },
+                    () -> {
+                    },
+                    () -> {
+                    });
+
+
     public static final CAKeyBinding keyDeployRedwing =
             new CAKeyBinding(
                     "key.deployRedwing",
@@ -173,7 +198,7 @@ public class CAKeyBinding extends KeyBinding{
                         if (clientPlayer == null) return;
                         if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to deploy their Redwing drone!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CRedwingPacket(CRedwingPacket.Action.DEPLOY));
+                            NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.DEPLOY));
                         }
                     },
                     () -> {
@@ -193,7 +218,7 @@ public class CAKeyBinding extends KeyBinding{
                         if (clientPlayer == null) return;
                         if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their Redwing drone's recall!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CRedwingPacket(CRedwingPacket.Action.RECALL));
+                            NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.RECALL));
                         }
                     },
                     () -> {
@@ -213,7 +238,7 @@ public class CAKeyBinding extends KeyBinding{
                         if (clientPlayer == null) return;
                         if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their Redwing drone's patrol mode!", clientPlayer.getDisplayName().getString());
-                            NetworkHandler.INSTANCE.sendToServer(new CRedwingPacket(CRedwingPacket.Action.PATROL));
+                            NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.PATROL));
                         }
                     },
                     () -> {

@@ -31,14 +31,30 @@ public class FalconFlightHelper {
     }
 
     public static boolean canFalconFly(LivingEntity living) {
-        ItemStack chestPlateStack = living.getItemBySlot(EXO7FalconItem.SLOT);
+        ItemStack chestPlateStack = getEXO7FalconItem(living);
         return hasEXO7Falcon(living) &&
                 EXO7FalconItem.isFlightEnabled(chestPlateStack);
     }
 
     public static boolean hasEXO7Falcon(LivingEntity living) {
-        ItemStack chestplateStack = living.getItemBySlot(EXO7FalconItem.SLOT);
+        ItemStack chestplateStack = getEXO7FalconItem(living);
         return chestplateStack.getItem() instanceof EXO7FalconItem;
+    }
+
+    public static boolean toggleEXO7Falcon(LivingEntity living) {
+        ItemStack chestplateStack = getEXO7FalconItem(living);
+        boolean isEnabled = EXO7FalconItem.isFlightEnabled(chestplateStack);
+        EXO7FalconItem.setFlightEnabled(chestplateStack, !isEnabled);
+        return !isEnabled;
+    }
+
+    public static void toggleEXO7FalconTo(LivingEntity livingEntity, boolean toggleTo){
+        ItemStack chestplateStack = getEXO7FalconItem(livingEntity);
+        EXO7FalconItem.setFlightEnabled(chestplateStack, toggleTo);
+    }
+
+    public static ItemStack getEXO7FalconItem(LivingEntity living) {
+        return living.getItemBySlot(EXO7FalconItem.SLOT);
     }
 
     public static void takeOff(PlayerEntity player) {

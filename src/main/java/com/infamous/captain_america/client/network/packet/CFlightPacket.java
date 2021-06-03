@@ -31,6 +31,7 @@ public class CFlightPacket {
     }
 
     public enum Action {
+        TOGGLE_FLIGHT,
         TAKEOFF_FLIGHT,
         BOOST_FLIGHT,
         HALT_FLIGHT,

@@ -22,11 +22,14 @@ public class ForgeClientEventHandler {
         if(event.getKey() == CAKeyBinding.keyHover.getKey().getValue()){
             CAKeyBinding.keyHover.handleKey();
         }
-        if(event.getKey() == CAKeyBinding.keyHaltFlight.getKey().getValue()){
-            CAKeyBinding.keyHaltFlight.handleKey();
+        if(event.getKey() == CAKeyBinding.keyToggleFlight.getKey().getValue()){
+            CAKeyBinding.keyToggleFlight.handleKey();
         }
         if(event.getKey() == CAKeyBinding.keyBoostFlight.getKey().getValue()){
             CAKeyBinding.keyBoostFlight.handleKey();
+        }
+        if(event.getKey() == CAKeyBinding.keyHaltFlight.getKey().getValue()){
+            CAKeyBinding.keyHaltFlight.handleKey();
         }
         if(event.getKey() == CAKeyBinding.keyDeployRedwing.getKey().getValue()){
             CAKeyBinding.keyDeployRedwing.handleKey();

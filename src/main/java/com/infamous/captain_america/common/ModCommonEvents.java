@@ -8,7 +8,7 @@ import com.infamous.captain_america.common.capability.drone_controller.RedwingCo
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerStorage;
-import com.infamous.captain_america.common.entity.RedwingEntity;
+import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
