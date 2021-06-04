@@ -65,7 +65,7 @@ public class EffectRegistry implements ICARegistry<Effect>{
                                     Attributes.ATTACK_KNOCKBACK,
                                     "30efaa1a-6e18-48fb-b3e9-937d73ca04cc",
                                     ATTACK_KNOCKBACK_MODIFIER_VALUE_SERUM,
-                                    AttributeModifier.Operation.MULTIPLY_BASE)
+                                    AttributeModifier.Operation.ADDITION)
     );
 
     @Override

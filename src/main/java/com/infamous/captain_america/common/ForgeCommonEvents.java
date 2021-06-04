@@ -11,14 +11,19 @@ import com.infamous.captain_america.common.registry.EffectRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -71,7 +76,45 @@ public class ForgeCommonEvents {
         if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null){
             float superSoldierJumpFactor = 0.1F * 2;
             Vector3d deltaMovement = entityLiving.getDeltaMovement();
-            entityLiving.setDeltaMovement(deltaMovement.x, deltaMovement.y + superSoldierJumpFactor, deltaMovement.z);
+            double adjustedYDelta = deltaMovement.y + superSoldierJumpFactor;
+            entityLiving.setDeltaMovement(deltaMovement.x, adjustedYDelta, deltaMovement.z);
         }
+    }
+
+    @SubscribeEvent
+    public static void onKineticDamage(LivingDamageEvent event){
+        LivingEntity entityLiving = event.getEntityLiving();
+        DamageSource damageSource = event.getSource();
+        if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null
+                && isKineticDamage(damageSource)){
+            float superSoldierKineticResistanceFactor = 0.5F;
+            float damage = event.getAmount();
+            float adjustedDamage = damage * superSoldierKineticResistanceFactor;
+            event.setAmount(adjustedDamage);
+        }
+    }
+
+    private static boolean isKineticDamage(DamageSource damageSource){
+        return damageSource == DamageSource.ANVIL
+                || damageSource == DamageSource.FALL
+                || damageSource == DamageSource.FALLING_BLOCK
+                || damageSource == DamageSource.FLY_INTO_WALL;
+    }
+
+    @SubscribeEvent
+    public static void onPotionApplicable(PotionEvent.PotionApplicableEvent event){
+        LivingEntity entityLiving = event.getEntityLiving();
+        EffectInstance effectInstance = event.getPotionEffect();
+        Effect effect = effectInstance.getEffect();
+        if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null
+            && isImmuneTo(effect)){
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+    private static boolean isImmuneTo(Effect effect){
+        return effect == Effects.POISON
+                || effect == Effects.CONFUSION
+                || effect == Effects.HUNGER;
     }
 }
