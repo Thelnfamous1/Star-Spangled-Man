@@ -1,9 +1,9 @@
 package com.infamous.captain_america.common.item;
 
-import com.infamous.captain_america.client.renderer.VibraniumShieldISTER;
+import com.infamous.captain_america.client.renderer.CAItemStackTileEntityRenderer;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -11,7 +11,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
@@ -20,14 +22,15 @@ import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class VibraniumShieldItem extends ShieldItem {
+public class VibraniumShieldItem extends ShieldItem implements IHasRenderMaterial {
 
     public static final Predicate<Item> SHIELD_PREDICATE =
             item -> item instanceof VibraniumShieldItem;
@@ -37,14 +40,17 @@ public class VibraniumShieldItem extends ShieldItem {
                     || enchantment == Enchantments.LOYALTY;
 
     private final Supplier<EntityType<? extends VibraniumShieldEntity>> registeredShieldType;
+    private final Supplier<net.minecraft.client.renderer.model.RenderMaterial> renderMaterialSupplier;
 
     public VibraniumShieldItem(Supplier<EntityType<? extends VibraniumShieldEntity>> registeredShieldType,
-                               Properties properties) {
+                               Properties properties,
+                               DistExecutor.SafeCallable<RenderMaterial> safeRenderMaterial) {
         super(properties
                 .stacksTo(1)
                 .fireResistant()
-                .setISTER(VibraniumShieldItem::getISTER));
+                .setISTER(CAItemStackTileEntityRenderer::getISTER));
         this.registeredShieldType = registeredShieldType;
+        this.renderMaterialSupplier = () -> net.minecraftforge.fml.DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> safeRenderMaterial);
     }
 
     public boolean throwShield(ItemStack itemStack, World world, LivingEntity thrower, VibraniumShieldEntity.ThrowType throwType, int shieldCharge) {
@@ -185,8 +191,10 @@ public class VibraniumShieldItem extends ShieldItem {
         return false;
     }
 
-    private static Callable<ItemStackTileEntityRenderer> getISTER() {
-        return VibraniumShieldISTER::new;
+    @Override
+    @Nullable
+    public net.minecraft.client.renderer.model.RenderMaterial getRenderMaterial(){
+        return this.renderMaterialSupplier != null ? this.renderMaterialSupplier.get() : null;
     }
 
     @Override

@@ -19,6 +19,9 @@ public enum CAArmorMaterial implements IArmorMaterial {
     }),
     CAPTAIN_AMERICA_WINGSUIT("captain_america_wingsuit", 33, new int[]{3, 6, 8, 3}, 10, SoundEvents.ARMOR_EQUIP_DIAMOND, 2.0F, 0.0F, () -> {
         return Ingredient.of(Items.DIAMOND);
+    }),
+    CAPTAIN_AMERICA("captain_america", 33, new int[]{3, 6, 8, 3}, 10, SoundEvents.ARMOR_EQUIP_DIAMOND, 2.0F, 0.0F, () -> {
+        return Ingredient.of(Items.DIAMOND);
     });
 
     private static final int[] HEALTH_PER_SLOT = new int[]{13, 15, 16, 11};

@@ -4,7 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.layer.EXO7FalconLayer;
 import com.infamous.captain_america.client.renderer.RedwingRenderer;
-import com.infamous.captain_america.client.renderer.model.VibraniumShieldTextures;
+import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
@@ -27,8 +27,10 @@ public class ModClientEventHandler {
     @SubscribeEvent
     public static void onStitch(TextureStitchEvent.Pre event) {
         if (event.getMap().location().equals(AtlasTexture.LOCATION_BLOCKS)) {
-            event.addSprite(VibraniumShieldTextures.VIBRANIUM_SHIELD.texture());
-            event.addSprite(VibraniumShieldTextures.CAPTAIN_AMERICA_SHIELD.texture());
+            CaptainAmerica.LOGGER.info("Stitching shield textures!");
+            event.addSprite(CARenderMaterial.VIBRANIUM_SHIELD.texture());
+            event.addSprite(CARenderMaterial.CAPTAIN_AMERICA_SHIELD.texture());
+            CaptainAmerica.LOGGER.info("Finished stitching shield textures!");
         }
     }
 

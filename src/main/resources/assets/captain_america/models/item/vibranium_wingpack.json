@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "captain_america:item/falcon_jacket"
+        "layer0": "captain_america:item/vibranium_wingpack"
     }
 }

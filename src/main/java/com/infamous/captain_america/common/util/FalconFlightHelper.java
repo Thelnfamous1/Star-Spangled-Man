@@ -4,7 +4,6 @@ import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.SoundRegistry;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.math.vector.Vector3d;
@@ -31,29 +30,29 @@ public class FalconFlightHelper {
     }
 
     public static boolean canFalconFly(LivingEntity living) {
-        ItemStack chestPlateStack = getEXO7FalconItem(living);
+        ItemStack chestPlateStack = getEXO7FalconStack(living);
         return hasEXO7Falcon(living) &&
                 EXO7FalconItem.isFlightEnabled(chestPlateStack);
     }
 
     public static boolean hasEXO7Falcon(LivingEntity living) {
-        ItemStack chestplateStack = getEXO7FalconItem(living);
-        return chestplateStack.getItem() instanceof EXO7FalconItem;
+        ItemStack chestplateStack = getEXO7FalconStack(living);
+        return EXO7FalconItem.isEXO7FalconStack(chestplateStack);
     }
 
     public static boolean toggleEXO7Falcon(LivingEntity living) {
-        ItemStack chestplateStack = getEXO7FalconItem(living);
+        ItemStack chestplateStack = getEXO7FalconStack(living);
         boolean isEnabled = EXO7FalconItem.isFlightEnabled(chestplateStack);
         EXO7FalconItem.setFlightEnabled(chestplateStack, !isEnabled);
         return !isEnabled;
     }
 
     public static void toggleEXO7FalconTo(LivingEntity livingEntity, boolean toggleTo){
-        ItemStack chestplateStack = getEXO7FalconItem(livingEntity);
+        ItemStack chestplateStack = getEXO7FalconStack(livingEntity);
         EXO7FalconItem.setFlightEnabled(chestplateStack, toggleTo);
     }
 
-    public static ItemStack getEXO7FalconItem(LivingEntity living) {
+    public static ItemStack getEXO7FalconStack(LivingEntity living) {
         return living.getItemBySlot(EXO7FalconItem.SLOT);
     }
 

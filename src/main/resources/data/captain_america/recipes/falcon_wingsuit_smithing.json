@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "captain_america:falcon_jacket"
+  },
+  "addition": {
+    "item": "captain_america:wingpack"
+  },
+  "result": {
+    "item": "captain_america:falcon_wingsuit"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "parent": "captain_america:captains_orders/root",
+  "display": {
+    "icon": {
+      "item": "captain_america:captain_america_chestplate",
+      "nbt": "{Damage:0}"
+    },
+    "title": {
+      "translate": "advancements.captain_america.captains_orders.star_spangled.title"
+    },
+    "description": {
+      "translate": "advancements.captain_america.captains_orders.star_spangled.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "rewards": {
+    "experience": 100
+  },
+  "criteria": {
+    "captain_america_armor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "captain_america:captain_america_helmet"
+          },
+          {
+            "item": "captain_america:captain_america_chestplate"
+          },
+          {
+            "item": "captain_america:captain_america_pants"
+          },
+          {
+            "item": "captain_america:captain_america_boots"
+          }
+        ]
+      }
+    },
+    "captain_america_armor_alt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "captain_america:captain_america_goggles"
+          },
+          {
+            "item": "captain_america:captain_america_wingsuit"
+          },
+          {
+            "item": "captain_america:captain_america_leggings"
+          },
+          {
+            "item": "captain_america:captain_america_greaves"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "captain_america_armor",
+      "captain_america_armor_alt"
+    ]
+  ]
+}

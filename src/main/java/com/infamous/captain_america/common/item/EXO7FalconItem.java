@@ -11,9 +11,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class EXO7FalconItem extends ArmorItem {
+    public static final Predicate<Item> FALCON_PREDICATE =
+            item -> item instanceof EXO7FalconItem;
     public static final EquipmentSlotType SLOT = EquipmentSlotType.CHEST;
     private final Supplier<EntityType<? extends RedwingEntity>> redwingTypeSupplier;
 
@@ -54,9 +57,17 @@ public class EXO7FalconItem extends ArmorItem {
         compoundnbt.putBoolean("FlightEnabled", flightEnabled);
     }
 
+    public static boolean isEXO7FalconStack(ItemStack stack){
+        return FALCON_PREDICATE.test(stack.getItem());
+    }
+
+    /*
+        Always returning true allows the user to perform Falcon's non-propelled maneuevers
+        such as when he dives down and then re-activates his flight pack
+     */
     @Override
     public boolean canElytraFly(ItemStack stack, LivingEntity entity) {
-        return isFlightEnabled(stack);
+        return FALCON_PREDICATE.test(stack.getItem());
     }
 
     @Override

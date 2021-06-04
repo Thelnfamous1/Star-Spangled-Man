@@ -1,5 +1,5 @@
 {
-  "parent": "captain_america:air_superiority/root",
+  "parent": "captain_america:air_superiority/obtain_wingsuit",
   "display": {
     "icon": {
       "item": "captain_america:falcon_wingsuit",

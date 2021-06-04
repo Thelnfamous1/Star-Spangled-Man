@@ -1,13 +1,23 @@
 {
+  "item.captain_america.captain_america_helmet": "Captain America's Helmet",
+  "item.captain_america.captain_america_chestplate": "Captain America's Chestplate",
+  "item.captain_america.captain_america_pants": "Captain America's Pants",
+  "item.captain_america.captain_america_boots": "Captain America's Boots",
+
   "item.captain_america.captain_america_goggles": "Captain America's Goggles",
+  "item.captain_america.captain_america_jacket": "Captain America's Jacket",
   "item.captain_america.captain_america_wingsuit": "Captain America's Wingsuit",
   "item.captain_america.captain_america_leggings": "Captain America's Leggings",
   "item.captain_america.captain_america_greaves": "Captain America's Greaves",
 
   "item.captain_america.falcon_goggles": "Falcon's Goggles",
+  "item.captain_america.falcon_jacket": "Falcon's Jacket",
   "item.captain_america.falcon_wingsuit": "Falcon's Wingsuit",
   "item.captain_america.falcon_leggings": "Falcon's Leggings",
   "item.captain_america.falcon_greaves": "Falcon's Greaves",
+
+  "item.captain_america.wingpack": "Wingpack",
+  "item.captain_america.vibranium_wingpack": "Vibranium Wingpack",
 
   "item.captain_america.vibranium_shield": "Vibranium Shield",
   "item.captain_america.captain_america_shield": "Captain America's Shield",
@@ -18,8 +28,8 @@
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
 
-  "action.falcon.flightOn": "Activated Falcon wings!",
-  "action.falcon.flightOff": "Deactivated Falcon wings!",
+  "action.falcon.flightOn": "Activated EXO-7 FALCON wings!",
+  "action.falcon.flightOff": "Deactivated EXO-7 FALCON wings!",
 
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
@@ -45,15 +55,22 @@
 
   "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
   "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",
+
+  "advancements.captain_america.captains_orders.star_spangled.title": "Star-Spangled",
+  "advancements.captain_america.captains_orders.star_spangled.description": "Get a full suit of Captain America's armor",
+
   "advancements.captain_america.captains_orders.ol_faithful.title": "Ol' Faithful",
   "advancements.captain_america.captains_orders.ol_faithful.description": "Throw a vibranium shield",
   "advancements.captain_america.captains_orders.a_star_out_of_the_blue.title": "A Star Out Of The Blue",
-  "advancements.captain_america.captains_orders.a_star_out_of_the_blue.description": "Throw a vibranium shield at something",
+  "advancements.captain_america.captains_orders.a_star_out_of_the_blue.description": "Throw a vibranium shield at something.\nNote: You should practice catching it first.",
   "advancements.captain_america.captains_orders.righteous_ricochet.title": "Righteous Ricochet",
   "advancements.captain_america.captains_orders.righteous_ricochet.description": "Hit three different mobs with one vibranium shield toss",
 
   "advancements.captain_america.air_superiority.root.title": "Air Superiority",
   "advancements.captain_america.air_superiority.root.description": "Take to the skies as the Falcon",
+
+  "advancements.captain_america.air_superiority.obtain_wingsuit.title": "I Never Said I Was A Pilot",
+  "advancements.captain_america.air_superiority.obtain_wingsuit.description": "Obtain an EXO-7 FALCON wingsuit",
   "advancements.captain_america.air_superiority.bird_costume.title": "Bird Costume",
   "advancements.captain_america.air_superiority.bird_costume.description": "Get a full suit of Falcon's armor"
 }
