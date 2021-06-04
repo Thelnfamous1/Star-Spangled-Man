@@ -15,9 +15,9 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ItemRegistry{
+public class ItemRegistry implements ICARegistry<Item>{
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CaptainAmerica.MODID);
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CaptainAmerica.MODID);
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_HELMET = ITEMS.register(
             "captain_america_helmet", () ->
@@ -138,7 +138,7 @@ public class ItemRegistry{
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT),
                             new CARenderMaterial()
-                                    .set(CARenderMaterial::getCaptainAmericaShieldCallable))
+                                    .set(() -> CARenderMaterial::getCaptainAmericaShield))
     );
 
     public static final RegistryObject<Item> VIBRANIUM_SHIELD = ITEMS.register(
@@ -147,12 +147,16 @@ public class ItemRegistry{
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT),
                             new CARenderMaterial()
-                                    .set(CARenderMaterial::getVibraniumShieldCallable))
+                                    .set(() -> CARenderMaterial::getVibraniumShield))
     );
 
-    public static void register(IEventBus modBusEvent) {
-        CaptainAmerica.LOGGER.info("Registering items!");
-        ITEMS.register(modBusEvent);
-        CaptainAmerica.LOGGER.info("Finished registering items!");
+    @Override
+    public String getRegistryTypeForLogger() {
+        return "items";
+    }
+
+    @Override
+    public DeferredRegister<Item> getDeferredRegister() {
+        return ITEMS;
     }
 }

@@ -8,17 +8,21 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class SoundRegistry {
+public class SoundRegistry implements ICARegistry<SoundEvent>{
 
-    public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, CaptainAmerica.MODID);
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, CaptainAmerica.MODID);
 
     public static final RegistryObject<SoundEvent> FLIGHT_BOOST = SOUND_EVENTS.register("flight_boost",
             () -> new SoundEvent(new ResourceLocation(CaptainAmerica.MODID, "flight_boost")));
 
 
-    public static void register(IEventBus modBusEvent) {
-        CaptainAmerica.LOGGER.info("Registering sounds!");
-        SOUND_EVENTS.register(modBusEvent);
-        CaptainAmerica.LOGGER.info("Finished registering sounds!");
+    @Override
+    public String getRegistryTypeForLogger() {
+        return "sounds";
+    }
+
+    @Override
+    public DeferredRegister<SoundEvent> getDeferredRegister() {
+        return SOUND_EVENTS;
     }
 }

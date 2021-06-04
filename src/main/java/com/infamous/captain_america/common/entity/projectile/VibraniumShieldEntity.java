@@ -1,7 +1,6 @@
 package com.infamous.captain_america.common.entity.projectile;
 
 import com.google.common.collect.Lists;
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
@@ -347,7 +346,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       float deltaMoveLength = (float)this.getDeltaMovement().length();
       int damage = MathHelper.ceil(MathHelper.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
 
-      this.handleHitEntities(hitEntity);
+      this.initializeHitEntities();
 
       if (this.isCritShield()) {
          long critBonus = (long)this.random.nextInt(damage / 2 + 2);
@@ -395,19 +394,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SShieldPacket(SShieldPacket.Action.SHIELD_HIT_PLAYER));
             }
 
-            if (this.hitEntities != null
-                    && (this.hitIgnoreEntityIds == null || !this.hitIgnoreEntityIds.contains(livingHit.getId()))) {
-               this.hitEntities.add(livingHit);
-            }
-
-            if (!this.level.isClientSide && owner instanceof ServerPlayerEntity) {
-               ServerPlayerEntity serverPlayer = (ServerPlayerEntity)owner;
-               if (this.hitEntities != null) {
-                  CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, this.hitEntities);
-               } else {
-                  CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, Arrays.asList(livingHit));
-               }
-            }
+            this.updateHitEntities(livingHit);
          }
 
       } else {
@@ -542,7 +529,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       }
    }
 
-   private void handleHitEntities(Entity hitEntity) {
+   private void initializeHitEntities() {
       if (this.hitIgnoreEntityIds == null) {
          this.hitIgnoreEntityIds = new IntOpenHashSet(3);
       }
@@ -550,8 +537,27 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       if (this.hitEntities == null) {
          this.hitEntities = Lists.newArrayListWithCapacity(3);
       }
+   }
 
-      this.hitIgnoreEntityIds.add(hitEntity.getId());
+   private void updateHitEntities(LivingEntity livingHit) {
+      if (this.hitEntities != null
+              && (this.hitIgnoreEntityIds == null || !this.hitIgnoreEntityIds.contains(livingHit.getId()))) {
+         this.hitEntities.add(livingHit);
+         if(this.hitIgnoreEntityIds != null){
+            this.hitIgnoreEntityIds.add(livingHit.getId());
+         }
+      }
+
+      Entity owner = this.getOwner();
+
+      if (!this.level.isClientSide && owner instanceof ServerPlayerEntity) {
+         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)owner;
+         if (this.hitEntities != null) {
+            CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, this.hitEntities);
+         } else {
+            CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, Arrays.asList(livingHit));
+         }
+      }
    }
 
    private void resetHitEntities() {

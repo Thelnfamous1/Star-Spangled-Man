@@ -1,24 +1,24 @@
 package com.infamous.captain_america.client.renderer;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.client.renderer.model.RedwingModel;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.model.PhantomModel;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RedwingRenderer extends MobRenderer<RedwingEntity, PhantomModel<RedwingEntity>> {
+public class RedwingRenderer extends MobRenderer<RedwingEntity, RedwingModel<RedwingEntity>> {
    private static final ResourceLocation FALCON_REDWING_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_redwing.png");
    private static final ResourceLocation CAPTAIN_AMERICA_REDWING_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_redwing.png");
 
    public RedwingRenderer(EntityRendererManager entityRendererManager) {
-      super(entityRendererManager, new PhantomModel<>(), 0.75F);
+      super(entityRendererManager, new RedwingModel<>(), 0.75F);
    }
 
    public ResourceLocation getTextureLocation(RedwingEntity redwingEntity) {

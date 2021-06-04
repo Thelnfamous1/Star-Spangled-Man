@@ -1,8 +1,6 @@
 package com.infamous.captain_america;
 
-import com.infamous.captain_america.common.registry.EntityTypeRegistry;
-import com.infamous.captain_america.common.registry.ItemRegistry;
-import com.infamous.captain_america.common.registry.SoundRegistry;
+import com.infamous.captain_america.common.registry.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -24,8 +22,10 @@ public class CaptainAmerica
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-        ItemRegistry.register(modBusEvent);
-        EntityTypeRegistry.register(modBusEvent);
-        SoundRegistry.register(modBusEvent);
+        (new ItemRegistry()).register(modBusEvent);
+        (new EntityTypeRegistry()).register(modBusEvent);
+        (new SoundRegistry()).register(modBusEvent);
+        (new EffectRegistry()).register(modBusEvent);
+        (new PotionRegistry()).register(modBusEvent);
     }
 }

@@ -3,6 +3,7 @@ package com.infamous.captain_america.common.item;
 import com.infamous.captain_america.client.renderer.CAItemStackTileEntityRenderer;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
+import com.infamous.captain_america.common.registry.EffectRegistry;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -131,7 +132,7 @@ public class VibraniumShieldItem extends ShieldItem implements IHasRenderMateria
     }
 
     private static boolean isSuperSoldier(LivingEntity thrower) {
-        return false;
+        return thrower.hasEffect(EffectRegistry.SUPER_SOLDIER.get());
     }
 
     private static float getThrowFactor(LivingEntity thrower, ItemStack stack) {

@@ -1,10 +1,6 @@
 package com.infamous.captain_america.common.advancements.criterion;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-
-import java.util.*;
-
 import com.infamous.captain_america.CaptainAmerica;
 import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
 import net.minecraft.advancements.criterion.CriterionInstance;
@@ -16,6 +12,11 @@ import net.minecraft.loot.ConditionArrayParser;
 import net.minecraft.loot.ConditionArraySerializer;
 import net.minecraft.loot.LootContext;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class HitByShieldTrigger extends AbstractCriterionTrigger<HitByShieldTrigger.Instance> {
    private static final ResourceLocation ID = new ResourceLocation(CaptainAmerica.MODID,"hit_by_shield");
@@ -39,18 +40,18 @@ public class HitByShieldTrigger extends AbstractCriterionTrigger<HitByShieldTrig
     for this trigger, so I changed it below.
     */
    public void trigger(ServerPlayerEntity serverPlayer, Collection<Entity> entityCollection) {
-      List<LootContext> list = Lists.newArrayList();
+      List<LootContext> lootContexts = new ArrayList<>();
       //Set<EntityType<?>> set = Sets.newHashSet();
 
       for(Entity entity : entityCollection) {
          //set.add(entity.getType());
-         list.add(EntityPredicate.createContext(serverPlayer, entity));
+         lootContexts.add(EntityPredicate.createContext(serverPlayer, entity));
       }
 
       this.trigger(serverPlayer, (instance) -> {
          //int hitEntityCount = set.size();
-         int hitEntityCount = list.size();
-         return instance.matches(list, hitEntityCount);
+         int hitEntityCount = lootContexts.size();
+         return instance.matches(lootContexts, hitEntityCount);
       });
    }
 
@@ -82,22 +83,22 @@ public class HitByShieldTrigger extends AbstractCriterionTrigger<HitByShieldTrig
 
       public boolean matches(Collection<LootContext> lootContexts, int value) {
          if (this.victims.length > 0) {
-            List<LootContext> list = Lists.newArrayList(lootContexts);
+            List<LootContext> list = new ArrayList<>(lootContexts);
 
             for(EntityPredicate.AndPredicate entitypredicate$andpredicate : this.victims) {
-               boolean flag = false;
+               boolean foundMatch = false;
                Iterator<LootContext> iterator = list.iterator();
 
                while(iterator.hasNext()) {
                   LootContext lootcontext = iterator.next();
                   if (entitypredicate$andpredicate.matches(lootcontext)) {
                      iterator.remove();
-                     flag = true;
+                     foundMatch = true;
                      break;
                   }
                }
 
-               if (!flag) {
+               if (!foundMatch) {
                   return false;
                }
             }

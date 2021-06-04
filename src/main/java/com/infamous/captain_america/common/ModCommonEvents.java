@@ -10,9 +10,11 @@ import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrow
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerStorage;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.network.NetworkHandler;
+import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
@@ -40,4 +42,5 @@ public class ModCommonEvents {
         event.put(EntityTypeRegistry.FALCON_REDWING.get(), RedwingEntity.createAttributes().build());
         event.put(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingEntity.createAttributes().build());
     }
+
 }

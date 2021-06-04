@@ -7,11 +7,17 @@ import com.infamous.captain_america.common.capability.drone_controller.IDroneCon
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.registry.EffectRegistry;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -56,6 +62,16 @@ public class ForgeCommonEvents {
                     shieldThrowerCap.setShieldChargingScale(0.0F);
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void postJump(LivingEvent.LivingJumpEvent event){
+        LivingEntity entityLiving = event.getEntityLiving();
+        if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null){
+            float superSoldierJumpFactor = 0.1F * 2;
+            Vector3d deltaMovement = entityLiving.getDeltaMovement();
+            entityLiving.setDeltaMovement(deltaMovement.x, deltaMovement.y + superSoldierJumpFactor, deltaMovement.z);
         }
     }
 }

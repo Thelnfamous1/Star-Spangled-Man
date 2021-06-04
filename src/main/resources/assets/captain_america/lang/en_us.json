@@ -28,6 +28,12 @@
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
 
+  "effect.captain_america.super_soldier": "Super Soldier",
+  "item.minecraft.tipped_arrow.effect.super_soldier": "Arrow of the Super Soldier",
+  "item.minecraft.potion.effect.super_soldier": "Potion of the Super Soldier",
+  "item.minecraft.splash_potion.effect.super_soldier": "Splash Potion of the Super Soldier",
+  "item.minecraft.lingering_potion.effect.super_soldier": "Lingering Potion of the Super Soldier",
+
   "action.falcon.flightOn": "Activated EXO-7 FALCON wings!",
   "action.falcon.flightOff": "Deactivated EXO-7 FALCON wings!",
 

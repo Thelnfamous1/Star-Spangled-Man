@@ -10,9 +10,9 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class EntityTypeRegistry {
+public class EntityTypeRegistry implements ICARegistry<EntityType<?>>{
 
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, CaptainAmerica.MODID);
+    private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, CaptainAmerica.MODID);
 
     public static final RegistryObject<EntityType<? extends RedwingEntity>> FALCON_REDWING = ENTITY_TYPES.register("falcon_redwing",
             () -> EntityType.Builder.<RedwingEntity>of(RedwingEntity::new, EntityClassification.CREATURE)
@@ -48,9 +48,13 @@ public class EntityTypeRegistry {
                     .build("vibranium_shield")
     );
 
-    public static void register(IEventBus modBusEvent) {
-        CaptainAmerica.LOGGER.info("Registering entity types!");
-        ENTITY_TYPES.register(modBusEvent);
-        CaptainAmerica.LOGGER.info("Finished registering entity types!");
+    @Override
+    public String getRegistryTypeForLogger() {
+        return "entity types";
+    }
+
+    @Override
+    public DeferredRegister<EntityType<?>> getDeferredRegister() {
+        return ENTITY_TYPES;
     }
 }
