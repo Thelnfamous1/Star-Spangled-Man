@@ -2,47 +2,43 @@ package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
-import com.infamous.captain_america.common.item.CAArmorMaterial;
-import com.infamous.captain_america.common.item.EXO7FalconItem;
-import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.item.*;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ItemRegistry implements ICARegistry<Item>{
+public class ItemRegistry implements IRegistryManager<Item> {
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CaptainAmerica.MODID);
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_HELMET = ITEMS.register(
             "captain_america_helmet", () ->
-                    new ArmorItem(ArmorMaterial.DIAMOND, EquipmentSlotType.HEAD,
+                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.HEAD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_CHESTPLATE = ITEMS.register(
             "captain_america_chestplate", () ->
-                    new ArmorItem(ArmorMaterial.DIAMOND, EquipmentSlotType.CHEST,
+                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.CHEST,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_PANTS = ITEMS.register(
             "captain_america_pants", () ->
-                    new ArmorItem(ArmorMaterial.DIAMOND, EquipmentSlotType.LEGS,
+                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.LEGS,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_BOOTS = ITEMS.register(
             "captain_america_boots", () ->
-                    new ArmorItem(ArmorMaterial.DIAMOND, EquipmentSlotType.FEET,
+                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.FEET,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -148,6 +144,18 @@ public class ItemRegistry implements ICARegistry<Item>{
                                     .tab(ItemGroup.TAB_COMBAT),
                             new CARenderMaterial()
                                     .set(() -> CARenderMaterial::getVibraniumShield))
+    );
+
+    public static final RegistryObject<Item> VIBRANIUM_ARM = ITEMS.register(
+            "vibranium_arm", () ->
+                    new MetalArmItem(
+                            3.0F,
+                            (4.0F-4.0F),
+                            1.0F,
+                            CAItemTier.VIBRANIUM,
+                            (new Item.Properties())
+                                    .tab(ItemGroup.TAB_COMBAT)
+                                    .stacksTo(1))
     );
 
     @Override

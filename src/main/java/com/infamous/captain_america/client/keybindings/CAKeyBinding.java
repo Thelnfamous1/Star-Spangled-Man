@@ -297,4 +297,16 @@ public class CAKeyBinding extends KeyBinding{
                 && !clientPlayer.isPassenger()
                 && !clientPlayer.onClimbable();
     }
+
+    public static void handleAllKeys() {
+        keyHover.handleKey();
+        keyToggleFlight.handleKey();
+        keyBoostFlight.handleKey();
+        keyHaltFlight.handleKey();
+        keyDeployRedwing.handleKey();
+        keyToggleRedwingRecall.handleKey();
+        keyTogglePatrolRedwing.handleKey();
+        keyBoomerangThrowShield.handleKey();
+        keyRicochetThrowShield.handleKey();
+    }
 }

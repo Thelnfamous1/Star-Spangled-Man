@@ -10,7 +10,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class EffectRegistry implements ICARegistry<Effect>{
+public class EffectRegistry implements IRegistryManager<Effect> {
 
     private static final DeferredRegister<Effect> EFFECTS = DeferredRegister.create(ForgeRegistries.POTIONS, CaptainAmerica.MODID);
 

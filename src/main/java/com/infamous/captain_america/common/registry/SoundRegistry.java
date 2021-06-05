@@ -3,12 +3,11 @@ package com.infamous.captain_america.common.registry;
 import com.infamous.captain_america.CaptainAmerica;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class SoundRegistry implements ICARegistry<SoundEvent>{
+public class SoundRegistry implements IRegistryManager<SoundEvent> {
 
     private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, CaptainAmerica.MODID);
 

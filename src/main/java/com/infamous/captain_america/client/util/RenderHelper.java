@@ -32,7 +32,7 @@ public class RenderHelper {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
 
-        minecraft.getProfiler().push("toleranceBar");
+        minecraft.getProfiler().push("shieldThrowBar");
         minecraft.getTextureManager().bind(SHIELD_THROW_METER_LOCATION);
 
         float shieldChargingScale = shieldThrowerCap.getShieldChargingScale();

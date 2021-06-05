@@ -7,7 +7,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class PotionRegistry implements ICARegistry<Potion>{
+public class PotionRegistry implements IRegistryManager<Potion> {
     private static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTION_TYPES, CaptainAmerica.MODID);
 
     public static final RegistryObject<Potion> SUPER_SOLDIER_SERUM = POTIONS.register(
