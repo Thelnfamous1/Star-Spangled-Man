@@ -6,9 +6,9 @@ import net.minecraft.potion.EffectType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SuperSoldierEffect extends CAEffect{
-    public SuperSoldierEffect() {
-        super(EffectType.BENEFICIAL, 0x0087ff);
+public class UncurableEffect extends CAEffect{
+    public UncurableEffect(EffectType effectType, int color) {
+        super(effectType, color);
     }
 
     @Override

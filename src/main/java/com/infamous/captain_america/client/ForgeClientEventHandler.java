@@ -9,6 +9,7 @@ import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,10 +19,8 @@ import net.minecraftforge.fml.common.Mod;
 public class ForgeClientEventHandler {
 
     @SubscribeEvent
-    public static void onKeyInput(TickEvent.ClientTickEvent event){
-        if(event.phase == TickEvent.Phase.END){
-            CAKeyBinding.handleAllKeys();
-        }
+    public static void onKeyInput(InputEvent.KeyInputEvent event){
+        CAKeyBinding.handleAllKeys(event.getKey());
     }
 
     @SubscribeEvent

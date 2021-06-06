@@ -43,7 +43,7 @@ public class CAKeyBinding extends KeyBinding{
 
     public void handleKey(){
         if(this.initialPress){
-           this.onInitialPress.run();
+            this.onInitialPress.run();
         } else if(this.held){
             this.onHeld.run();
         } else if(this.initialRelease){
@@ -298,15 +298,33 @@ public class CAKeyBinding extends KeyBinding{
                 && !clientPlayer.onClimbable();
     }
 
-    public static void handleAllKeys() {
-        keyHover.handleKey();
-        keyToggleFlight.handleKey();
-        keyBoostFlight.handleKey();
-        keyHaltFlight.handleKey();
-        keyDeployRedwing.handleKey();
-        keyToggleRedwingRecall.handleKey();
-        keyTogglePatrolRedwing.handleKey();
-        keyBoomerangThrowShield.handleKey();
-        keyRicochetThrowShield.handleKey();
+    public static void handleAllKeys(int key) {
+        if(key == keyHover.getKey().getValue()){
+            keyHover.handleKey();
+        }
+        if(key == keyToggleFlight.getKey().getValue()){
+            keyToggleFlight.handleKey();
+        }
+        if(key == keyBoostFlight.getKey().getValue()){
+            keyBoostFlight.handleKey();
+        }
+        if(key == keyHaltFlight.getKey().getValue()){
+            keyHaltFlight.handleKey();
+        }
+        if(key == keyDeployRedwing.getKey().getValue()){
+            keyDeployRedwing.handleKey();
+        }
+        if(key == keyToggleRedwingRecall.getKey().getValue()){
+            keyToggleRedwingRecall.handleKey();
+        }
+        if(key == keyTogglePatrolRedwing.getKey().getValue()){
+            keyTogglePatrolRedwing.handleKey();
+        }
+        if(key == keyBoomerangThrowShield.getKey().getValue()){
+            keyBoomerangThrowShield.handleKey();
+        }
+        if(key == keyRicochetThrowShield.getKey().getValue()){
+            keyRicochetThrowShield.handleKey();
+        }
     }
 }

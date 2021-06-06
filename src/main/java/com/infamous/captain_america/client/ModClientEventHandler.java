@@ -3,6 +3,7 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.layer.EXO7FalconLayer;
+import com.infamous.captain_america.client.layer.MetalArmLayer;
 import com.infamous.captain_america.client.renderer.RedwingRenderer;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
@@ -10,6 +11,7 @@ import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -36,7 +38,7 @@ public class ModClientEventHandler {
 
     @SubscribeEvent
     public static void onClientSetup(final FMLClientSetupEvent event){
-        addEXO7FalconLayers();
+        addLayersToSkinMaps();
         registerKeyBindings();
         registerEntityRenderers();
         CAItemModelProperties.register();
@@ -64,15 +66,16 @@ public class ModClientEventHandler {
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");
     }
 
-    private static void addEXO7FalconLayers() {
-        CaptainAmerica.LOGGER.info("Adding EXO-7 Falcon Layer to skin maps!");
+    private static void addLayersToSkinMaps() {
+        CaptainAmerica.LOGGER.info("Adding layers to skin maps!");
         Minecraft minecraft = Minecraft.getInstance();
         EntityRendererManager manager = minecraft.getEntityRenderDispatcher();
         Map<String, PlayerRenderer> skinMap = manager.getSkinMap();
         for(PlayerRenderer playerRenderer : skinMap.values()){
             playerRenderer.addLayer(new EXO7FalconLayer<>(playerRenderer));
+            playerRenderer.addLayer(new MetalArmLayer<>(playerRenderer, new BipedModel<>(0.1F)));
         }
-        CaptainAmerica.LOGGER.info("Finished adding EXO-7 Falcon Layer to skin maps!");
+        CaptainAmerica.LOGGER.info("Finished adding layers to skin maps!");
     }
 
 }

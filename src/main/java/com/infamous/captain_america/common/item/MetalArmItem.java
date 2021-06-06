@@ -7,23 +7,24 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IItemTier;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class MetalArmItem extends TieredItem {
+    private static final Predicate<Item> METAL_ARM_PREDICATE = item -> item instanceof MetalArmItem;
     protected final float speed;
     private final float attackDamageBaseline;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
     protected static final UUID BASE_ATTACK_KNOCKBACK_UUID = UUID.fromString("11bca4d6-e7b9-40ca-b876-68136bcebe28");
 
-    public MetalArmItem(float attackDamageIn, float attackSpeed, float attackKnockback, IItemTier itemTier, Properties properties) {
+    public MetalArmItem(float attackDamageIn, float attackSpeed, float attackKnockback, INamedItemTier itemTier, Properties properties) {
         super(itemTier, properties);
         this.speed = itemTier.getSpeed();
         this.attackDamageBaseline = attackDamageIn + itemTier.getAttackDamageBonus();
@@ -46,7 +47,16 @@ public class MetalArmItem extends TieredItem {
         return slotType == EquipmentSlotType.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(slotType);
     }
 
+    @Override
+    public INamedItemTier getTier() {
+        return (INamedItemTier) super.getTier();
+    }
+
     public float getAttackDamage() {
         return this.attackDamageBaseline;
+    }
+
+    public static boolean isMetalArmStack(ItemStack stack){
+        return METAL_ARM_PREDICATE.test(stack.getItem());
     }
 }

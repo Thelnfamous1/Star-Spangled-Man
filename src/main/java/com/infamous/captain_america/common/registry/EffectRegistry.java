@@ -1,10 +1,11 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.potion.SuperSoldierEffect;
+import com.infamous.captain_america.common.potion.UncurableEffect;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectType;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -25,7 +26,7 @@ public class EffectRegistry implements IRegistryManager<Effect> {
 
     public static final RegistryObject<Effect> SUPER_SOLDIER = EFFECTS.register(
             "super_soldier", () ->
-                    (new SuperSoldierEffect())
+                    (new UncurableEffect(EffectType.BENEFICIAL, 0x0087ff))
                             .addAttributeModifier(
                                     Attributes.MOVEMENT_SPEED,
                                     "e1a9a2b7-d5e2-4697-93b9-fd6da2f345ea",
