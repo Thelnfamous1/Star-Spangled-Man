@@ -5,12 +5,15 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -23,7 +26,7 @@ import java.util.Map;
 
 public class MetalArmLayer<T extends LivingEntity, M extends BipedModel<T>, A extends BipedModel<T>> extends LayerRenderer<T, M> {
    private static final Map<String, ResourceLocation> ARMS_LOCATION_CACHE = Maps.newHashMap();
-   private final A armsModel;
+   protected final A armsModel;
 
    public MetalArmLayer(IEntityRenderer<T, M> entityRenderer, A bipedModelIn) {
       super(entityRenderer);

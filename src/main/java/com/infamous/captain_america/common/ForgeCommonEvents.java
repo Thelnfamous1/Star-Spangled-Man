@@ -8,6 +8,7 @@ import com.infamous.captain_america.common.capability.shield_thrower.IShieldThro
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
+import net.minecraft.client.audio.ElytraSound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,6 +18,7 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -117,4 +119,5 @@ public class ForgeCommonEvents {
                 || effect == Effects.CONFUSION
                 || effect == Effects.HUNGER;
     }
+
 }

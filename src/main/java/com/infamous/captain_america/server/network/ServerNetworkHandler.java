@@ -60,8 +60,10 @@ public class ServerNetworkHandler {
                     }
                     break;
                 case HALT_FLIGHT:
-                    FalconFlightHelper.haltFlight(serverPlayer);
-                    CaptainAmerica.LOGGER.debug("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                    if(FalconFlightHelper.isFlying(serverPlayer)){
+                        FalconFlightHelper.haltFlight(serverPlayer);
+                        CaptainAmerica.LOGGER.debug("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                    }
                     break;
                 case HOVER:
                     if (FalconFlightHelper.canHover(serverPlayer)) {
