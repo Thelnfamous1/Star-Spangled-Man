@@ -64,6 +64,13 @@ public class FalconFlightHelper {
         return living.isFallFlying() && canFalconFly(living);
     }
 
+    public static boolean isDiving(LivingEntity living) {
+        ItemStack falconStack = getEXO7FalconStack(living);
+        return living.isFallFlying()
+                && EXO7FalconItem.isEXO7FalconStack(falconStack)
+                && !EXO7FalconItem.isFlightEnabled(falconStack);
+    }
+
     public static void haltFlight(PlayerEntity player) {
         player.stopFallFlying();
     }

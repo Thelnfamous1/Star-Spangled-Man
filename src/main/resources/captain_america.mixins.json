@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "refmap": "captain_america.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
     "PlayerEntityMixin"
   ],
   "injectors": {

@@ -61,10 +61,7 @@ public class EXO7FalconItem extends ArmorItem {
         return FALCON_PREDICATE.test(stack.getItem());
     }
 
-    /*
-        Always returning true allows the user to perform Falcon's non-propelled maneuevers
-        such as when he dives down and then re-activates his flight pack
-     */
+
     @Override
     public boolean canElytraFly(ItemStack stack, LivingEntity entity) {
         return FALCON_PREDICATE.test(stack.getItem());
