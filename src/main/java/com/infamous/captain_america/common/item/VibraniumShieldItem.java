@@ -54,6 +54,10 @@ public class VibraniumShieldItem extends ShieldItem implements IHasRenderMateria
         this.renderMaterialSupplier = () -> net.minecraftforge.fml.DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> safeRenderMaterial);
     }
 
+    public static boolean isShieldStack(ItemStack stack) {
+        return SHIELD_PREDICATE.test(stack.getItem());
+    }
+
     public boolean throwShield(ItemStack itemStack, World world, LivingEntity thrower, VibraniumShieldEntity.ThrowType throwType, int shieldCharge) {
         if (thrower instanceof PlayerEntity) {
             PlayerEntity playerThrower = (PlayerEntity)thrower;
