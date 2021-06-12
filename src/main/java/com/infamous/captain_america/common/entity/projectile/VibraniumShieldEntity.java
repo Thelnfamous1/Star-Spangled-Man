@@ -154,12 +154,12 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       BlockPos blockpos = this.blockPosition();
       BlockState blockstate = this.level.getBlockState(blockpos);
       if (!blockstate.isAir(this.level, blockpos) && !noPhysics) {
-         VoxelShape voxelshape = blockstate.getCollisionShape(this.level, blockpos);
-         if (!voxelshape.isEmpty()) {
-            Vector3d vector3d1 = this.position();
+         VoxelShape collisionShape = blockstate.getCollisionShape(this.level, blockpos);
+         if (!collisionShape.isEmpty()) {
+            Vector3d position = this.position();
 
-            for(AxisAlignedBB axisalignedbb : voxelshape.toAabbs()) {
-               if (axisalignedbb.move(blockpos).contains(vector3d1)) {
+            for(AxisAlignedBB subBox : collisionShape.toAabbs()) {
+               if (subBox.move(blockpos).contains(position)) {
                   this.inGround = true;
                   break;
                }
@@ -192,8 +192,8 @@ public class VibraniumShieldEntity extends ProjectileEntity {
          this.canRecall = true;
       }
 
-      Entity entity = this.getOwner();
-      if ((this.canRecall || this.isNoPhysics()) && entity != null) {
+      Entity owner = this.getOwner();
+      if ((this.canRecall || this.isNoPhysics()) && owner != null) {
          int loyaltyLevel = this.getLoyalty();
          if (loyaltyLevel > 0 && !this.isAcceptibleReturnOwner()) {
             if (!this.level.isClientSide && this.pickup == VibraniumShieldEntity.PickupStatus.ALLOWED) {
@@ -203,7 +203,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
             this.remove();
          } else if (loyaltyLevel > 0) {
             this.setNoPhysics(true);
-            Vector3d distanceVec = new Vector3d(entity.getX() - this.getX(), entity.getEyeY() - this.getY(), entity.getZ() - this.getZ());
+            Vector3d distanceVec = new Vector3d(owner.getX() - this.getX(), owner.getEyeY() - this.getY(), owner.getZ() - this.getZ());
             this.setPosRaw(this.getX(), this.getY() + distanceVec.y * 0.015D * (double)loyaltyLevel, this.getZ());
             if (this.level.isClientSide) {
                this.yOld = this.getY();
@@ -221,9 +221,9 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    private boolean isAcceptibleReturnOwner() {
-      Entity entity = this.getOwner();
-      if (entity != null && entity.isAlive()) {
-         return !(entity instanceof ServerPlayerEntity) || !entity.isSpectator();
+      Entity owner = this.getOwner();
+      if (owner != null && owner.isAlive()) {
+         return !(owner instanceof ServerPlayerEntity) || !owner.isSpectator();
       } else {
          return false;
       }

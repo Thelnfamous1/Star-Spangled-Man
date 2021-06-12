@@ -25,8 +25,16 @@ public interface IDroneController {
     UUID getDroneUUID();
 
     default <T extends Entity & IDrone> boolean deployDrone(LivingEntity controller) {
-        if(this.canControlDrone(controller)){
-            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() == null){
+        boolean hasDeployedDrone = this.getDeployedDrone(controller).isPresent();
+        if(this.getDroneUUID() != null && hasDeployedDrone){
+            return false;
+        }
+
+        if(this.canControlDrone(controller)
+                && controller.level instanceof ServerWorld){
+
+            if(this.getDroneNBT().isEmpty()
+                    && this.getDroneUUID() == null){
                 Optional<T> optionalDrone = this.createDrone(controller);
                 if(optionalDrone.isPresent()){
                     T drone = optionalDrone.get();
@@ -53,42 +61,79 @@ public interface IDroneController {
                     }
                 }
             }
+
+            // If we get here, our deployed drone has perished
+            // so we need to clear our stored data and try again
+            if(this.getDroneUUID() != null && !hasDeployedDrone){
+                this.resetDroneData();
+                return this.deployDrone(controller);
+            }
         }
         return false;
     }
 
-    boolean canControlDrone(LivingEntity controller);
+    default boolean canControlDrone(LivingEntity controller){
+        return !controller.level.isClientSide;
+    }
 
     <T extends Entity & IDrone> Optional<T> createDrone(LivingEntity controller);
 
-    default boolean toggleRecallDrone(LivingEntity controller) {
-        if(this.canControlDrone(controller)){
-            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() != null){
-                Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
-                if(entity instanceof IDrone){
-                    IDrone drone = (IDrone) entity;
-                    drone.setRecalled(!drone.isRecalled());
-                    return true;
-                }
+    default <T extends Entity & IDrone> boolean toggleRecallDrone(LivingEntity controller) {
+        Optional<T> optionalDrone = this.getDeployedDrone(controller);
+        if(optionalDrone.isPresent()){
+            T drone = optionalDrone.get();
+            drone.setRecalled(!drone.isRecalled());
+            this.setDroneRecalled(drone.isRecalled());
+            if(drone.isRecalled()){
+                drone.setPatrolling(false);
+                this.setDronePatrolling(false);
             }
-            this.setDroneUUID(null);
+            return true;
+        }
+        else{
+            this.resetDroneData();
         }
         return false;
     }
 
-    default boolean toggleDronePatrol(LivingEntity controller) {
-        if(this.canControlDrone(controller)){
-            if(this.getDroneNBT().isEmpty() && this.getDroneUUID() != null){
-                Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
-                if(entity instanceof IDrone){
-                    IDrone drone = (IDrone) entity;
-                    drone.setPatrolling(!drone.isPatrolling());
-                    return true;
-                }
+    default <T extends Entity & IDrone> boolean toggleDronePatrol(LivingEntity controller) {
+        Optional<T> optionalDrone = this.getDeployedDrone(controller);
+        if(optionalDrone.isPresent()){
+            T drone = optionalDrone.get();
+            drone.setPatrolling(!drone.isPatrolling());
+            this.setDronePatrolling(drone.isPatrolling());
+            if(drone.isPatrolling()){
+                drone.setRecalled(false);
+                this.setDroneRecalled(false);
             }
-            this.setDroneUUID(null);
+            return true;
+        }
+        else{
+            this.resetDroneData();
         }
         return false;
+    }
+
+    default <T extends Entity & IDrone> Optional<T> getDeployedDrone(LivingEntity controller){
+        if(this.canControlDrone(controller)
+                && controller.level instanceof ServerWorld
+                && this.getDroneUUID() != null
+                && this.getDroneNBT().isEmpty()){
+            Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
+            if(entity instanceof IDrone){
+                //noinspection unchecked
+                T drone = (T) entity;
+                return Optional.of(drone);
+            }
+        }
+        return Optional.empty();
+    }
+
+    default void resetDroneData() {
+        this.setDroneUUID(null);
+        this.setDroneNBT(new CompoundNBT());
+        this.setDronePatrolling(false);
+        this.setDroneRecalled(false);
     }
 
     default boolean attachDrone(CompoundNBT droneNBT) {

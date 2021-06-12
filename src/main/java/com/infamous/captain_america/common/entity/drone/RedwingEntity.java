@@ -52,8 +52,9 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return MobEntity.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 10.0D)
-                .add(Attributes.FLYING_SPEED, (double)0.6F)
+                .add(Attributes.MAX_HEALTH, 20.0D)
+                .add(Attributes.ARMOR, 20.0D)
+                .add(Attributes.FLYING_SPEED, (double)1.0F)
                 .add(Attributes.MOVEMENT_SPEED, (double)0.3F)
                 .add(Attributes.ATTACK_DAMAGE, 2.0D)
                 .add(Attributes.FOLLOW_RANGE, 16.0D);
@@ -61,10 +62,10 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new AttachableDroneFollowOwnerGoal<>(this, 1.0D, 5.0F, 1.0F, true));
-        this.goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0D, 5, 10.0F));
-        this.goalSelector.addGoal(3, new DroneWanderGoal<>(this));
-        this.goalSelector.addGoal(4, new DronePatrollingGoal<>(this, 1.0D));
+        this.goalSelector.addGoal(1, new AttachableDroneFollowOwnerGoal<>(this, 1.5D, 10.0F, 2.0F, 12.0F, true));
+        this.goalSelector.addGoal(2, new RangedAttackGoal(this, 1.5D, 5, 10.0F));
+        this.goalSelector.addGoal(3, new FlyingDroneWanderGoal<>(this, 1.5D));
+        this.goalSelector.addGoal(4, new FlyingDronePatrollingGoal<>(this, 1.5D));
 
         this.targetSelector.addGoal(1, new DroneOwnerHurtByTargetGoal<>(this));
         this.targetSelector.addGoal(2, new DroneOwnerHurtTargetGoal<>(this));
@@ -220,16 +221,6 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     @Override
     public void setPatrolling(boolean patrolling) {
         this.patrolling = patrolling;
-        if(patrolling){
-            this.setRecalled(false);
-        }
-        LivingEntity owner = this.getOwner();
-        if(owner != null){
-            IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(owner);
-            if(droneControllerCap != null){
-                droneControllerCap.setDronePatrolling(patrolling);
-            }
-        }
     }
 
     @Override
@@ -240,16 +231,6 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     @Override
     public void setRecalled(boolean recalled) {
         this.recalled = recalled;
-        if(recalled){
-            this.setPatrolling(false);
-        }
-        LivingEntity owner = this.getOwner();
-        if(owner != null){
-            IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(owner);
-            if(droneControllerCap != null){
-                droneControllerCap.setDroneRecalled(recalled);
-            }
-        }
     }
 
     @Override

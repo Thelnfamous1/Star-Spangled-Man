@@ -21,16 +21,18 @@ public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
    private int timeToRecalcPath;
    private final float stopDistance;
    private final float startDistance;
+   private final float teleportDistanceSq;
    private float oldWaterCost;
    private final boolean canFly;
 
-   public DroneFollowOwnerGoal(T droneMob, double speedModifier, float startDistance, float stopDistance, boolean canFly) {
+   public DroneFollowOwnerGoal(T droneMob, double speedModifier, float startDistance, float stopDistance, float teleportDistance, boolean canFly) {
       this.drone = droneMob;
       this.level = droneMob.level;
       this.speedModifier = speedModifier;
       this.navigation = droneMob.getNavigation();
       this.startDistance = startDistance;
       this.stopDistance = stopDistance;
+      this.teleportDistanceSq = teleportDistance * teleportDistance;
       this.canFly = canFly;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
       if (!(droneMob.getNavigation() instanceof GroundPathNavigator) && !(droneMob.getNavigation() instanceof FlyingPathNavigator)) {
@@ -94,18 +96,23 @@ public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
                   this.handleOwnerIntersection();
                }
             }
-            if (this.drone.distanceToSqr(this.owner) >= 144.0D) {
+            if (this.shouldTeleportToOwner()) {
                this.teleportToOwner();
             } else {
-               double speedModifier = this.speedModifier;
-               if(this.owner.isFallFlying() && this.canFly){
-                  speedModifier *= 3;
-               }
+               double speedModifier = this.getSpeedModifier();
                this.navigation.moveTo(this.owner, speedModifier);
             }
 
          }
       }
+   }
+
+   protected boolean shouldTeleportToOwner() {
+      return this.drone.distanceToSqr(this.owner) >= this.teleportDistanceSq;
+   }
+
+   protected double getSpeedModifier() {
+      return this.speedModifier;
    }
 
    protected void handleOwnerIntersection() {

@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -59,7 +60,8 @@ public class RedwingController implements IDroneController {
 
     @Override
     public boolean canControlDrone(LivingEntity controller) {
-        return FalconFlightHelper.hasEXO7Falcon(controller) && !controller.level.isClientSide;
+        return FalconFlightHelper.hasEXO7Falcon(controller)
+                && !controller.level.isClientSide;
     }
 
     @Override
@@ -90,9 +92,6 @@ public class RedwingController implements IDroneController {
     @Override
     public void setDroneRecalled(boolean droneRecalled) {
         this.droneRecalled = droneRecalled;
-        if(droneRecalled){
-            this.dronePatrolling = false;
-        }
     }
 
     @Override
@@ -103,9 +102,6 @@ public class RedwingController implements IDroneController {
     @Override
     public void setDronePatrolling(boolean dronePatrolling) {
         this.dronePatrolling = dronePatrolling;
-        if(dronePatrolling){
-            this.droneRecalled = false;
-        }
     }
 
 }

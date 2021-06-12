@@ -10,8 +10,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class AttachableDroneFollowOwnerGoal<T extends MobEntity & IAttachableDrone> extends DroneFollowOwnerGoal<T>{
     private final T attachableDrone;
 
-    public AttachableDroneFollowOwnerGoal(T attachableDroneMob, double speedModifier, float startDistance, float stopDistance, boolean canFly) {
-        super(attachableDroneMob, speedModifier, startDistance, stopDistance, canFly);
+    public AttachableDroneFollowOwnerGoal(T attachableDroneMob, double speedModifier, float startDistance, float stopDistance, float teleportDistance, boolean canFly) {
+        super(attachableDroneMob, speedModifier, startDistance, stopDistance, teleportDistance, canFly);
         this.attachableDrone = attachableDroneMob;
     }
 

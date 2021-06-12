@@ -32,7 +32,7 @@ public class RedwingRenderer extends MobRenderer<RedwingEntity, RedwingModel<Red
       int redwingSize = 0;
       float scaleFactor = 1.0F + 0.15F * (float)redwingSize;
       matrixStack.scale(scaleFactor, scaleFactor, scaleFactor);
-      matrixStack.translate(0.0D, 1.3125D, 0.1875D);
+      //matrixStack.translate(0.0D, 1.3125D, 0.1875D);
    }
 
    protected void setupRotations(RedwingEntity redwing, MatrixStack matrixStack, float p_225621_3_, float p_225621_4_, float p_225621_5_) {
