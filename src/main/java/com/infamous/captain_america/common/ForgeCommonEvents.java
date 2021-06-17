@@ -10,14 +10,18 @@ import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particles.BasicParticleType;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -33,6 +37,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeCommonEvents {
@@ -46,6 +51,64 @@ public class ForgeCommonEvents {
         if (event.getObject() instanceof PlayerEntity) {
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "drone_controller"), new DroneControllerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "shield_thrower"), new ShieldThrowerProvider());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSprinting(LivingEvent.LivingUpdateEvent event){
+        LivingEntity living = event.getEntityLiving();
+        IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(living);
+        if(shieldThrowerCap != null){
+            boolean hasAcceleratedMovement = living.isSprinting() || living.isFallFlying();
+            shieldThrowerCap.setShieldRunning(hasAcceleratedMovement && living.isBlocking());
+            if(shieldThrowerCap.isShieldRunning() && !living.level.isClientSide){
+                chargingStar(living);
+            }
+        }
+    }
+
+    /*
+    Borrowed and reworked from tallestred's Big Brain mod
+     */
+    public static void chargingStar(LivingEntity shieldRunner) {
+        List<Entity> hitEntities = shieldRunner.level.getEntities(shieldRunner, shieldRunner.getBoundingBox().expandTowards(shieldRunner.getDeltaMovement()), EntityPredicates.pushableBy(shieldRunner));
+        if (!hitEntities.isEmpty() && shieldRunner.level instanceof ServerWorld) {
+            for (Entity hitEntity : hitEntities) {
+                final Vector3d preHitDeltaMove = shieldRunner.getDeltaMovement();
+                if (hitEntity.distanceTo(shieldRunner) <= shieldRunner.distanceTo(hitEntity)) {
+                    hitEntity.push(shieldRunner);
+                    double initialChargeDamage = 10.0D;
+                    double initialChargeKnockback = 10.0D;
+                    // normal sprinting results in about 1.0 damage
+                    // boosted elytra flight results in about 15.0 damage
+                    float scaledChargeDamage = (float) (initialChargeDamage * preHitDeltaMove.length());
+                    CaptainAmerica.LOGGER.debug("Initial damage: {}, Delta movement length: {}, Scaled damage: {}", initialChargeDamage, preHitDeltaMove.length(), scaledChargeDamage);
+                    // normal sprinting results in about 1 block pushed back
+                    // boosted elytra flight results in about 15.0 blocks pushed back
+                    float scaledChargeKnockback = (float) (initialChargeKnockback * preHitDeltaMove.length());
+                    CaptainAmerica.LOGGER.debug("Initial knockback: {}, Delta movement length: {}, Scaled knockback: {}", initialChargeKnockback, preHitDeltaMove.length(), scaledChargeKnockback);
+                    for (int duration = 0; duration < 10; duration++) {
+                        double xSpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
+                        double ySpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
+                        double zSpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
+                        BasicParticleType particleType = hitEntity instanceof WitherEntity || hitEntity instanceof WitherSkeletonEntity ? ParticleTypes.SMOKE : ParticleTypes.CLOUD;
+                        // Collision is done on the server side, so a server side method must be used.
+                        ((ServerWorld) shieldRunner.level).sendParticles(particleType, shieldRunner.getRandomX(1.0D), shieldRunner.getRandomY() + 1.0D, shieldRunner.getRandomZ(1.0D), 1, xSpeed, ySpeed, zSpeed, 1.0D);
+                    }
+                    DamageSource chargeDamageSource = shieldRunner instanceof PlayerEntity ? DamageSource.playerAttack((PlayerEntity) shieldRunner) : DamageSource.mobAttack(shieldRunner);
+                    if (hitEntity.hurt(chargeDamageSource, scaledChargeDamage)) {
+                        if (hitEntity instanceof LivingEntity) {
+                            ((LivingEntity) hitEntity).knockback(scaledChargeKnockback, (double) MathHelper.sin(shieldRunner.yRot * ((float) Math.PI / 180F)), (double) (-MathHelper.cos(shieldRunner.yRot * ((float) Math.PI / 180F))));
+                            shieldRunner.setDeltaMovement(shieldRunner.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+                        }
+                        if (!shieldRunner.isSilent())
+                            shieldRunner.level.playSound((PlayerEntity) null, shieldRunner.getX(), shieldRunner.getY(), shieldRunner.getZ(), SoundEvents.SHIELD_BLOCK, shieldRunner.getSoundSource(), 0.5F, 0.8F + shieldRunner.getRandom().nextFloat() * 0.4F);
+                        if (hitEntity instanceof PlayerEntity && ((PlayerEntity) hitEntity).getUseItem().isShield(((PlayerEntity) hitEntity)))
+                            ((PlayerEntity) hitEntity).disableShield(true);
+                    }
+                    shieldRunner.setLastHurtMob(hitEntity);
+                }
+            }
         }
     }
 

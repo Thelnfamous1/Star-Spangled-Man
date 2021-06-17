@@ -3,10 +3,22 @@ package com.infamous.captain_america.common.capability.shield_thrower;
 public class ShieldThrower implements IShieldThrower{
     private int shieldChargingTicks;
     private float shieldChargingScale;
+    private boolean isShieldRunning;
 
     public ShieldThrower(){
         this.shieldChargingScale = 0;
         this.shieldChargingScale = 0.0F;
+        this.isShieldRunning = false;
+    }
+
+    @Override
+    public boolean isShieldRunning() {
+        return this.isShieldRunning;
+    }
+
+    @Override
+    public void setShieldRunning(boolean shieldRunning) {
+        this.isShieldRunning = shieldRunning;
     }
 
     @Override

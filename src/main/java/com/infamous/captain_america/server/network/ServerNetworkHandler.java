@@ -75,6 +75,7 @@ public class ServerNetworkHandler {
                     break;
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 
     public static void handleDrone(CDronePacket packet, Supplier<NetworkEvent.Context> ctx) {
@@ -129,6 +130,7 @@ public class ServerNetworkHandler {
                 break;
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 
     public static void handleShield(CShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
@@ -167,5 +169,6 @@ public class ServerNetworkHandler {
                 }
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 }

@@ -2,6 +2,10 @@ package com.infamous.captain_america.common.capability.shield_thrower;
 
 public interface IShieldThrower {
 
+    boolean isShieldRunning();
+
+    void setShieldRunning(boolean shieldRunning);
+
     int getShieldChargingTicks();
 
     void setShieldChargingTicks(int shieldChargingTicks);

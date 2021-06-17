@@ -42,6 +42,7 @@ public class ClientNetworkHandler {
                     break;
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 
     public static void handleShield(SShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
@@ -57,5 +58,6 @@ public class ClientNetworkHandler {
                     break;
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 }
