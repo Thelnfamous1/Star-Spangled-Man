@@ -785,11 +785,11 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    protected float getGravity() {
-      return 0.05F;
+      return 0.005F;
    }
 
    protected float getInertia() {
-      return 0.99F;
+      return 0.999F;
    }
 
    protected float getWaterInertia() {

@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class EXO7FalconItem extends ArmorItem {
+public class EXO7FalconItem extends CAArmorItem {
     public static final Predicate<Item> FALCON_PREDICATE =
             item -> item instanceof EXO7FalconItem;
     public static final EquipmentSlotType SLOT = EquipmentSlotType.CHEST;

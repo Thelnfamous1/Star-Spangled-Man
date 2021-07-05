@@ -2,6 +2,8 @@ package com.infamous.captain_america.common.capability;
 
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerProvider;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
+import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
 import net.minecraft.entity.LivingEntity;
@@ -17,6 +19,15 @@ public class CapabilityHelper {
         LazyOptional<IDroneController> lazyCap = entity.getCapability(DroneControllerProvider.DRONE_CONTROLLER_CAPABILITY);
         if (lazyCap.isPresent()) {
             return lazyCap.orElseThrow(() -> new IllegalStateException("Couldn't get the drone controller capability from " + entity + "!"));
+        }
+        return null;
+    }
+
+    @Nullable
+    public static IMetalArm getMetalArmCap(LivingEntity entity){
+        LazyOptional<IMetalArm> lazyCap = entity.getCapability(MetalArmProvider.METAL_ARM_CAPABILITY);
+        if (lazyCap.isPresent()) {
+            return lazyCap.orElseThrow(() -> new IllegalStateException("Couldn't get the metal arm capability from " + entity + "!"));
         }
         return null;
     }

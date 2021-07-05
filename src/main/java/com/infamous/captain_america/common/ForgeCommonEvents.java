@@ -4,15 +4,22 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerProvider;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
+import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
+import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effect;
@@ -38,12 +45,15 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeCommonEvents {
 
     public static final String HURT_CURRENTLY_USED_SHIELD_SRG_NAME = "func_184590_k";
     public static final int SHIELD_BLOCK_ID = 29;
+    private static final UUID METAL_ARM_ATTACK_DAMAGE_UUID = UUID.fromString("b9f748ce-38a8-4ea0-bab7-7cbaa345ade3");
+    private static final UUID METAL_ARM_ATTACK_KNOCKBACK_UUID = UUID.fromString("11bca4d6-e7b9-40ca-b876-68136bcebe28");
     private static Method hurtCurrentlyUsedShield;
 
     @SubscribeEvent
@@ -51,6 +61,7 @@ public class ForgeCommonEvents {
         if (event.getObject() instanceof PlayerEntity) {
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "drone_controller"), new DroneControllerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "shield_thrower"), new ShieldThrowerProvider());
+            event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "metal_arm"), new MetalArmProvider());
         }
     }
 
@@ -244,5 +255,40 @@ public class ForgeCommonEvents {
                 || effect == Effects.CONFUSION
                 || effect == Effects.HUNGER;
     }
+
+    @SubscribeEvent
+    public static void onMetalArmTick(LivingEvent.LivingUpdateEvent event){
+        LivingEntity living = event.getEntityLiving();
+        if(living.level.isClientSide) return;
+
+        ModifiableAttributeInstance attackDamage = living.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (attackDamage != null) {
+            if (attackDamage.getModifier(METAL_ARM_ATTACK_DAMAGE_UUID) != null) {
+                attackDamage.removeModifier(METAL_ARM_ATTACK_DAMAGE_UUID);
+            }
+        }
+
+        ModifiableAttributeInstance attackKnockback = living.getAttribute(Attributes.ATTACK_KNOCKBACK);
+        if (attackKnockback != null) {
+            if (attackKnockback.getModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID) != null) {
+                attackKnockback.removeModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID);
+            }
+        }
+
+        IMetalArm metalArmCap = CapabilityHelper.getMetalArmCap(living);
+        if(metalArmCap != null){
+            ItemStack metalArmMainHand = metalArmCap.getMetalArmMainHand();
+            if(MetalArmItem.isMetalArmStack(metalArmMainHand)){
+                MetalArmItem metalArmItem = (MetalArmItem) metalArmMainHand.getItem();
+                if(attackDamage != null){
+                    attackDamage.addTransientModifier(new AttributeModifier(METAL_ARM_ATTACK_DAMAGE_UUID, "Metal arm attack damage", metalArmItem.getAttackDamage(), AttributeModifier.Operation.ADDITION));
+                }
+                if(attackKnockback != null){
+                    attackKnockback.addTransientModifier(new AttributeModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID, "Metal arm attack knockback", metalArmItem.getAttackKnockback(), AttributeModifier.Operation.ADDITION));
+                }
+            }
+        }
+    }
+
 
 }

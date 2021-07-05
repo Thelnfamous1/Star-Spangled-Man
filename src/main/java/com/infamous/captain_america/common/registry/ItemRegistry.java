@@ -4,7 +4,6 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.common.item.*;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fml.RegistryObject;
@@ -17,42 +16,42 @@ public class ItemRegistry implements IRegistryManager<Item> {
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_HELMET = ITEMS.register(
             "captain_america_helmet", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.HEAD,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.HEAD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_CHESTPLATE = ITEMS.register(
             "captain_america_chestplate", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.CHEST,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.CHEST,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_PANTS = ITEMS.register(
             "captain_america_pants", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.LEGS,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.LEGS,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_BOOTS = ITEMS.register(
             "captain_america_boots", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.FEET,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA, EquipmentSlotType.FEET,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> FALCON_GOGGLES = ITEMS.register(
             "falcon_goggles", () ->
-                    new ArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.HEAD,
+                    new CAArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.HEAD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> FALCON_JACKET = ITEMS.register(
             "falcon_jacket", () ->
-                    new ArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.CHEST,
+                    new CAArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.CHEST,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -67,27 +66,27 @@ public class ItemRegistry implements IRegistryManager<Item> {
 
     public static final RegistryObject<Item> FALCON_LEGGINGS = ITEMS.register(
             "falcon_leggings", () ->
-                    new ArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.LEGS,
+                    new CAArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.LEGS,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> FALCON_GREAVES = ITEMS.register(
             "falcon_greaves", () ->
-                    new ArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.FEET,
+                    new CAArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.FEET,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
     public static final RegistryObject<Item> CAPTAIN_AMERICA_GOGGLES = ITEMS.register(
             "captain_america_goggles", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.HEAD,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.HEAD,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_JACKET = ITEMS.register(
             "captain_america_jacket", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.CHEST,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.CHEST,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -102,14 +101,14 @@ public class ItemRegistry implements IRegistryManager<Item> {
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_LEGGINGS = ITEMS.register(
             "captain_america_leggings", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.LEGS,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.LEGS,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_GREAVES = ITEMS.register(
             "captain_america_greaves", () ->
-                    new ArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.FEET,
+                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.FEET,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -150,7 +149,6 @@ public class ItemRegistry implements IRegistryManager<Item> {
             "vibranium_arm", () ->
                     new MetalArmItem(
                             3.0F,
-                            (4.0F-4.0F),
                             1.0F,
                             CAItemTier.VIBRANIUM,
                             (new Item.Properties())

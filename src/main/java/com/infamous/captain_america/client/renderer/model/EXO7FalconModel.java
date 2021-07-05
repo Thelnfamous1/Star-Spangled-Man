@@ -12,10 +12,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class EXO7FalconModel<T extends LivingEntity> extends AgeableModel<T> {
    private final ModelRenderer rightWing;
-   private final ModelRenderer leftWing = new ModelRenderer(this, 22, 0);
+   private final ModelRenderer leftWing;
 
    public EXO7FalconModel() {
+      this.leftWing = new ModelRenderer(this, 22, 0);
       this.leftWing.addBox(-10.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);
+
       this.rightWing = new ModelRenderer(this, 22, 0);
       this.rightWing.mirror = true;
       this.rightWing.addBox(0.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);

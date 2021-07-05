@@ -30,7 +30,7 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
 
     public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, T flyer, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
         ItemStack exo7FalconStack = FalconFlightHelper.getEXO7FalconStack(flyer);
-        if (shouldRender(exo7FalconStack, flyer)) {
+        if (shouldRenderWings(exo7FalconStack, flyer)) {
             ResourceLocation resourcelocation = getEXO7FalconTexture(exo7FalconStack, flyer);
 
             matrixStack.pushPose();
@@ -43,7 +43,7 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
         }
     }
 
-    public boolean shouldRender(ItemStack stack, T entity) {
+    public boolean shouldRenderWings(ItemStack stack, T entity) {
         return EXO7FalconItem.isEXO7FalconStack(stack) && EXO7FalconItem.isFlightEnabled(stack);
     }
 

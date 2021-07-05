@@ -9,12 +9,17 @@ import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.BipedRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.entity.MobEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -24,7 +29,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class ModClientEventHandler {
+public class ModClientEvents {
 
     @SubscribeEvent
     public static void onStitch(TextureStitchEvent.Pre event) {
@@ -36,9 +41,12 @@ public class ModClientEventHandler {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onClientSetup(final FMLClientSetupEvent event){
-        addLayersToSkinMaps();
+        Minecraft minecraft = Minecraft.getInstance();
+        EntityRendererManager manager = minecraft.getEntityRenderDispatcher();
+        addLayersToSkinMaps(manager);
+        addLayersToBipeds(manager);
         registerKeyBindings();
         registerEntityRenderers();
         CAItemModelProperties.register();
@@ -66,16 +74,27 @@ public class ModClientEventHandler {
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");
     }
 
-    private static void addLayersToSkinMaps() {
+    private static void addLayersToSkinMaps(EntityRendererManager manager) {
         CaptainAmerica.LOGGER.info("Adding layers to skin maps!");
-        Minecraft minecraft = Minecraft.getInstance();
-        EntityRendererManager manager = minecraft.getEntityRenderDispatcher();
         Map<String, PlayerRenderer> skinMap = manager.getSkinMap();
         for(PlayerRenderer playerRenderer : skinMap.values()){
+            boolean smallArms = skinMap.get("slim") == playerRenderer;
             playerRenderer.addLayer(new EXO7FalconLayer<>(playerRenderer));
-            playerRenderer.addLayer(new MetalArmLayer<>(playerRenderer, new BipedModel<>(0.1F)));
+            playerRenderer.addLayer(new MetalArmLayer<>(playerRenderer, new PlayerModel<>(0.0F, smallArms)));
         }
         CaptainAmerica.LOGGER.info("Finished adding layers to skin maps!");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends MobEntity, M extends BipedModel<T>> void addLayersToBipeds(EntityRendererManager manager) {
+        CaptainAmerica.LOGGER.info("Adding layers to bipeds!");
+        for(EntityRenderer<?> entityRenderer : manager.renderers.values()){
+            if(entityRenderer instanceof BipedRenderer){
+                BipedRenderer<T, M> bipedRenderer = (BipedRenderer<T, M>) entityRenderer;
+                bipedRenderer.addLayer(new MetalArmLayer<>(bipedRenderer, new BipedModel<>(0.0F)));
+            }
+        }
+        CaptainAmerica.LOGGER.info("Finished adding layers to bipeds!");
     }
 
 }
