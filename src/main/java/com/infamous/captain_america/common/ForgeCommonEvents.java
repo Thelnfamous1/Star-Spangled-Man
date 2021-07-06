@@ -4,13 +4,17 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerProvider;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbilityProvider;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
+import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
+import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -28,6 +32,7 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
@@ -62,11 +67,12 @@ public class ForgeCommonEvents {
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "drone_controller"), new DroneControllerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "shield_thrower"), new ShieldThrowerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "metal_arm"), new MetalArmProvider());
+            event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "falcon_ability"), new FalconAbilityProvider());
         }
     }
 
     @SubscribeEvent
-    public static void onSprinting(LivingEvent.LivingUpdateEvent event){
+    public static void onLivingUpdate(LivingEvent.LivingUpdateEvent event){
         LivingEntity living = event.getEntityLiving();
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(living);
         if(shieldThrowerCap != null){
@@ -74,6 +80,24 @@ public class ForgeCommonEvents {
             shieldThrowerCap.setShieldRunning(hasAcceleratedMovement && living.isBlocking());
             if(shieldThrowerCap.isShieldRunning() && !living.level.isClientSide){
                 chargingStar(living);
+            }
+        }
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
+        if(falconAbilityCap != null){
+            boolean wasHovering = falconAbilityCap.isHovering();
+            if(!FalconFlightHelper.canHover(living)){
+                falconAbilityCap.setHovering(false);
+                if(!living.level.isClientSide && wasHovering){
+                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
+                }
+            }
+            if(falconAbilityCap.isHovering()){
+                if(!falconAbilityCap.isVerticallyFlying()){
+                    living.setDeltaMovement(living.getDeltaMovement().multiply(1, 0, 1));
+                } else{
+                    falconAbilityCap.setVerticallyFlying(false);
+                }
+                living.fallDistance = 0;
             }
         }
     }
@@ -132,6 +156,7 @@ public class ForgeCommonEvents {
         if(oldDroneControllerCap != null && newDroneControllerCap != null){
             newDroneControllerCap.copyValuesFrom(oldDroneControllerCap);
         }
+        newPlayer.sendMessage(new TranslationTextComponent("action.falcon.respawn"), Util.NIL_UUID);
     }
 
     @SubscribeEvent

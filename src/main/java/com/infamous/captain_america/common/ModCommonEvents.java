@@ -5,6 +5,9 @@ import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerStorage;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.capability.drone_controller.RedwingController;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbility;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbilityStorage;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmStorage;
@@ -39,6 +42,7 @@ public class ModCommonEvents {
         CapabilityManager.INSTANCE.register(IDroneController.class, new DroneControllerStorage(), RedwingController::new);
         CapabilityManager.INSTANCE.register(IShieldThrower.class, new ShieldThrowerStorage(), ShieldThrower::new);
         CapabilityManager.INSTANCE.register(IMetalArm.class, new MetalArmStorage(), MetalArm::new);
+        CapabilityManager.INSTANCE.register(IFalconAbility.class, new FalconAbilityStorage(), FalconAbility::new);
     }
 
     @SubscribeEvent

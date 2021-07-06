@@ -8,27 +8,39 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class SFlightPacket {
-    private SFlightPacket.Action action;
-    private int data;
+    private final SFlightPacket.Action action;
+    private final float data;
+    private final boolean flag;
 
     public SFlightPacket(SFlightPacket.Action action){
-        this(action, 0);
+        this(action, 0, false);
     }
 
-    public SFlightPacket(SFlightPacket.Action action, int data){
+    public SFlightPacket(SFlightPacket.Action action, float data){
+        this(action, data, false);
+    }
+
+    public SFlightPacket(SFlightPacket.Action action, boolean flag){
+        this(action, 0, flag);
+    }
+
+    public SFlightPacket(SFlightPacket.Action action, float data, boolean flag){
         this.action = action;
         this.data = data;
+        this.flag = flag;
     }
 
     public static SFlightPacket decodePacket(PacketBuffer packetBuffer){
         Action action = packetBuffer.readEnum(Action.class);
-        int data = packetBuffer.readVarInt();
-        return new SFlightPacket(action, data);
+        float data = packetBuffer.readFloat();
+        boolean flag = packetBuffer.readBoolean();
+        return new SFlightPacket(action, data, flag);
     }
 
     public static void encodePacket(SFlightPacket packet, PacketBuffer packetBuffer){
         packetBuffer.writeEnum(packet.action);
-        packetBuffer.writeVarInt(packet.data);
+        packetBuffer.writeFloat(packet.data);
+        packetBuffer.writeBoolean(packet.flag);
     }
 
     public static void handlePacket(SFlightPacket packet, Supplier<NetworkEvent.Context> ctx){
@@ -39,14 +51,19 @@ public class SFlightPacket {
         return this.action;
     }
 
-    public int getData() {
+    public float getData() {
         return this.data;
+    }
+
+    public boolean getFlag() {
+        return this.flag;
     }
 
     public enum Action {
         TOGGLE_FLIGHT,
         TAKEOFF_FLIGHT,
         BOOST_FLIGHT,
-        HOVER;
+        TOGGLE_HOVER,
+        VERTICAL_FLIGHT
     }
 }

@@ -8,18 +8,39 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class CFlightPacket {
-    private CFlightPacket.Action action;
+    private final CFlightPacket.Action action;
+    private final float data;
+    private final boolean flag;
 
     public CFlightPacket(CFlightPacket.Action action){
+        this(action, 0, false);
+    }
+
+    public CFlightPacket(CFlightPacket.Action action, boolean flag){
+        this(action, 0, flag);
+    }
+
+    public CFlightPacket(CFlightPacket.Action action, float data){
+        this(action, data, false);
+    }
+
+    public CFlightPacket(CFlightPacket.Action action, float data, boolean flag){
         this.action = action;
+        this.data = data;
+        this.flag = flag;
     }
 
     public static CFlightPacket decodePacket(PacketBuffer packetBuffer){
-        return new CFlightPacket(packetBuffer.readEnum(CFlightPacket.Action.class));
+        Action action = packetBuffer.readEnum(Action.class);
+        float data = packetBuffer.readFloat();
+        boolean flag = packetBuffer.readBoolean();
+        return new CFlightPacket(action, data, flag);
     }
 
     public static void encodePacket(CFlightPacket packet, PacketBuffer packetBuffer){
         packetBuffer.writeEnum(packet.action);
+        packetBuffer.writeFloat(packet.data);
+        packetBuffer.writeBoolean(packet.flag);
     }
 
     public static void handlePacket(CFlightPacket packet, Supplier<NetworkEvent.Context> ctx){
@@ -30,11 +51,20 @@ public class CFlightPacket {
         return this.action;
     }
 
+    public float getData() {
+        return this.data;
+    }
+
+    public boolean getFlag() {
+        return this.flag;
+    }
+
     public enum Action {
         TOGGLE_FLIGHT,
         TAKEOFF_FLIGHT,
         BOOST_FLIGHT,
         HALT_FLIGHT,
-        HOVER
+        TOGGLE_HOVER,
+        VERTICAL_FLIGHT
     }
 }

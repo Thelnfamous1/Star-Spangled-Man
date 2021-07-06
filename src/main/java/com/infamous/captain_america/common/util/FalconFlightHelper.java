@@ -1,5 +1,6 @@
 package com.infamous.captain_america.common.util;
 
+import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.SoundRegistry;
 import net.minecraft.entity.LivingEntity;
@@ -99,14 +100,20 @@ public class FalconFlightHelper {
      * Looking straight ahead allows a living entity to hover
      * Note that this follows the same logic for the y delta movement as FalconFlightHelper#boostFlight
      * @param living The LivingEntity that is to fly vertically using their EXO-7 Falcon
+     * @param invert If true, inverts the vertical flight movement via multiplication by -1
      */
-    public static void hover(LivingEntity living){
+    public static void verticallyFly(LivingEntity living, boolean invert){
         Vector3d lookAngle = living.getLookAngle();
         Vector3d deltaMovement = living.getDeltaMovement();
 
-        double d0 = 1.5D;
-        double d1 = 0.1D;
-        double newVerticalDelta = lookAngle.y * 0.1D + (lookAngle.y * 1.5D - deltaMovement.y) * 0.5D;
+        double moveBoost = 1.5D;
+        double lookBoost = 0.1D;
+        double lookAngleY = lookAngle.y;
+        if(invert){
+            lookAngleY *= -1;
+        }
+        double newVerticalDelta = lookAngleY * lookBoost + (lookAngleY * moveBoost - deltaMovement.y) * 0.5D;
+
         living.setDeltaMovement(deltaMovement
                 .add(0, newVerticalDelta, 0)
         );

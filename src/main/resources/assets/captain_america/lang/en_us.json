@@ -38,6 +38,8 @@
 
   "action.falcon.flightOn": "Activated EXO-7 FALCON wings!",
   "action.falcon.flightOff": "Deactivated EXO-7 FALCON wings!",
+  "action.falcon.hoverOn": "Activated hover mode!",
+  "action.falcon.hoverOff": "Deactivated hover mode!",
 
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
@@ -46,20 +48,40 @@
   "action.redwing.patrolOn": "Redwing is now patrolling!",
   "action.redwing.patrolOff": "Redwing is no longer patrolling!",
 
+  "action.falcon.setAbility": "Set %s ability to %s!",
+  "action.falcon.respawn": "Reset all abilities!",
+
   "key.categories.falconTech": "Falcon Techniques",
-  "key.hover": "Hover",
-  "key.toggleFlight": "Toggle Flight",
-  "key.haltFlight": "Halt Flight",
-  "key.boostFlight": "Boost Flight",
-  "key.deployRedwing": "Deploy Redwing",
-  "key.toggleRedwingRecall": "Toggle Redwing Recall",
-  "key.toggleRedwingPatrol": "Toggle Redwing Patrol",
+  "key.openFalconScreen": "Open Falcon Screen",
+  "key.flightAbility": "Flight Ability",
+  "key.combatAbility": "Combat Ability",
+  "key.droneAbility": "Drone Ability",
+  "key.hudAbility": "HUD Ability",
+  "key.verticalFlight": "Vertical Flight (While Hovering)",
+  "key.verticalFlightInverted": "Inverted Vertical Flight (While Hovering)",
 
   "key.categories.capTech": "Captain America Techniques",
   "key.boomerangThrowShield": "Boomerang-Throw Shield",
   "key.ricochetThrowShield": "Ricochet-Throw Shield",
 
   "subtitles.flight_boost": "Flight boost",
+
+  "ability.falcon.flight": "Flight",
+  "ability.falcon.flight.toggleFlight": "Toggle Flight",
+  "ability.falcon.flight.boost": "Boost Flight",
+  "ability.falcon.flight.halt": "Halt Flight",
+  "ability.falcon.flight.toggleHover": "Toggle Hover",
+
+  "ability.falcon.combat": "Combat",
+  "ability.falcon.combat.missile": "Missile",
+
+  "ability.falcon.drone": "Drone",
+  "ability.falcon.drone.deploy": "Deploy Drone",
+  "ability.falcon.drone.togglePatrol": "Toggle Patrol",
+  "ability.falcon.drone.toggleRecall": "Toggle Recall",
+
+  "ability.falcon.hud": "HUD",
+  "ability.falcon.hud.infrared": "Infrared",
 
   "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
   "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",

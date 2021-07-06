@@ -64,7 +64,7 @@ public class ForgeClientEvents {
             ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
             if(clientPlayer == null) return;
 
-            if (FalconFlightHelper.canBoostFlight(clientPlayer)) {
+            if (FalconFlightHelper.canBoostFlight(clientPlayer) && clientPlayer.getFallFlyingTicks() > 20) {
                 FalconFlightHelper.playFlightBoostSound(clientPlayer);
                 NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
             }

@@ -4,10 +4,12 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SSetFalconAbilityPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -27,15 +29,27 @@ public class ServerNetworkHandler {
             if(serverPlayer == null){
                 return;
             }
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+
             switch (packet.getAction()){
                 case TOGGLE_FLIGHT:
                     if (FalconFlightHelper.hasEXO7Falcon(serverPlayer)) {
                         boolean toggledTo = FalconFlightHelper.toggleEXO7Falcon(serverPlayer);
-                        int toggleValue = toggledTo ? 1 : 0;
-                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_FLIGHT, toggleValue));
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_FLIGHT, toggledTo));
                         CaptainAmerica.LOGGER.debug("Server player {} has toggled their EXO-7 Falcon flight to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
                         TranslationTextComponent flightToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.flightOn") : new TranslationTextComponent("action.falcon.flightOff");
                         serverPlayer.sendMessage(flightToggleMessage, Util.NIL_UUID);
+
+                        if(falconAbilityCap != null){
+                            boolean wasHovering = falconAbilityCap.isHovering();
+                            if(falconAbilityCap.isHovering() && !toggledTo){
+                                falconAbilityCap.setHovering(false);
+                            }
+                            TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
+                            if(wasHovering != falconAbilityCap.isHovering()){
+                                serverPlayer.sendMessage(hoverToggleMessage, Util.NIL_UUID);
+                            }
+                        }
                     } else {
                         CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                     }
@@ -64,15 +78,26 @@ public class ServerNetworkHandler {
                         CaptainAmerica.LOGGER.debug("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                     }
                     break;
-                case HOVER:
-                    if (FalconFlightHelper.canHover(serverPlayer)) {
-                        FalconFlightHelper.hover(serverPlayer);
-                        CaptainAmerica.LOGGER.debug("Server player {} is hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
-                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.HOVER));
-                    } else {
-                        CaptainAmerica.LOGGER.debug("Server player {} cannot hover using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                case TOGGLE_HOVER:
+                    if(falconAbilityCap == null) return;
+                    boolean wasHovering = falconAbilityCap.isHovering();
+                    falconAbilityCap.setHovering(!falconAbilityCap.isHovering() && FalconFlightHelper.canHover(serverPlayer));
+                    CaptainAmerica.LOGGER.debug("Server player {} is {} hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString(), falconAbilityCap.isHovering() ? "" : "no longer");
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, falconAbilityCap.isHovering()));
+                    TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
+                    if(wasHovering != falconAbilityCap.isHovering()){
+                        serverPlayer.sendMessage(hoverToggleMessage, Util.NIL_UUID);
                     }
                     break;
+                case VERTICAL_FLIGHT:
+                    if(falconAbilityCap == null) return;
+                    if(falconAbilityCap.isHovering()){
+                        falconAbilityCap.setVerticallyFlying(true);
+                        FalconFlightHelper.verticallyFly(serverPlayer, packet.getFlag());
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.VERTICAL_FLIGHT, packet.getFlag()));
+                    }
+                    break;
+
             }
         });
         ctx.get().setPacketHandled(true);
@@ -166,6 +191,32 @@ public class ServerNetworkHandler {
                         }
                     }
                     break;
+                }
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    public static void handleSetAbility(CSetFalconAbilityPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(()->{
+            ServerPlayerEntity serverPlayer = ctx.get().getSender();
+            if(serverPlayer == null) return;
+
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+            if(falconAbilityCap != null){
+                if(!packet.getValue().isValidForKey(packet.getKey())){
+                    CaptainAmerica.LOGGER.error(
+                            "Failed to set the {} ability for server player {} because {} is a child of the {} ability",
+                            packet.getKey().name(),
+                            serverPlayer.getDisplayName().getString(),
+                            packet.getValue().name(),
+                            packet.getValue().getParent());
+                } else{
+                    falconAbilityCap.getAbilitySelectionMap().put(packet.getKey(), packet.getValue());
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SSetFalconAbilityPacket(packet.getKey(), packet.getValue()));
+                    serverPlayer.sendMessage(new TranslationTextComponent("action.falcon.setAbility", packet.getKey().name(), packet.getValue().name()), Util.NIL_UUID);
+                    CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
+
                 }
             }
         });

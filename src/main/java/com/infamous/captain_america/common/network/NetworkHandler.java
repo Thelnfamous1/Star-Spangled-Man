@@ -3,8 +3,10 @@ package com.infamous.captain_america.common.network;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.client.network.packet.CDronePacket;
+import com.infamous.captain_america.client.network.packet.CSetFalconAbilityPacket;
 import com.infamous.captain_america.client.network.packet.CShieldPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SSetFalconAbilityPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -67,6 +69,22 @@ public final class NetworkHandler {
                 SShieldPacket::encodePacket,
                 SShieldPacket::decodePacket,
                 SShieldPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        INSTANCE.registerMessage(
+                incrementAndGetPacketCounter(),
+                CSetFalconAbilityPacket.class,
+                CSetFalconAbilityPacket::encodePacket,
+                CSetFalconAbilityPacket::decodePacket,
+                CSetFalconAbilityPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        INSTANCE.registerMessage(
+                incrementAndGetPacketCounter(),
+                SSetFalconAbilityPacket.class,
+                SSetFalconAbilityPacket::encodePacket,
+                SSetFalconAbilityPacket::decodePacket,
+                SSetFalconAbilityPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
 

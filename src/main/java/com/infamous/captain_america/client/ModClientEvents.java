@@ -63,12 +63,9 @@ public class ModClientEvents {
 
     private static void registerKeyBindings() {
         CaptainAmerica.LOGGER.info("Registering key bindings!");
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyHover);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyBoostFlight);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyHaltFlight);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyDeployRedwing);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyToggleRedwingRecall);
-        ClientRegistry.registerKeyBinding(CAKeyBinding.keyTogglePatrolRedwing);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyOpenFalconScreen);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyFlightAbility);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyDroneAbility);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyBoomerangThrowShield);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyRicochetThrowShield);
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");

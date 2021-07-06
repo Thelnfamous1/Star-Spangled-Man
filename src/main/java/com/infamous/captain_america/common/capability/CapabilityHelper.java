@@ -2,6 +2,8 @@ package com.infamous.captain_america.common.capability;
 
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerProvider;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbilityProvider;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
@@ -38,6 +40,16 @@ public class CapabilityHelper {
         LazyOptional<IShieldThrower> lazyCap = entity.getCapability(ShieldThrowerProvider.SHIELD_THROWER_CAPABILITY);
         if (lazyCap.isPresent()) {
             return lazyCap.orElseThrow(() -> new IllegalStateException("Couldn't get the shield thrower capability from " + entity + "!"));
+        }
+        return null;
+    }
+
+    @Nullable
+    public static IFalconAbility getFalconAbilityCap(LivingEntity entity)
+    {
+        LazyOptional<IFalconAbility> lazyCap = entity.getCapability(FalconAbilityProvider.FALCON_ABILITY_CAPABILITY);
+        if (lazyCap.isPresent()) {
+            return lazyCap.orElseThrow(() -> new IllegalStateException("Couldn't get the falcon ability capability from " + entity + "!"));
         }
         return null;
     }
