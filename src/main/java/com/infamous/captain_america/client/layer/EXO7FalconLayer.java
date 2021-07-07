@@ -1,7 +1,7 @@
 package com.infamous.captain_america.client.layer;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.client.renderer.model.EXO7FalconModel1;
+import com.infamous.captain_america.client.renderer.model.EXO7FalconModel2;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.ItemRegistry;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -22,7 +22,7 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
     private static final ResourceLocation FALCON_WINGS_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_wings.png");
     private static final ResourceLocation CAPTAIN_AMERICA_WINGS_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/captain_america_wings.png");
 
-    private final EXO7FalconModel1<T> elytraModel = new EXO7FalconModel1<>();
+    private final EXO7FalconModel2<T> elytraModel = new EXO7FalconModel2<>();
 
     public EXO7FalconLayer(IEntityRenderer<T, M> entityRenderer) {
         super(entityRenderer);

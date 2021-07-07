@@ -10,7 +10,6 @@ import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
-import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
@@ -87,6 +86,7 @@ public class ForgeCommonEvents {
             boolean wasHovering = falconAbilityCap.isHovering();
             if(!FalconFlightHelper.canHover(living)){
                 falconAbilityCap.setHovering(false);
+                CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                 if(!living.level.isClientSide && wasHovering){
                     living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
                 }

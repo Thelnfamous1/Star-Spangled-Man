@@ -24,11 +24,15 @@
 
   "item.captain_america.vibranium_arm": "Vibranium Arm",
 
+  "item.captain_america.pistol_bullet": "Pistol Bullet",
+
   "entity.captain_america.falcon_redwing": "Falcon's Redwing",
   "entity.captain_america.captain_america_redwing": "Captain America's Redwing",
 
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
+
+  "entity.captain_america.bullet": "Bullet",
 
   "effect.captain_america.super_soldier": "Super Soldier",
   "item.minecraft.tipped_arrow.effect.super_soldier": "Arrow of the Super Soldier",
@@ -59,6 +63,7 @@
   "key.hudAbility": "HUD Ability",
   "key.verticalFlight": "Vertical Flight (While Hovering)",
   "key.verticalFlightInverted": "Inverted Vertical Flight (While Hovering)",
+  "key.toggleFlight": "Toggle Flight",
 
   "key.categories.capTech": "Captain America Techniques",
   "key.boomerangThrowShield": "Boomerang-Throw Shield",

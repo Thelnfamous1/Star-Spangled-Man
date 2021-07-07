@@ -9,10 +9,7 @@ import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.BipedRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.*;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.texture.AtlasTexture;
@@ -54,6 +51,7 @@ public class ModClientEvents {
 
     private static void registerEntityRenderers() {
         CaptainAmerica.LOGGER.info("Registering entity renderers!");
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.BULLET.get(), (manager) -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.FALCON_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD.get(), VibraniumShieldRenderer::new);

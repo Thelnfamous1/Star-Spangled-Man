@@ -5,7 +5,6 @@ import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
-import com.infamous.captain_america.server.network.packet.SSetFalconAbilityPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -35,6 +34,7 @@ public class ClientNetworkHandler {
                     if(falconAbilityCap != null){
                         if(falconAbilityCap.isHovering() && !toggleTo){
                             falconAbilityCap.setHovering(false);
+                            CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", clientPlayer.getDisplayName().getString());
                         }
                     }
                     break;
@@ -73,33 +73,6 @@ public class ClientNetworkHandler {
                 case SHIELD_HIT_PLAYER:
                     clientPlayer.level.playSound(clientPlayer, clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ(), SoundEvents.SHIELD_BLOCK, SoundCategory.PLAYERS, 0.18F, 0.45F);
                     break;
-            }
-        });
-        ctx.get().setPacketHandled(true);
-    }
-
-    public static void handleSetAbility(SSetFalconAbilityPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(()->{
-            Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
-            if(clientPlayer == null){
-                return;
-            }
-
-            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
-            if(falconAbilityCap != null){
-                if(!packet.getValue().isValidForKey(packet.getKey())){
-                    CaptainAmerica.LOGGER.error(
-                            "Failed to set the {} ability for client player {} because {} is a child of the {} ability",
-                            packet.getKey().name(),
-                            clientPlayer.getDisplayName().getString(),
-                            packet.getValue().name(),
-                            packet.getValue().getParent());
-                } else{
-                    falconAbilityCap.getAbilitySelectionMap().put(packet.getKey(), packet.getValue());
-                    CaptainAmerica.LOGGER.info("Client player {} has set their {} ability to {}!", clientPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
-
-                }
             }
         });
         ctx.get().setPacketHandled(true);

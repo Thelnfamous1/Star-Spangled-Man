@@ -2,6 +2,7 @@ package com.infamous.captain_america.common.entity.drone;
 
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
+import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.server.ai.goals.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -164,15 +165,15 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     @Override
     public void performRangedAttack(LivingEntity target, float p_82196_2_) {
-        SnowballEntity snowballentity = new SnowballEntity(this.level, this);
+        BulletEntity bullet = new BulletEntity(this.level, this);
         double eyeDiff = target.getEyeY() - (double)1.1F;
         double xDiff = target.getX() - this.getX();
-        double yDiff = eyeDiff - snowballentity.getY();
+        double yDiff = eyeDiff - bullet.getY();
         double zDiff = target.getZ() - this.getZ();
         float scaledHorizontalDist = MathHelper.sqrt(xDiff * xDiff + zDiff * zDiff) * 0.2F;
-        snowballentity.shoot(xDiff, yDiff + (double)scaledHorizontalDist, zDiff, 1.6F, 12.0F);
+        bullet.shoot(xDiff, yDiff + (double)scaledHorizontalDist, zDiff, 1.6F, 12.0F);
         this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
-        this.level.addFreshEntity(snowballentity);
+        this.level.addFreshEntity(bullet);
     }
 
     @Nullable

@@ -2,9 +2,11 @@ package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
+import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -18,7 +20,7 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .sized(0.7F, 0.6F)
                     .fireImmune()
                     .clientTrackingRange(8)
-                    .build("falcon_redwing")
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "falcon_redwing").toString())
     );
 
     public static final RegistryObject<EntityType<? extends RedwingEntity>> CAPTAIN_AMERICA_REDWING = ENTITY_TYPES.register("captain_america_redwing",
@@ -26,7 +28,7 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .sized(0.7F, 0.6F)
                     .fireImmune()
                     .clientTrackingRange(8)
-                    .build("captain_america_redwing")
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "captain_america_redwing").toString())
     );
 
     public static final RegistryObject<EntityType<? extends VibraniumShieldEntity>> CAPTAIN_AMERICA_SHIELD = ENTITY_TYPES.register("captain_america_shield",
@@ -35,7 +37,7 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .fireImmune()
                     .clientTrackingRange(4)
                     .updateInterval(10)
-                    .build("captain_america_shield")
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "captain_america_shield").toString())
     );
 
     public static final RegistryObject<EntityType<? extends VibraniumShieldEntity>> VIBRANIUM_SHIELD = ENTITY_TYPES.register("vibranium_shield",
@@ -44,8 +46,16 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .fireImmune()
                     .clientTrackingRange(4)
                     .updateInterval(10)
-                    .build("vibranium_shield")
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "vibranium_shield").toString())
     );
+
+    public static final RegistryObject<EntityType<BulletEntity>> BULLET = ENTITY_TYPES.register("bullet",
+            () -> EntityType.Builder.<BulletEntity>of(BulletEntity::new, EntityClassification.MISC)
+            .sized(0.3125f, 0.3125f)
+            .setUpdateInterval(10)
+            .setTrackingRange(64)
+            .setShouldReceiveVelocityUpdates(true)
+            .build(new ResourceLocation(CaptainAmerica.MODID, "bullet").toString()));
 
     @Override
     public String getRegistryTypeForLogger() {

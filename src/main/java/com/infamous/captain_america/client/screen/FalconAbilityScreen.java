@@ -2,8 +2,9 @@ package com.infamous.captain_america.client.screen;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.CSetFalconAbilityPacket;
-import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.network.NetworkHandler;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
+import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -18,17 +19,17 @@ public abstract class FalconAbilityScreen extends Screen {
 
     private static final int WIDTH = 77;
     private static final int HEIGHT = 180;
-    private final IFalconAbility.Key key;
+    private final FalconAbilityKey key;
     private final ResourceLocation GUI = new ResourceLocation(CaptainAmerica.MODID,"textures/gui/solar_config_gui.png");
     public int page;
     private int maxPages;
     private int previousPage;
 
-
-    public FalconAbilityScreen(IFalconAbility.Key key) {
+    public FalconAbilityScreen(FalconAbilityKey key) {
         super(new TranslationTextComponent("test.screen.thing"));
         this.key = key;
     }
+
     @Override
     public boolean mouseScrolled(double mousePosX, double mousePosY, double delta) {
         if (delta > 0 && this.page != this.maxPages){
@@ -50,10 +51,16 @@ public abstract class FalconAbilityScreen extends Screen {
         this.addButtons(relX, relY);
     }
 
-    protected abstract void addButtons(int relX, int relY);
+    protected void addButtons(int relX, int relY){
+        int start = -10;
+        for(FalconAbilityValue abilityValue : this.key.getChildren()){
+            // actually starts at 10, and then adds 20 for each button after the first
+            addFalconButton(relX, relY, start += 20, abilityValue);
+        }
+    }
 
-    protected void addFalconButton(int relX, int relY, int offset, IFalconAbility.Value value){
-        this.addButton(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslationTextComponent(value.getTranslationKey()), p -> {
+    protected void addFalconButton(int relX, int relY, int offset, FalconAbilityValue value){
+        this.addButton(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslationTextComponent(this.key.getTranslationKey(value)), p -> {
             NetworkHandler.INSTANCE.sendToServer(new CSetFalconAbilityPacket(this.key, value));
             Minecraft.getInstance().setScreen(new FalconAbilitySelectionScreen());
         }));
@@ -77,7 +84,7 @@ public abstract class FalconAbilityScreen extends Screen {
                     buttonList.get(i).y -= this.height;
                 }
                 System.out.println(buttonList.get(0).y);
-                this.previousPage = page;
+                this.previousPage = this.page;
             }
         }
     }
@@ -86,7 +93,9 @@ public abstract class FalconAbilityScreen extends Screen {
     public void render(MatrixStack stack, int rouseX, int rouseY, float partialTicks){
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(GUI);
+        if (this.minecraft != null) {
+            this.minecraft.getTextureManager().bind(GUI);
+        }
         int relX = (this.width - WIDTH) / 2;
         int relY = (this.height - HEIGHT) / 2;
 

@@ -30,10 +30,10 @@ public class EXO7FalconModel1<T extends LivingEntity> extends AgeableModel<T> {
 		this.leftWing.texOffs(8, 2).addBox(-11.75F, -2.25F, 1.25F, 23.0F, 34.0F, 1.0F, -2.24F, false);
 
 		this.rightWing = new ModelRenderer(this);
-		this.rightWing.setPos(-4.25F, 0.75F, 5.0F);
+		this.rightWing.setPos(-4.25F, 0.75F - 0.25F, 5.0F - 1.0F);
 		body.addChild(this.rightWing);
 		this.setDefaultWingRotation(this.rightWing, true);
-		this.rightWing.texOffs(8, 2).addBox(-11.0F, -2.25F, 2.25F, 23.0F, 34.0F, 1.0F, -2.24F, true);
+		this.rightWing.texOffs(8, 2).addBox(-11.0F /*- 0.75F*/, -2.25F, 2.25F - 1.0F, 23.0F, 34.0F, 1.0F, -2.24F, true);
 
 		this.wingPack = new ModelRenderer(this);
 		this.wingPack.setPos(0.0F, 0.0F, 0.0F);
@@ -62,6 +62,9 @@ public class EXO7FalconModel1<T extends LivingEntity> extends AgeableModel<T> {
 		float leftWingYRot = 0.0F;
 		float leftWingZRot = (float)Math.PI / 2;
 		float leftWingYPos = 0.5F; // default Y pos
+		//this.leftWing.x = 4.25F;
+		//this.rightWing.x = -4.25F;
+		//this.rightWing.z = 5.0F;
 
 		if (living.isFallFlying()) {
 			float fallFactor = 1.0F;
@@ -75,10 +78,15 @@ public class EXO7FalconModel1<T extends LivingEntity> extends AgeableModel<T> {
 		} else if (living.isCrouching()) {
 			this.wingPack.y += 3.0F;
 			this.wingPack.xRot += 0.5F;
-			leftWingXRot *= (8.0F / 3.0F);
-			leftWingYRot = leftWingXRot / 3;
+
+			//this.leftWing.x += 1.0F;
+			//this.rightWing.x += 1.0F;
+			//this.rightWing.z -= 1.0F;
+
+			leftWingXRot *= (8.0F / 3.0F) / 8.0F;
+			leftWingYRot = (float) -Math.PI * (8.0F / 3.0F) / 3.0F;
 			leftWingZRot *= 3.0F;
-			leftWingYPos += 3.0F;
+			//leftWingYPos += 3.0F;
 		}
 		this.leftWing.y = leftWingYPos;
 		if (living instanceof AbstractClientPlayerEntity) {
@@ -96,8 +104,9 @@ public class EXO7FalconModel1<T extends LivingEntity> extends AgeableModel<T> {
 		}
 		this.rightWing.x = -this.leftWing.x;
 		this.rightWing.y = this.leftWing.y;
+		this.rightWing.z = this.leftWing.z;
 		this.rightWing.xRot = this.leftWing.xRot;
-		this.rightWing.yRot = this.leftWing.yRot; // multiply by -1 to properly mirror
+		this.rightWing.yRot = -this.leftWing.yRot; // multiply by -1 to properly mirror
 		this.rightWing.zRot = -this.leftWing.zRot;
 	}
 

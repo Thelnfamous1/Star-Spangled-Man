@@ -16,15 +16,18 @@ import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrow
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerStorage;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.network.NetworkHandler;
-import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
+import com.infamous.captain_america.common.util.FalconAbilityValue;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+
+import java.util.Arrays;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModCommonEvents {
@@ -49,6 +52,13 @@ public class ModCommonEvents {
     public static void createEntityAttributes(EntityAttributeCreationEvent event){
         event.put(EntityTypeRegistry.FALCON_REDWING.get(), RedwingEntity.createAttributes().build());
         event.put(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingEntity.createAttributes().build());
+    }
+
+    @SubscribeEvent
+    public static void onComplete(FMLLoadCompleteEvent event){
+        // ensures the enums are initialized
+        Arrays.stream(FalconAbilityKey.values()).forEach((e) -> CaptainAmerica.LOGGER.info("Initialized Falcon Ability Key {}", e.toString()));
+        Arrays.stream(FalconAbilityValue.values()).forEach((e) -> CaptainAmerica.LOGGER.info("Initialized Falcon Ability Value {}", e.toString()));
     }
 
 }

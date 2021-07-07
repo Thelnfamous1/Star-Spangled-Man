@@ -1,6 +1,5 @@
 package com.infamous.captain_america.common.util;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.SoundRegistry;
 import net.minecraft.entity.LivingEntity;
@@ -15,6 +14,8 @@ public class FalconFlightHelper {
         return !living.isFallFlying()
                 && !living.isInWater()
                 && !living.hasEffect(Effects.LEVITATION)
+                && !living.isPassenger()
+                && !living.onClimbable()
                 && canFalconFly(living);
     }
 
@@ -83,13 +84,13 @@ public class FalconFlightHelper {
      */
     public static void boostFlight(LivingEntity living) {
         Vector3d lookAngle = living.getLookAngle();
-        Vector3d deltaMovement = living.getDeltaMovement();
-        double d0 = 1.5D;
-        double d1 = 0.1D;
-        living.setDeltaMovement(deltaMovement
-                .add(lookAngle.x * 0.1D + (lookAngle.x * 1.5D - deltaMovement.x) * 0.5D,
-                        lookAngle.y * 0.1D + (lookAngle.y * 1.5D - deltaMovement.y) * 0.5D,
-                        lookAngle.z * 0.1D + (lookAngle.z * 1.5D - deltaMovement.z) * 0.5D)
+        Vector3d motion = living.getDeltaMovement();
+        double speed = 1.5D;
+        double accel = 0.1D;
+        living.setDeltaMovement(motion
+                .add(lookAngle.x * accel + (lookAngle.x * speed - motion.x) * 0.5D,
+                        lookAngle.y * accel + (lookAngle.y * speed - motion.y) * 0.5D,
+                        lookAngle.z * accel + (lookAngle.z * speed - motion.z) * 0.5D)
         );
     }
 

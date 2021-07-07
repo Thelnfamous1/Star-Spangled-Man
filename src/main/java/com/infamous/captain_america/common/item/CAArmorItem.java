@@ -19,9 +19,9 @@ public class CAArmorItem extends ArmorItem {
     @Override
     public <A extends net.minecraft.client.renderer.entity.model.BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A _default) {
         if(armorSlot != EquipmentSlotType.LEGS){
-            return (A) new net.minecraft.client.renderer.entity.model.BipedModel<>(0.75F); // no need to have bulky armor at 1.0F inflation
+            return (A) new net.minecraft.client.renderer.entity.model.BipedModel<>(0.6F); // no need to have bulky armor at 1.0F inflation
         } else{
-            return (A) new net.minecraft.client.renderer.entity.model.BipedModel<>(0.5F);
+            return (A) new net.minecraft.client.renderer.entity.model.BipedModel<>(0.45F);
         }
     }
 }

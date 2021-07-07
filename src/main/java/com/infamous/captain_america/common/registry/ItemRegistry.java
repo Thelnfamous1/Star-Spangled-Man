@@ -156,6 +156,14 @@ public class ItemRegistry implements IRegistryManager<Item> {
                                     .stacksTo(1))
     );
 
+    public static final RegistryObject<Item> PISTOL_BULLET = ITEMS.register(
+            "pistol_bullet", () ->
+                    new BulletItem(
+                            (new Item.Properties())
+                                    .tab(ItemGroup.TAB_COMBAT)
+                                    .stacksTo(1), 6)
+    );
+
     @Override
     public String getRegistryTypeForLogger() {
         return "items";

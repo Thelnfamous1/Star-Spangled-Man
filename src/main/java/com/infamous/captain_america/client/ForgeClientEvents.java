@@ -12,7 +12,6 @@ import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ElytraSound;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
@@ -25,7 +24,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.sound.PlaySoundEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,9 +32,37 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeClientEvents {
 
+    private static boolean LOCAL_BOOSTING;
+
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event){
+        if(event.phase == TickEvent.Phase.END){
+            Minecraft minecraft = Minecraft.getInstance();
+            ClientPlayerEntity clientPlayer = minecraft.player;
+            if(clientPlayer != null){
+                if(minecraft.options.keySprint.isDown() && FalconFlightHelper.canBoostFlight(clientPlayer)){
+                    if(!LOCAL_BOOSTING){
+                        LOCAL_BOOSTING = true;
+                        //FalconFlightHelper.playFlightBoostSound(clientPlayer);
+                        NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
+                    }
+                    CaptainAmerica.LOGGER.debug("Client player {} wants to boost their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                    NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.BOOST_FLIGHT));
+                } else{
+                    LOCAL_BOOSTING = false;
+                }
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event){
-        CAKeyBinding.handleAllKeys(event.getKey());
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientPlayerEntity clientPlayer = minecraft.player;
+        if(clientPlayer != null){
+            int key = event.getKey();
+            CAKeyBinding.handleAllKeys(key, clientPlayer);
+        }
     }
 
     @SubscribeEvent
@@ -58,25 +85,12 @@ public class ForgeClientEvents {
                 || event.getType() == RenderGameOverlayEvent.ElementType.JUMPBAR;
     }
 
-    @SubscribeEvent
-    public static void onElytraSoundPlayed(PlaySoundEvent event){
-        if(event.getSound() instanceof ElytraSound){
-            ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-            if(clientPlayer == null) return;
-
-            if (FalconFlightHelper.canBoostFlight(clientPlayer) && clientPlayer.getFallFlyingTicks() > 20) {
-                FalconFlightHelper.playFlightBoostSound(clientPlayer);
-                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
-            }
-        }
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onRenderLiving(RenderLivingEvent.Post<LivingEntity, EntityModel<LivingEntity>> event){
         LivingEntity living = event.getEntity();
-        LivingRenderer<LivingEntity, EntityModel<LivingEntity>> livingRenderer = event.getRenderer();
+        LivingRenderer<?, ?> livingRenderer = event.getRenderer();
         if(livingRenderer.getModel() instanceof BipedModel){
-            BipedModel<LivingEntity> bipedModel = (BipedModel<LivingEntity>) livingRenderer.getModel();
+            BipedModel<?> bipedModel = (BipedModel<?>) livingRenderer.getModel();
             IMetalArm metalArmCap = CapabilityHelper.getMetalArmCap(living);
             if(metalArmCap != null){
                 ItemStack leftArmStack = getStackForHandSide(living, HandSide.LEFT, metalArmCap);

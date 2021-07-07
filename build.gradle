@@ -19,7 +19,7 @@ mixin {
     add sourceSets.main, "captain_america.refmap.json"
 }
 
-version = '1.0'
+version = '0.0.1'
 group = 'com.infamous.captain_america' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'captain_america'
 
@@ -127,6 +127,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.16.5-36.1.23'
+    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

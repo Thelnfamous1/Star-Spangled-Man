@@ -9,7 +9,9 @@ import com.infamous.captain_america.common.capability.shield_thrower.IShieldThro
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
+import com.infamous.captain_america.common.util.KeyBindAction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;
@@ -19,7 +21,7 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Map;
+import java.util.function.Consumer;
 
 public class CAKeyBinding extends KeyBinding{
 
@@ -27,31 +29,31 @@ public class CAKeyBinding extends KeyBinding{
     private boolean initialPress;
     private boolean initialRelease;
 
-    private final Runnable onInitialPress;
-    private final Runnable onHeld;
-    private final Runnable onInitialRelease;
+    private final Consumer<ClientPlayerEntity> onInitialPress;
+    private final Consumer<ClientPlayerEntity> onHeld;
+    private final Consumer<ClientPlayerEntity> onInitialRelease;
 
     public CAKeyBinding(String description,
                         IKeyConflictContext keyConflictContext,
                         final InputMappings.Type inputType,
                         final int keyCode,
                         String category,
-                        Runnable onInitialPress,
-                        Runnable onHeld,
-                        Runnable onInitialRelease){
+                        Consumer<ClientPlayerEntity> onInitialPress,
+                        Consumer<ClientPlayerEntity> onHeld,
+                        Consumer<ClientPlayerEntity> onInitialRelease){
         super(description, keyConflictContext, inputType, keyCode, category);
         this.onInitialPress = onInitialPress;
         this.onHeld = onHeld;
         this.onInitialRelease = onInitialRelease;
     }
 
-    public void handleKey(){
+    public void handleKey(ClientPlayerEntity clientPlayer){
         if(this.initialPress){
-            this.onInitialPress.run();
+            this.onInitialPress.accept(clientPlayer);
         } else if(this.held){
-            this.onHeld.run();
+            this.onHeld.accept(clientPlayer);
         } else if(this.initialRelease){
-            this.onInitialRelease.run();
+            this.onInitialRelease.accept(clientPlayer);
         }
     }
 
@@ -71,22 +73,19 @@ public class CAKeyBinding extends KeyBinding{
     public static final int G_KEYCODE = GLFW.GLFW_KEY_G;
     public static final int UP_KEYCODE = GLFW.GLFW_KEY_UP;
     public static final int DOWN_KEYCODE = GLFW.GLFW_KEY_DOWN;
+    public static final int LEFT_ALT_KEY_CODE = GLFW.GLFW_KEY_LEFT_ALT;
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
 
-    public static final Runnable SHIELD_THROW_ON_INITIAL_PRESS = () -> {
-        ClientPlayerEntity clientPlayer = getClient();
-        if (clientPlayer == null) return;
+    public static final Consumer<ClientPlayerEntity> SHIELD_THROW_ON_INITIAL_PRESS = (clientPlayer) -> {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
         if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
             shieldThrowerCap.setShieldChargingTicks(0);
             shieldThrowerCap.setShieldChargingScale(0.0F);
         }
     };
-    public static final Runnable SHIELD_THROW_ON_HELD = () -> {
-        ClientPlayerEntity clientPlayer = getClient();
-        if (clientPlayer == null) return;
+    public static final Consumer<ClientPlayerEntity> SHIELD_THROW_ON_HELD = (clientPlayer) -> {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
         if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
             shieldThrowerCap.addShieldChargingTicks(1);
@@ -106,64 +105,9 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     R_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
-
-                        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
-                        if(falconAbilityCap == null) return;
-
-                        Map<IFalconAbility.Key, IFalconAbility.Value> abilitySelectionMap = falconAbilityCap.getAbilitySelectionMap();
-
-                        if(abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.TOGGLE_FLIGHT){
-                            if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_FLIGHT));
-                            }
-                        } else if(abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.BOOST){
-                            if(FalconFlightHelper.canBoostFlight(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to take off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TAKEOFF_FLIGHT));
-                            }
-                        } else {
-                            boolean doHover = abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.TOGGLE_HOVER;
-                            if(abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.HALT
-                                    || doHover){
-                                if(FalconFlightHelper.isFlying(clientPlayer)){
-                                    CaptainAmerica.LOGGER.debug("Client player {} has halted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
-                                    FalconFlightHelper.haltFlight(clientPlayer);
-                                    NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
-                                }
-                                if(doHover){
-                                    NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_HOVER));
-                                    CaptainAmerica.LOGGER.debug("Client player {} wants to hover using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
-                                }
-                            }
-                        }
-                    },
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
-
-                        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
-                        if(falconAbilityCap == null) return;
-
-                        Map<IFalconAbility.Key, IFalconAbility.Value> abilitySelectionMap = falconAbilityCap.getAbilitySelectionMap();
-
-                        if(abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.TOGGLE_HOVER){
-                            if(canClientFalconFly(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to hover using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_HOVER));
-                            }
-                        } else if(abilitySelectionMap.get(IFalconAbility.Key.FLIGHT) == IFalconAbility.Value.BOOST){
-                            if(FalconFlightHelper.canBoostFlight(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to boost their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.BOOST_FLIGHT));
-                            }
-                        }
-                    },
-                    () -> {
-                    });
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.FLIGHT)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.FLIGHT)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.FLIGHT)));
 
 
     public static final CAKeyBinding keyDroneAbility =
@@ -173,35 +117,9 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     O_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
-
-                        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
-                        if(falconAbilityCap == null) return;
-
-                        Map<IFalconAbility.Key, IFalconAbility.Value> abilitySelectionMap = falconAbilityCap.getAbilitySelectionMap();
-                        if(abilitySelectionMap.get(IFalconAbility.Key.DRONE) == IFalconAbility.Value.DEPLOY){
-                            if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to deploy their Redwing drone!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.DEPLOY));
-                            }
-                        } else if(abilitySelectionMap.get(IFalconAbility.Key.DRONE) == IFalconAbility.Value.TOGGLE_PATROL){
-                            if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their Redwing drone's patrol mode!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.PATROL));
-                            }
-                        } else if(abilitySelectionMap.get(IFalconAbility.Key.DRONE) == IFalconAbility.Value.TOGGLE_RECALL){
-                            if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                                CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their Redwing drone's recall!", clientPlayer.getDisplayName().getString());
-                                NetworkHandler.INSTANCE.sendToServer(new CDronePacket(CDronePacket.Action.RECALL));
-                            }
-                        }
-                    },
-                    () -> {
-                    },
-                    () -> {
-                    });
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.DRONE)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.DRONE)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.DRONE)));
 
     public static final CAKeyBinding keyBoomerangThrowShield =
             new CAKeyBinding(
@@ -212,9 +130,7 @@ public class CAKeyBinding extends KeyBinding{
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
                     SHIELD_THROW_ON_HELD,
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
+                    (clientPlayer) -> {
                         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
@@ -233,9 +149,7 @@ public class CAKeyBinding extends KeyBinding{
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
                     SHIELD_THROW_ON_HELD,
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
+                    (clientPlayer) -> {
                         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
@@ -252,11 +166,8 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     UP_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
-                    () -> {},
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
-
+                    (clientPlayer) -> {},
+                    (clientPlayer) -> {
                         IFalconAbility falconAbility = CapabilityHelper.getFalconAbilityCap(clientPlayer);
                         if(falconAbility == null) return;
 
@@ -264,7 +175,7 @@ public class CAKeyBinding extends KeyBinding{
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.VERTICAL_FLIGHT, false));
                         }
                     },
-                    () -> {}
+                    (clientPlayer) -> {}
                     );
 
     public static final CAKeyBinding keyVerticalFlightInverted =
@@ -274,11 +185,8 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     DOWN_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
-                    () -> {},
-                    () -> {
-                        ClientPlayerEntity clientPlayer = getClient();
-                        if (clientPlayer == null) return;
-
+                    (clientPlayer) -> {},
+                    (clientPlayer) -> {
                         IFalconAbility falconAbility = CapabilityHelper.getFalconAbilityCap(clientPlayer);
                         if(falconAbility == null) return;
 
@@ -286,7 +194,7 @@ public class CAKeyBinding extends KeyBinding{
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.VERTICAL_FLIGHT, true));
                         }
                     },
-                    () -> {}
+                    (clientPlayer) -> {}
             );
 
     public static final CAKeyBinding keyOpenFalconScreen =
@@ -296,53 +204,61 @@ public class CAKeyBinding extends KeyBinding{
                     InputMappings.Type.KEYSYM,
                     G_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
-                    () -> {
+                    (clientPlayer) -> {
                         Minecraft minecraft = Minecraft.getInstance();
                         if(minecraft.screen == null
                                 && minecraft.level != null
-                                && minecraft.player != null
-                                && !minecraft.player.isDeadOrDying()
-                                && FalconFlightHelper.hasEXO7Falcon(minecraft.player)){
-                            CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", minecraft.player.getDisplayName().getString());
+                                && !clientPlayer.isDeadOrDying()
+                                && FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
+                            CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", clientPlayer.getDisplayName().getString());
                             minecraft.setScreen(new FalconAbilitySelectionScreen());
                         }
                     },
-                    () -> {},
-                    () -> {}
+                    (clientPlayer) -> {},
+                    (clientPlayer) -> {}
             );
 
-    private static ClientPlayerEntity getClient() {
-        Minecraft minecraft = Minecraft.getInstance();
-        return minecraft.player;
-    }
+    public static final CAKeyBinding keyToggleFlight =
+            new CAKeyBinding(
+                   "key.toggleFlight",
+                   KeyConflictContext.IN_GAME,
+                   InputMappings.Type.KEYSYM,
+                   LEFT_ALT_KEY_CODE,
+                   FALCON_TECH_KEY_CATEGORY,
+                    (clientPlayer) -> {
+                        if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
+                            CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_FLIGHT));
+                        }
+                    },
+                    (clientPlayer) -> {},
+                    (clientPlayer) -> {}
+            );
 
-    private static boolean canClientFalconFly(ClientPlayerEntity clientPlayer){
-        return !clientPlayer.abilities.flying
-                && !clientPlayer.isPassenger()
-                && !clientPlayer.onClimbable();
-    }
-
-    public static void handleAllKeys(int key) {
+    public static void handleAllKeys(int key, ClientPlayerEntity clientPlayer) {
         if(key == keyOpenFalconScreen.getKey().getValue()){
-            keyOpenFalconScreen.handleKey();
+            keyOpenFalconScreen.handleKey(clientPlayer);
         }
         if(key == keyFlightAbility.getKey().getValue()){
-            keyFlightAbility.handleKey();
+            keyFlightAbility.handleKey(clientPlayer);
         }
         if(key == keyDroneAbility.getKey().getValue()){
-            keyDroneAbility.handleKey();
+            keyDroneAbility.handleKey(clientPlayer);
         }
         if(key == keyVerticalFlight.getKey().getValue()){
-            keyVerticalFlight.handleKey();
+            keyVerticalFlight.handleKey(clientPlayer);
         }
         if(key == keyVerticalFlightInverted.getKey().getValue()){
-            keyVerticalFlightInverted.handleKey();
+            keyVerticalFlightInverted.handleKey(clientPlayer);
         }
         if(key == keyBoomerangThrowShield.getKey().getValue()){
-            keyBoomerangThrowShield.handleKey();
+            keyBoomerangThrowShield.handleKey(clientPlayer);
         }
         if(key == keyRicochetThrowShield.getKey().getValue()){
-            keyRicochetThrowShield.handleKey();
+            keyRicochetThrowShield.handleKey(clientPlayer);
+        }
+        if(key == keyToggleFlight.getKey().getValue()){
+            keyToggleFlight.handleKey(clientPlayer);
         }
     }
 }

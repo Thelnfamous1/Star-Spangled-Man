@@ -1,15 +1,11 @@
 package com.infamous.captain_america.client.screen;
 
-import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
 
 public class FalconCombatScreen extends FalconAbilityScreen{
 
     public FalconCombatScreen() {
-        super(IFalconAbility.Key.COMBAT);
+        super(FalconAbilityKey.COMBAT);
     }
 
-    @Override
-    protected void addButtons(int relX, int relY) {
-        addFalconButton(relX, relY,10, IFalconAbility.Value.MISSILE);
-    }
 }
