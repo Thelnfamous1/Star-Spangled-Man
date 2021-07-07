@@ -107,13 +107,13 @@ public class FalconFlightHelper {
         Vector3d lookAngle = living.getLookAngle();
         Vector3d deltaMovement = living.getDeltaMovement();
 
-        double moveBoost = 1.5D;
-        double lookBoost = 0.1D;
+        double speed = 1.5D;
+        double accel = 0.1D;
         double lookAngleY = lookAngle.y;
         if(invert){
             lookAngleY *= -1;
         }
-        double newVerticalDelta = lookAngleY * lookBoost + (lookAngleY * moveBoost - deltaMovement.y) * 0.5D;
+        double newVerticalDelta = lookAngleY * accel + (lookAngleY * speed - deltaMovement.y) * 0.5D;
 
         living.setDeltaMovement(deltaMovement
                 .add(0, newVerticalDelta, 0)

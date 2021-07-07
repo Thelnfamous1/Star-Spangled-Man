@@ -18,4 +18,11 @@ public interface IFalconAbility {
 
     void setVerticallyFlying(boolean verticallyFlying);
 
+    default void copyValuesFrom(IFalconAbility oldFalconAbilityCap){
+        for(FalconAbilityKey abilityKey : FalconAbilityKey.values()){
+            FalconAbilityValue abilityValue = oldFalconAbilityCap.get(abilityKey);
+            this.put(abilityKey, abilityValue);
+        }
+    }
+
 }

@@ -12,11 +12,17 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public enum FalconAbilityValue implements IAbilityValue {
-    HALT(FalconAbilityKey.FLIGHT, KeyBindAction.INITIAL_PRESS,
-            FalconAbilityValue::haltIfFlying, "halt"),
-    TOGGLE_HOVER(FalconAbilityKey.FLIGHT, KeyBindAction.INITIAL_PRESS,
+    HALT(
+            () -> FalconAbilityKey.FLIGHT,
+            KeyBindAction.INITIAL_PRESS,
+            FalconAbilityValue::haltIfFlying,
+            "halt"),
+    TOGGLE_HOVER(
+            () -> FalconAbilityKey.FLIGHT,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
                 IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
                 if (falconAbilityCap == null) return;
@@ -31,14 +37,28 @@ public enum FalconAbilityValue implements IAbilityValue {
                 if (wasHovering != falconAbilityCap.isHovering()) {
                     serverPlayer.sendMessage(hoverToggleMessage, Util.NIL_UUID);
                 }
-            }, "toggleHover"),
+            },
+            "toggleHover"),
 
-    MISSILE(FalconAbilityKey.COMBAT, KeyBindAction.INITIAL_PRESS,
+    MISSILE(
+            () -> FalconAbilityKey.COMBAT,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
 
-            }, "missile"),
+            },
+            "missile"),
 
-    DEPLOY(FalconAbilityKey.DRONE, KeyBindAction.INITIAL_PRESS,
+    GRENADE(
+            () -> FalconAbilityKey.COMBAT,
+            KeyBindAction.INITIAL_PRESS,
+            (serverPlayer) -> {
+
+            },
+            "grenade"),
+
+    DEPLOY(
+            () -> FalconAbilityKey.DRONE,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
                 IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
                 if (droneControllerCap != null) {
@@ -47,8 +67,11 @@ public enum FalconAbilityValue implements IAbilityValue {
                         serverPlayer.sendMessage(new TranslationTextComponent("action.redwing.deployed"), Util.NIL_UUID);
                     }
                 }
-            }, "deploy"),
-    TOGGLE_PATROL(FalconAbilityKey.DRONE, KeyBindAction.INITIAL_PRESS,
+            },
+            "deploy"),
+    TOGGLE_PATROL(
+            () -> FalconAbilityKey.DRONE,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
                 IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
                 if (droneControllerCap != null) {
@@ -63,8 +86,11 @@ public enum FalconAbilityValue implements IAbilityValue {
                         }
                     }
                 }
-            }, "togglePatrol"),
-    TOGGLE_RECALL(FalconAbilityKey.DRONE, KeyBindAction.INITIAL_PRESS,
+            },
+            "togglePatrol"),
+    TOGGLE_RECALL(
+            () -> FalconAbilityKey.DRONE,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
                 IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
                 if (droneControllerCap != null) {
@@ -79,12 +105,24 @@ public enum FalconAbilityValue implements IAbilityValue {
                         }
                     }
                 }
-            }, "toggleRecall"),
+            },
+            "toggleRecall"),
 
-    INFRARED(FalconAbilityKey.HUD, KeyBindAction.INITIAL_PRESS,
+    INFRARED(
+            () -> FalconAbilityKey.HUD,
+            KeyBindAction.INITIAL_PRESS,
             (serverPlayer) -> {
 
-            }, "infrared");
+            },
+            "infrared"),
+
+    NIGHT_VISION(
+            () -> FalconAbilityKey.HUD,
+            KeyBindAction.INITIAL_PRESS,
+            (serverPlayer) -> {
+
+            },
+            "infrared");
 
     private static void haltIfFlying(ServerPlayerEntity serverPlayer) {
         if (FalconFlightHelper.isFlying(serverPlayer)) {
@@ -93,12 +131,12 @@ public enum FalconAbilityValue implements IAbilityValue {
         }
     }
 
-    private final FalconAbilityKey parent;
+    private final Supplier<FalconAbilityKey> parent;
     private final KeyBindAction keyBindAction;
     private final Consumer<ServerPlayerEntity> playerConsumer;
     private final String suffix;
 
-    FalconAbilityValue(FalconAbilityKey parent, KeyBindAction keyBindAction, Consumer<ServerPlayerEntity> playerConsumer, String suffix) {
+    FalconAbilityValue(Supplier<FalconAbilityKey> parent, KeyBindAction keyBindAction, Consumer<ServerPlayerEntity> playerConsumer, String suffix) {
         this.parent = parent;
         this.keyBindAction = keyBindAction;
         this.playerConsumer = playerConsumer;
@@ -106,7 +144,7 @@ public enum FalconAbilityValue implements IAbilityValue {
     }
 
     @Override
-    public FalconAbilityKey getParent() {
+    public Supplier<FalconAbilityKey> getParent() {
         return this.parent;
     }
 
@@ -128,7 +166,7 @@ public enum FalconAbilityValue implements IAbilityValue {
     @Override
     public String toString() {
         return "FalconAbilityValue{" +
-                "parent=" + this.parent +
+                "parent=" + this.parent.get() +
                 ", keyBindAction=" + this.keyBindAction +
                 ", playerConsumer=" + this.playerConsumer +
                 ", suffix='" + this.suffix + '\'' +

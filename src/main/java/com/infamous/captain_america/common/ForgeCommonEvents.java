@@ -156,8 +156,11 @@ public class ForgeCommonEvents {
         if(oldDroneControllerCap != null && newDroneControllerCap != null){
             newDroneControllerCap.copyValuesFrom(oldDroneControllerCap);
         }
-        newPlayer.sendMessage(new TranslationTextComponent("action.falcon.respawn"), Util.NIL_UUID);
-    }
+        IFalconAbility oldFalconAbilityCap = CapabilityHelper.getFalconAbilityCap(oldPlayer);
+        IFalconAbility newFalconAbilityCap = CapabilityHelper.getFalconAbilityCap(newPlayer);
+        if(oldFalconAbilityCap != null && newFalconAbilityCap != null){
+            newFalconAbilityCap.copyValuesFrom(oldFalconAbilityCap);
+        }    }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event){

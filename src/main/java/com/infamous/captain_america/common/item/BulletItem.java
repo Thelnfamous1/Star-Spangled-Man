@@ -34,6 +34,14 @@ public class BulletItem extends Item implements IBullet {
 	}
 
 	@Override
+	public BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter, double x, double y, double z) {
+		BulletEntity entity = new BulletEntity(world, shooter, x, y, z);
+		entity.setItem(stack);
+		entity.setDamage(damage);
+		return entity;
+	}
+
+	@Override
 	public void consume(ItemStack stack, PlayerEntity player) {
 		stack.shrink(1);
 		if (stack.isEmpty()) {

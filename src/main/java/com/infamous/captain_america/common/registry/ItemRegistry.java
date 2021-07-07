@@ -156,7 +156,7 @@ public class ItemRegistry implements IRegistryManager<Item> {
                                     .stacksTo(1))
     );
 
-    public static final RegistryObject<Item> PISTOL_BULLET = ITEMS.register(
+    public static final RegistryObject<BulletItem> PISTOL_BULLET = ITEMS.register(
             "pistol_bullet", () ->
                     new BulletItem(
                             (new Item.Properties())

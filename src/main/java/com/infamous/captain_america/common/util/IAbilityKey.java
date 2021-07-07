@@ -1,13 +1,19 @@
 package com.infamous.captain_america.common.util;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public interface IAbilityKey extends ITranslatable{
 
-    List<? extends IAbilityValue> getChildren();
+    List<? extends Supplier<? extends IAbilityValue>> getChildren();
 
     default boolean isValidForValue(IAbilityValue value){
-        return this.getChildren().contains(value);
+        for(Supplier<? extends IAbilityValue> abilityValue : this.getChildren()){
+            if(abilityValue.get() == value){
+                return true;
+            }
+        }
+        return false;
     }
 
     default String getTranslationKey(IAbilityValue value){

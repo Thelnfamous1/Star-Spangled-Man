@@ -57,8 +57,10 @@ public class ModCommonEvents {
     @SubscribeEvent
     public static void onComplete(FMLLoadCompleteEvent event){
         // ensures the enums are initialized
-        Arrays.stream(FalconAbilityKey.values()).forEach((e) -> CaptainAmerica.LOGGER.info("Initialized Falcon Ability Key {}", e.toString()));
-        Arrays.stream(FalconAbilityValue.values()).forEach((e) -> CaptainAmerica.LOGGER.info("Initialized Falcon Ability Value {}", e.toString()));
+        CaptainAmerica.LOGGER.info("Initializing FalconAbilityKey fields");
+        Arrays.stream(FalconAbilityKey.values()).forEach((e) -> CaptainAmerica.LOGGER.info("{}", e.toString()));
+        CaptainAmerica.LOGGER.info("Initializing FalconAbilityValue fields");
+        Arrays.stream(FalconAbilityValue.values()).forEach((e) -> CaptainAmerica.LOGGER.info("{}", e.toString()));
     }
 
 }

@@ -4,17 +4,32 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
-public enum FalconAbilityKey implements IAbilityKey {
-    FLIGHT("ability.falcon.flight", FalconAbilityValue.HALT, FalconAbilityValue.TOGGLE_HOVER),
-    COMBAT("ability.falcon.combat", FalconAbilityValue.MISSILE),
-    DRONE("ability.falcon.drone", FalconAbilityValue.DEPLOY, FalconAbilityValue.TOGGLE_PATROL, FalconAbilityValue.TOGGLE_RECALL),
-    HUD("ability.falcon.hud", FalconAbilityValue.INFRARED);
+public enum FalconAbilityKey implements IAbilityKey{
+    FLIGHT("ability.falcon.flight",
+            () -> FalconAbilityValue.HALT,
+            () -> FalconAbilityValue.TOGGLE_HOVER
+    ),
+    COMBAT("ability.falcon.combat",
+            () -> FalconAbilityValue.MISSILE,
+            () -> FalconAbilityValue.GRENADE
+    ),
+    DRONE("ability.falcon.drone",
+            () -> FalconAbilityValue.DEPLOY,
+            () -> FalconAbilityValue.TOGGLE_PATROL,
+            () -> FalconAbilityValue.TOGGLE_RECALL
+    ),
+    HUD("ability.falcon.hud",
+            () -> FalconAbilityValue.INFRARED,
+            () -> FalconAbilityValue.NIGHT_VISION
+    );
 
     private final String translationKey;
-    private final List<FalconAbilityValue> children;
+    private final List<Supplier<FalconAbilityValue>> children;
 
-    FalconAbilityKey(String translationKey, FalconAbilityValue... values) {
+    @SafeVarargs
+    FalconAbilityKey(String translationKey, Supplier<FalconAbilityValue>... values) {
         this.translationKey = translationKey;
         this.children = ImmutableList.copyOf(Arrays.asList(values));
     }
@@ -25,7 +40,7 @@ public enum FalconAbilityKey implements IAbilityKey {
     }
 
     @Override
-    public List<FalconAbilityValue> getChildren() {
+    public List<Supplier<FalconAbilityValue>> getChildren() {
         return this.children;
     }
 

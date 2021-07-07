@@ -72,13 +72,12 @@
   "subtitles.flight_boost": "Flight boost",
 
   "ability.falcon.flight": "Flight",
-  "ability.falcon.flight.toggleFlight": "Toggle Flight",
-  "ability.falcon.flight.boost": "Boost Flight",
   "ability.falcon.flight.halt": "Halt Flight",
   "ability.falcon.flight.toggleHover": "Toggle Hover",
 
   "ability.falcon.combat": "Combat",
   "ability.falcon.combat.missile": "Missile",
+  "ability.falcon.combat.grenade": "Grenade",
 
   "ability.falcon.drone": "Drone",
   "ability.falcon.drone.deploy": "Deploy Drone",
@@ -87,6 +86,7 @@
 
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",
+  "ability.falcon.hud.night_vision": "Night Vision",
 
   "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
   "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",

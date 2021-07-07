@@ -3,6 +3,8 @@ package com.infamous.captain_america.common.entity.drone;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
+import com.infamous.captain_america.common.item.BulletItem;
+import com.infamous.captain_america.common.registry.ItemRegistry;
 import com.infamous.captain_america.server.ai.goals.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -13,7 +15,10 @@ import net.minecraft.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.IFlyingAnimal;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.SnowballEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -29,6 +34,9 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -37,7 +45,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRangedAttackMob, IAttachableDrone {
+public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, ICrossbowUser, IAttachableDrone {
     protected static final DataParameter<Boolean> DATA_OWNED = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Optional<UUID>> DATA_OWNER_UUID = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.OPTIONAL_UUID);
     private boolean patrolling;
@@ -165,15 +173,43 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     @Override
     public void performRangedAttack(LivingEntity target, float p_82196_2_) {
-        BulletEntity bullet = new BulletEntity(this.level, this);
-        double eyeDiff = target.getEyeY() - (double)1.1F;
-        double xDiff = target.getX() - this.getX();
-        double yDiff = eyeDiff - bullet.getY();
-        double zDiff = target.getZ() - this.getZ();
-        float scaledHorizontalDist = MathHelper.sqrt(xDiff * xDiff + zDiff * zDiff) * 0.2F;
-        bullet.shoot(xDiff, yDiff + (double)scaledHorizontalDist, zDiff, 1.6F, 12.0F);
-        this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
-        this.level.addFreshEntity(bullet);
+        BulletEntity bulletEntity = this.createBullet();
+        this.shootCrossbowProjectile(target, ItemStack.EMPTY, bulletEntity, 0.0F);
+        this.level.addFreshEntity(bulletEntity);
+    }
+
+    private BulletEntity createBullet() {
+        BulletItem bulletItem = ItemRegistry.PISTOL_BULLET.get();
+        ItemStack bulletStack = bulletItem.getDefaultInstance();
+        BulletEntity bulletEntity = bulletItem.createProjectile(this.level, bulletStack, this);
+        bulletEntity.setIgnoreInvulnerability(true);
+        return bulletEntity;
+    }
+
+    @Override
+    public void shootCrossbowProjectile(LivingEntity target, ItemStack stack, ProjectileEntity projectile, float inaccuracy) {
+        this.shootCrossbowProjectile(this, target, projectile, inaccuracy, 1.6F);
+    }
+
+    @Override
+    public void shootCrossbowProjectile(LivingEntity shooter, LivingEntity target, ProjectileEntity projectile, float inaccuracy, float velocity) {
+        double xDiff = target.getX() - shooter.getX();
+        double zDiff = target.getZ() - shooter.getZ();
+        double horizDist = (double)MathHelper.sqrt(xDiff * xDiff + zDiff * zDiff);
+        double yDiff = target.getY(0.3333333333333333D) - projectile.getY();
+        Vector3f projectileShotVector = this.getProjectileShotVector(shooter, new Vector3d(xDiff, yDiff, zDiff), inaccuracy);
+        projectile.shoot((double)projectileShotVector.x(), (double)projectileShotVector.y(), (double)projectileShotVector.z(), velocity, inaccuracy);
+        shooter.playSound(SoundEvents.CROSSBOW_SHOOT, 1.0F, 1.0F / (shooter.getRandom().nextFloat() * 0.4F + 0.8F));
+    }
+
+    @Override
+    public void setChargingCrossbow(boolean p_213671_1_) {
+        // NO-OP
+    }
+
+    @Override
+    public void onCrossbowAttackPerformed() {
+        // NO-OP
     }
 
     @Nullable

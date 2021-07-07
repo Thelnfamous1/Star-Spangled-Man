@@ -2,10 +2,12 @@ package com.infamous.captain_america.common.entity.projectile;
 
 import com.infamous.captain_america.common.item.IBullet;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
+import com.infamous.captain_america.common.registry.ItemRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.DamageSource;
@@ -14,6 +16,8 @@ import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class BulletEntity extends AbstractFireballEntity {
@@ -28,7 +32,7 @@ public class BulletEntity extends AbstractFireballEntity {
 
 	public BulletEntity(World worldIn, LivingEntity shooter) {
 		this(worldIn, shooter, 0, 0, 0);
-		setPos(shooter.getX(), shooter.getEyeY(), shooter.getZ());
+		setPos(shooter.getX(), shooter.getY(0.5), shooter.getZ());
 	}
 
 	public BulletEntity(World worldIn, LivingEntity shooter, double accelX, double accelY, double accelZ) {
@@ -37,6 +41,13 @@ public class BulletEntity extends AbstractFireballEntity {
 
 	public BulletEntity(World worldIn, double x, double y, double z, double accelX, double accelY, double accelZ) {
 		super(EntityTypeRegistry.BULLET.get(), x, y, z, accelX, accelY, accelZ, worldIn);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public ItemStack getItem() {
+		ItemStack itemstack = this.getItemRaw();
+		return itemstack.isEmpty() ? new ItemStack(ItemRegistry.PISTOL_BULLET.get()) : itemstack;
 	}
 
 	private static final double STOP_THRESHOLD = 0.01;

@@ -3,10 +3,11 @@ package com.infamous.captain_america.common.util;
 import net.minecraft.entity.player.ServerPlayerEntity;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface IAbilityValue extends ITranslatable{
 
-    IAbilityKey getParent();
+    Supplier<? extends IAbilityKey> getParent();
 
     KeyBindAction getKeyBindAction();
 
@@ -20,6 +21,6 @@ public interface IAbilityValue extends ITranslatable{
 
     @Override
     default String getTranslationKey(){
-        return this.getParent().getTranslationKey() + "." + this.getTranslationKeySuffix();
+        return this.getParent().get().getTranslationKey() + "." + this.getTranslationKeySuffix();
     }
 }

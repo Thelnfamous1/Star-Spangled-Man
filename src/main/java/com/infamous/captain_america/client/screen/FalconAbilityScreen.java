@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class FalconAbilityScreen extends Screen {
 
@@ -53,9 +54,9 @@ public abstract class FalconAbilityScreen extends Screen {
 
     protected void addButtons(int relX, int relY){
         int start = -10;
-        for(FalconAbilityValue abilityValue : this.key.getChildren()){
+        for(Supplier<FalconAbilityValue> abilityValue : this.key.getChildren()){
             // actually starts at 10, and then adds 20 for each button after the first
-            addFalconButton(relX, relY, start += 20, abilityValue);
+            addFalconButton(relX, relY, start += 20, abilityValue.get());
         }
     }
 

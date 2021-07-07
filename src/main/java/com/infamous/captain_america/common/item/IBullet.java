@@ -15,6 +15,8 @@ public interface IBullet {
 	 */
 	BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter);
 
+	BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter, double x, double y, double z);
+
 	/**
 	 * Uses up 1 item worth of ammo. Can be used for RF or magic based bullet pouches or something.
 	 */
