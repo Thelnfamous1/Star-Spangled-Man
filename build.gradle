@@ -61,6 +61,7 @@ minecraft {
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
             arg "-mixin.config=captain_america.mixins.json"
+            property 'mixin.debug.export', 'true'
 
             mods {
                 captain_america {

@@ -44,16 +44,16 @@ public class EXO7FalconItem extends CAArmorItem {
         return stack.getDamageValue() >= stack.getMaxDamage() - 1;
     }
 
-    public static boolean isFlightEnabled(ItemStack stack) {
-        if(isBroken(stack)){
+    public static boolean isFlightEnabled(ItemStack exo7FalconStack) {
+        if(isBroken(exo7FalconStack)){
             return false;
         }
-        CompoundNBT compoundnbt = stack.getTag();
+        CompoundNBT compoundnbt = exo7FalconStack.getTag();
         return compoundnbt != null && compoundnbt.getBoolean("FlightEnabled");
     }
 
-    public static void setFlightEnabled(ItemStack stack, boolean flightEnabled) {
-        CompoundNBT compoundnbt = stack.getOrCreateTag();
+    public static void setFlightEnabled(ItemStack exo7FalconStack, boolean flightEnabled) {
+        CompoundNBT compoundnbt = exo7FalconStack.getOrCreateTag();
         compoundnbt.putBoolean("FlightEnabled", flightEnabled);
     }
 

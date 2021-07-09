@@ -24,5 +24,4 @@ public interface IFalconAbility {
             this.put(abilityKey, abilityValue);
         }
     }
-
 }

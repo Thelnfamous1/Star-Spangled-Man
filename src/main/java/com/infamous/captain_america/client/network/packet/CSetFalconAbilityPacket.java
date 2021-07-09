@@ -18,7 +18,9 @@ public class CSetFalconAbilityPacket {
     }
 
     public static CSetFalconAbilityPacket decodePacket(PacketBuffer packetBuffer){
-        return new CSetFalconAbilityPacket(packetBuffer.readEnum(FalconAbilityKey.class), packetBuffer.readEnum(FalconAbilityValue.class));
+        FalconAbilityKey key = packetBuffer.readEnum(FalconAbilityKey.class);
+        FalconAbilityValue value = packetBuffer.readEnum(FalconAbilityValue.class);
+        return new CSetFalconAbilityPacket(key, value);
     }
 
     public static void encodePacket(CSetFalconAbilityPacket packet, PacketBuffer packetBuffer){

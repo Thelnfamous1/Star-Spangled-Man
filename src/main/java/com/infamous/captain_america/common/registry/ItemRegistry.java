@@ -44,7 +44,7 @@ public class ItemRegistry implements IRegistryManager<Item> {
 
     public static final RegistryObject<Item> FALCON_GOGGLES = ITEMS.register(
             "falcon_goggles", () ->
-                    new CAArmorItem(CAArmorMaterial.FALCON_WINGSUIT, EquipmentSlotType.HEAD,
+                    new GogglesItem(CAArmorMaterial.FALCON_WINGSUIT,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );
@@ -79,7 +79,7 @@ public class ItemRegistry implements IRegistryManager<Item> {
     );
     public static final RegistryObject<Item> CAPTAIN_AMERICA_GOGGLES = ITEMS.register(
             "captain_america_goggles", () ->
-                    new CAArmorItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT, EquipmentSlotType.HEAD,
+                    new GogglesItem(CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT,
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT))
     );

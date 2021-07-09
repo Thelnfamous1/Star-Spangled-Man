@@ -10,7 +10,10 @@
   ],
   "client": [
     "ClientPlayerEntityMixin",
-    "PlayerRendererMixin"
+    "LightTextureMixin",
+    "LivingRendererMixin",
+    "PlayerRendererMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

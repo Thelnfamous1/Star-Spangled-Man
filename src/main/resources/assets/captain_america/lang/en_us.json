@@ -34,6 +34,9 @@
 
   "entity.captain_america.bullet": "Bullet",
 
+  "effect.captain_america.hud_night_vision": "HUD Night Vision",
+  "effect.captain_america.hud_infrared": "HUD Infrared",
+
   "effect.captain_america.super_soldier": "Super Soldier",
   "item.minecraft.tipped_arrow.effect.super_soldier": "Arrow of the Super Soldier",
   "item.minecraft.potion.effect.super_soldier": "Potion of the Super Soldier",
@@ -44,6 +47,8 @@
   "action.falcon.flightOff": "Deactivated EXO-7 FALCON wings!",
   "action.falcon.hoverOn": "Activated hover mode!",
   "action.falcon.hoverOff": "Deactivated hover mode!",
+  "action.falcon.hudOn": "Activated HUD!",
+  "action.falcon.hudOff": "Deactivated HUD!",
 
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
@@ -64,6 +69,7 @@
   "key.verticalFlight": "Vertical Flight (While Hovering)",
   "key.verticalFlightInverted": "Inverted Vertical Flight (While Hovering)",
   "key.toggleFlight": "Toggle Flight",
+  "key.toggleHUD": "Toggle HUD",
 
   "key.categories.capTech": "Captain America Techniques",
   "key.boomerangThrowShield": "Boomerang-Throw Shield",
@@ -86,7 +92,7 @@
 
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",
-  "ability.falcon.hud.night_vision": "Night Vision",
+  "ability.falcon.hud.nightVision": "Night Vision",
 
   "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
   "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",

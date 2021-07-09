@@ -1,13 +1,16 @@
 package com.infamous.captain_america.client.util;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.lwjgl.opengl.GL11;
@@ -15,7 +18,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
-public class RenderHelper {
+public class CARenderHelper {
     public static final ResourceLocation SHIELD_THROW_METER_LOCATION = new ResourceLocation(CaptainAmerica.MODID, "textures/gui/shield_throw_meter.png");
     public static final String GUI_FIELD_NAME = "field_71456_v";
     private static IngameGui ingameGui;

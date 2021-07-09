@@ -3,24 +3,34 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
-import com.infamous.captain_america.client.util.RenderHelper;
+import com.infamous.captain_america.client.util.CARenderHelper;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
+import com.infamous.captain_america.common.registry.EffectRegistry;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
+import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -65,18 +75,58 @@ public class ForgeClientEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderXP(RenderGameOverlayEvent event){
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRenderXP(RenderGameOverlayEvent.Post event){
         Minecraft minecraft = Minecraft.getInstance();
         PlayerEntity player = minecraft.player;
         if(player == null) return;
+        renderShieldThrowMeter(event, player);
+    }
+
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRenderFog(EntityViewRenderEvent.FogColors event){
+        float fogRed = event.getRed();
+        float fogGreen = event.getGreen();
+        float fogBlue = event.getBlue();
+        ActiveRenderInfo info = event.getInfo();
+
+        Entity renderEntity = info.getEntity();
+        if(!(renderEntity instanceof LivingEntity)) return;
+        LivingEntity livingRenderEntity = (LivingEntity) renderEntity;
+
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(livingRenderEntity);
+        if(falconAbilityCap == null) return;
+
+        ItemStack goggles = GogglesItem.getGoggles(livingRenderEntity);
+
+        boolean hasHUDNightVision =
+                livingRenderEntity.hasEffect(EffectRegistry.HUD_NIGHT_VISION.get())
+                && !goggles.isEmpty()
+                && GogglesItem.isHUDEnabled(goggles);
+
+        if (hasHUDNightVision){
+            float nightVisionScale = 1.0F; // Pretend we have an active NIGHT_VISION effect with a duration greater than 10 seconds
+            float f10 = Math.min(1.0F / fogRed, Math.min(1.0F / fogGreen, 1.0F / fogBlue));
+            // Forge: fix MC-4647 and MC-10480
+            if (Float.isInfinite(f10)) f10 = Math.nextAfter(f10, 0.0);
+            fogRed = fogRed * (1.0F - nightVisionScale) + fogRed * f10 * nightVisionScale;
+            fogGreen = fogGreen * (1.0F - nightVisionScale) + fogGreen * f10 * nightVisionScale;
+            fogBlue = fogBlue * (1.0F - nightVisionScale) + fogBlue * f10 * nightVisionScale;
+            event.setRed(fogRed);
+            event.setGreen(fogGreen);
+            event.setBlue(fogBlue);
+        }
+    }
+
+    private static void renderShieldThrowMeter(RenderGameOverlayEvent.Post event, PlayerEntity player) {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(player);
         if (shieldThrowerCap != null
                 && shieldThrowerCap.getShieldChargingScale() > 0.0F
                 && VibraniumShieldItem.hasVibraniumShield(player)
                 && shouldReplaceElement(event)) {
             event.setCanceled(true);
-            RenderHelper.renderShieldThrowMeter(shieldThrowerCap, event.getMatrixStack());
+            CARenderHelper.renderShieldThrowMeter(shieldThrowerCap, event.getMatrixStack());
         }
     }
 

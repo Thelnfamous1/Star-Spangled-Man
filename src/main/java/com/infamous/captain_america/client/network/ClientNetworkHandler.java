@@ -3,8 +3,10 @@ package com.infamous.captain_america.client.network;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SHudPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -57,6 +59,7 @@ public class ClientNetworkHandler {
 
                     falconAbilityCap.setVerticallyFlying(true);
                     FalconFlightHelper.verticallyFly(clientPlayer, packet.getFlag());
+                    break;
             }
         });
         ctx.get().setPacketHandled(true);
@@ -72,6 +75,25 @@ public class ClientNetworkHandler {
             switch (packet.getAction()){
                 case SHIELD_HIT_PLAYER:
                     clientPlayer.level.playSound(clientPlayer, clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ(), SoundEvents.SHIELD_BLOCK, SoundCategory.PLAYERS, 0.18F, 0.45F);
+                    break;
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    public static void handleHUD(SHudPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() ->{
+            Minecraft minecraft = Minecraft.getInstance();
+            ClientPlayerEntity clientPlayer = minecraft.player;
+            if(clientPlayer == null){
+                return;
+            }
+
+            switch (packet.getAction()){
+                case TOGGLE_HUD:
+                    boolean toggleTo = packet.getFlag();
+                    GogglesItem.toggleHUDTo(clientPlayer, toggleTo);
+                    CaptainAmerica.LOGGER.debug("Client player {} has toggled their HUD to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
                     break;
             }
         });

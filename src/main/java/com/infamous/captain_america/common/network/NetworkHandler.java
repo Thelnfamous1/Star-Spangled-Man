@@ -1,11 +1,9 @@
 package com.infamous.captain_america.common.network;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.client.network.packet.CFlightPacket;
-import com.infamous.captain_america.client.network.packet.CSetFalconAbilityPacket;
-import com.infamous.captain_america.client.network.packet.CShieldPacket;
-import com.infamous.captain_america.client.network.packet.CUseAbilityPacket;
+import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SHudPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -77,6 +75,22 @@ public final class NetworkHandler {
                 CUseAbilityPacket::decodePacket,
                 CUseAbilityPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        INSTANCE.registerMessage(
+                incrementAndGetPacketCounter(),
+                CHUDPacket.class,
+                CHUDPacket::encodePacket,
+                CHUDPacket::decodePacket,
+                CHUDPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        INSTANCE.registerMessage(
+                incrementAndGetPacketCounter(),
+                SHudPacket.class,
+                SHudPacket::encodePacket,
+                SHudPacket::decodePacket,
+                SHudPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
 
         CaptainAmerica.LOGGER.debug("Finished registering network!");

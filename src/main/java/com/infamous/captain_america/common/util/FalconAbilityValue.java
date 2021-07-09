@@ -4,6 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -122,7 +123,7 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {
 
             },
-            "infrared");
+            "nightVision");
 
     private static void haltIfFlying(ServerPlayerEntity serverPlayer) {
         if (FalconFlightHelper.isFlying(serverPlayer)) {

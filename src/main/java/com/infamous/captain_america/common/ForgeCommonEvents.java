@@ -10,9 +10,12 @@ import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
+import com.infamous.captain_america.common.util.FalconAbilityKey;
+import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -86,8 +89,8 @@ public class ForgeCommonEvents {
             boolean wasHovering = falconAbilityCap.isHovering();
             if(!FalconFlightHelper.canHover(living)){
                 falconAbilityCap.setHovering(false);
-                CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                 if(!living.level.isClientSide && wasHovering){
+                    CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                     living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
                 }
             }
@@ -99,6 +102,24 @@ public class ForgeCommonEvents {
                 }
                 living.fallDistance = 0;
             }
+            if(!living.level.isClientSide){
+                FalconAbilityValue hudValue = falconAbilityCap.get(FalconAbilityKey.HUD);
+                ItemStack gogglesStack = GogglesItem.getGoggles(living);
+                boolean isHudEnabled = GogglesItem.isHUDEnabled(gogglesStack);
+                handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
+                handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
+            }
+        }
+    }
+
+    private static void handleVisionEffect(LivingEntity living, FalconAbilityValue hudValue, FalconAbilityValue valueToCheckAgainst, Effect visionEffect, boolean isHudEnabled) {
+        boolean hasVisionAbility = hudValue == valueToCheckAgainst;
+        boolean hasVisionEffect = living.hasEffect(visionEffect);
+        if(hasVisionAbility && !hasVisionEffect && isHudEnabled){
+            EffectInstance visionEffectInstance = new EffectInstance(visionEffect, 120000, 0, false, false, false);
+            living.addEffect(visionEffectInstance);
+        } else if((!hasVisionAbility || !isHudEnabled) && hasVisionEffect){
+            living.removeEffect(visionEffect);
         }
     }
 

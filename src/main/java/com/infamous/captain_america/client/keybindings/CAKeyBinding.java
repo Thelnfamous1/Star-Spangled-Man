@@ -7,6 +7,7 @@ import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
@@ -71,9 +72,11 @@ public class CAKeyBinding extends KeyBinding{
     public static final int C_KEYCODE = GLFW.GLFW_KEY_C;
     public static final int V_KEYCODE = GLFW.GLFW_KEY_V;
     public static final int G_KEYCODE = GLFW.GLFW_KEY_G;
+    public static final int H_KEYCODE = GLFW.GLFW_KEY_H;
     public static final int UP_KEYCODE = GLFW.GLFW_KEY_UP;
     public static final int DOWN_KEYCODE = GLFW.GLFW_KEY_DOWN;
     public static final int LEFT_ALT_KEY_CODE = GLFW.GLFW_KEY_LEFT_ALT;
+    public static final int RIGHT_ALT_KEY_CODE = GLFW.GLFW_KEY_RIGHT_ALT;
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
@@ -120,6 +123,18 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.DRONE)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.DRONE)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.DRONE)));
+
+
+    public static final CAKeyBinding keyHUDAbility =
+            new CAKeyBinding(
+                    "key.hudAbility",
+                    KeyConflictContext.IN_GAME,
+                    InputMappings.Type.KEYSYM,
+                    H_KEYCODE,
+                    FALCON_TECH_KEY_CATEGORY,
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.HUD)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.HUD)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.HUD)));
 
     public static final CAKeyBinding keyBoomerangThrowShield =
             new CAKeyBinding(
@@ -235,6 +250,23 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> {}
             );
 
+    public static final CAKeyBinding keyToggleHUD =
+            new CAKeyBinding(
+                    "key.toggleHUD",
+                    KeyConflictContext.IN_GAME,
+                    InputMappings.Type.KEYSYM,
+                    RIGHT_ALT_KEY_CODE,
+                    FALCON_TECH_KEY_CATEGORY,
+                    (clientPlayer) -> {
+                        if(!GogglesItem.getGoggles(clientPlayer).isEmpty()){
+                            CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their HUD!", clientPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.sendToServer(new CHUDPacket(CHUDPacket.Action.TOGGLE_HUD));
+                        }
+                    },
+                    (clientPlayer) -> {},
+                    (clientPlayer) -> {}
+            );
+
     public static void handleAllKeys(int key, ClientPlayerEntity clientPlayer) {
         if(key == keyOpenFalconScreen.getKey().getValue()){
             keyOpenFalconScreen.handleKey(clientPlayer);
@@ -244,6 +276,9 @@ public class CAKeyBinding extends KeyBinding{
         }
         if(key == keyDroneAbility.getKey().getValue()){
             keyDroneAbility.handleKey(clientPlayer);
+        }
+        if(key == keyHUDAbility.getKey().getValue()){
+            keyHUDAbility.handleKey(clientPlayer);
         }
         if(key == keyVerticalFlight.getKey().getValue()){
             keyVerticalFlight.handleKey(clientPlayer);
@@ -259,6 +294,9 @@ public class CAKeyBinding extends KeyBinding{
         }
         if(key == keyToggleFlight.getKey().getValue()){
             keyToggleFlight.handleKey(clientPlayer);
+        }
+        if(key == keyToggleHUD.getKey().getValue()){
+            keyToggleHUD.handleKey(clientPlayer);
         }
     }
 }

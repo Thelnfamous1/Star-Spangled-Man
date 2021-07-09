@@ -4,12 +4,14 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SHudPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -164,6 +166,33 @@ public class ServerNetworkHandler {
                 if(abilityValue.getKeyBindAction() == packet.getKeyBindAction()){
                     abilityValue.getPlayerConsumer().accept(serverPlayer);
                 }
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    public static void handleHUD(CHUDPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            ServerPlayerEntity serverPlayer = ctx.get().getSender();
+            if(serverPlayer == null){
+                return;
+            }
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+            if(falconAbilityCap == null) return;
+
+            switch (packet.getAction()){
+                case TOGGLE_HUD:
+                    if (!GogglesItem.getGoggles(serverPlayer).isEmpty()) {
+                        boolean toggledTo = GogglesItem.toggleHUD(serverPlayer);
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_HUD, toggledTo));
+                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their HUD to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
+                        TranslationTextComponent hudToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.hudOn") : new TranslationTextComponent("action.falcon.hudOff");
+                        serverPlayer.sendMessage(hudToggleMessage, Util.NIL_UUID);
+                    } else {
+                        CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their HUD!", serverPlayer.getDisplayName().getString());
+                    }
+                    break;
+
             }
         });
         ctx.get().setPacketHandled(true);

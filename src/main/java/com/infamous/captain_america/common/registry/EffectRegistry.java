@@ -1,6 +1,7 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbility;
 import com.infamous.captain_america.common.potion.UncurableEffect;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -12,7 +13,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class EffectRegistry implements IRegistryManager<Effect> {
-
     private static final DeferredRegister<Effect> EFFECTS = DeferredRegister.create(ForgeRegistries.POTIONS, CaptainAmerica.MODID);
 
     private static final double MOVE_SPEED_MODIFER_VALUE_SERUM = 1.0F;
@@ -23,6 +23,14 @@ public class EffectRegistry implements IRegistryManager<Effect> {
     private static final double ATTACK_SPEED_MODIFIER_VALUE_SERUM = 1.0F;
     private static final double ATTACK_KNOCKBACK_MODIFIER_VALUE_SERUM = 1.0F;
     private static final double MAX_HEALTH_MODIFIER_VALUE_SERUM = 1.0F;
+
+    public static final RegistryObject<Effect> HUD_NIGHT_VISION = EFFECTS.register(
+      "hud_night_vision", () -> new UncurableEffect(EffectType.BENEFICIAL,0x7000ff)
+    );
+
+    public static final RegistryObject<Effect> HUD_INFRARED = EFFECTS.register(
+            "hud_infrared", () -> new UncurableEffect(EffectType.BENEFICIAL,0xff0000 )
+    );
 
     public static final RegistryObject<Effect> SUPER_SOLDIER = EFFECTS.register(
             "super_soldier", () ->
