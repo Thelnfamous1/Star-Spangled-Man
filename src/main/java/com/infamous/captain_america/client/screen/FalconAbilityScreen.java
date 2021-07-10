@@ -54,7 +54,7 @@ public abstract class FalconAbilityScreen extends Screen {
 
     protected void addButtons(int relX, int relY){
         int start = -10;
-        for(Supplier<FalconAbilityValue> abilityValue : this.key.getChildren()){
+        for(Supplier<FalconAbilityValue> abilityValue : this.key.getChildrenSuppliers()){
             // actually starts at 10, and then adds 20 for each button after the first
             addFalconButton(relX, relY, start += 20, abilityValue.get());
         }

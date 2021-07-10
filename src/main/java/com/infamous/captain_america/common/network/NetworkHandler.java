@@ -2,6 +2,7 @@ package com.infamous.captain_america.common.network;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.network.packet.*;
+import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import com.infamous.captain_america.server.network.packet.SHudPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
@@ -90,6 +91,14 @@ public final class NetworkHandler {
                 SHudPacket::encodePacket,
                 SHudPacket::decodePacket,
                 SHudPacket::handlePacket,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+
+        INSTANCE.registerMessage(
+                incrementAndGetPacketCounter(),
+                SCombatPacket.class,
+                SCombatPacket::encodePacket,
+                SCombatPacket::decodePacket,
+                SCombatPacket::handlePacket,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
 

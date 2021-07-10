@@ -135,18 +135,20 @@ public class ServerNetworkHandler {
             if(falconAbilityCap != null){
                 if(!packet.getKey().isValidForValue(packet.getValue())){
                     CaptainAmerica.LOGGER.error(
-                            "Failed to set the {} ability for server player {} because the value {} is not valid for ability key",
+                            "Failed to set the {} ability for server player {} because the value {} is not valid for the ability key",
                             packet.getKey().name(),
                             serverPlayer.getDisplayName().getString(),
                             packet.getValue().name());
                 } else{
-                    falconAbilityCap.put(packet.getKey(), packet.getValue());
-                    serverPlayer.sendMessage(
-                            new TranslationTextComponent("action.falcon.setAbility",
-                                    new TranslationTextComponent(packet.getKey().getTranslationKey()),
-                                    new TranslationTextComponent(packet.getKey().getTranslationKey(packet.getValue()))),
-                            Util.NIL_UUID);
-                    CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
+                    boolean put = falconAbilityCap.put(packet.getKey(), packet.getValue());
+                    if(put){
+                        serverPlayer.sendMessage(
+                                new TranslationTextComponent("action.falcon.setAbility",
+                                        new TranslationTextComponent(packet.getKey().getTranslationKey()),
+                                        new TranslationTextComponent(packet.getKey().getTranslationKey(packet.getValue()))),
+                                Util.NIL_UUID);
+                        CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
+                    }
 
                 }
             }
@@ -163,9 +165,7 @@ public class ServerNetworkHandler {
             if(falconAbilityCap != null){
                 FalconAbilityKey abilityKey = packet.getAbilityKey();
                 FalconAbilityValue abilityValue = falconAbilityCap.get(abilityKey);
-                if(abilityValue.getKeyBindAction() == packet.getKeyBindAction()){
-                    abilityValue.getPlayerConsumer().accept(serverPlayer);
-                }
+                abilityValue.getHandlerForKeyBindAction(packet.getKeyBindAction()).accept(serverPlayer);
             }
         });
         ctx.get().setPacketHandled(true);

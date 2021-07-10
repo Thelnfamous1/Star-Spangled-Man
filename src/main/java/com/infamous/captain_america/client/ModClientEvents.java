@@ -3,6 +3,7 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.layer.EXO7FalconLayer;
+import com.infamous.captain_america.client.layer.LaserLayer;
 import com.infamous.captain_america.client.layer.MetalArmLayer;
 import com.infamous.captain_america.client.renderer.RedwingRenderer;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
@@ -63,9 +64,15 @@ public class ModClientEvents {
         CaptainAmerica.LOGGER.info("Registering key bindings!");
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyOpenFalconScreen);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyFlightAbility);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyCombatAbility);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyDroneAbility);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyHUDAbility);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyVerticalFlight);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyVerticalFlightInverted);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyBoomerangThrowShield);
         ClientRegistry.registerKeyBinding(CAKeyBinding.keyRicochetThrowShield);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyToggleFlight);
+        ClientRegistry.registerKeyBinding(CAKeyBinding.keyToggleHUD);
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");
     }
 
@@ -76,6 +83,7 @@ public class ModClientEvents {
             boolean smallArms = skinMap.get("slim") == playerRenderer;
             playerRenderer.addLayer(new EXO7FalconLayer<>(playerRenderer));
             playerRenderer.addLayer(new MetalArmLayer<>(playerRenderer, new PlayerModel<>(0.0F, smallArms)));
+            //playerRenderer.addLayer(new LaserLayer<>(playerRenderer));
         }
         CaptainAmerica.LOGGER.info("Finished adding layers to skin maps!");
     }

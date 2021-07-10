@@ -7,20 +7,18 @@ import java.util.function.Supplier;
 
 public interface IAbilityValue extends ITranslatable{
 
-    Supplier<? extends IAbilityKey> getParent();
+    Supplier<? extends IAbilityKey> getParentSupplier();
 
-    KeyBindAction getKeyBindAction();
-
-    Consumer<ServerPlayerEntity> getPlayerConsumer();
+    Consumer<ServerPlayerEntity> getHandlerForKeyBindAction(KeyBindAction keyBindAction);
 
     default boolean isValidForKey(IAbilityKey key){
-        return this.getParent() == key;
+        return this.getParentSupplier().get() == key;
     }
 
     String getTranslationKeySuffix();
 
     @Override
     default String getTranslationKey(){
-        return this.getParent().get().getTranslationKey() + "." + this.getTranslationKeySuffix();
+        return this.getParentSupplier().get().getTranslationKey() + "." + this.getTranslationKeySuffix();
     }
 }

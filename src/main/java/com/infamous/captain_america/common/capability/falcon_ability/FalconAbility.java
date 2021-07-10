@@ -1,6 +1,7 @@
 package com.infamous.captain_america.common.capability.falcon_ability;
 
 import com.google.common.collect.Maps;
+import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 
@@ -11,6 +12,7 @@ public class FalconAbility implements IFalconAbility {
     private final Map<FalconAbilityKey, FalconAbilityValue> abilityMap = Maps.newHashMap();
     private boolean hovering;
     private boolean verticallyFlying;
+    private boolean shootingLaser;
 
     public FalconAbility(){
         this.abilityMap.put(FalconAbilityKey.FLIGHT, FalconAbilityValue.TOGGLE_HOVER);
@@ -20,14 +22,16 @@ public class FalconAbility implements IFalconAbility {
     }
 
     @Override
-    public void put(FalconAbilityKey key, FalconAbilityValue value) {
+    public boolean put(FalconAbilityKey key, FalconAbilityValue value) {
         if(key.isValidForValue(value)){
             this.abilityMap.put(key, value);
+            return true;
         } else{
-            throw new IllegalArgumentException(
-                    "Cannot map key " + key.name()
-                            + " to value " + value.name()
-                            + " because the value is not a valid for the key");
+            CaptainAmerica.LOGGER.error(
+                    "Cannot map key {} to value {} because the value is not valid for the key",
+                    key.name(),
+                    value.name());
+            return false;
         }
     }
 
@@ -54,5 +58,15 @@ public class FalconAbility implements IFalconAbility {
     @Override
     public void setVerticallyFlying(boolean verticallyFlying) {
         this.verticallyFlying = verticallyFlying;
+    }
+
+    @Override
+    public boolean isShootingLaser() {
+        return this.shootingLaser;
+    }
+
+    @Override
+    public void setShootingLaser(boolean shootingLaser) {
+        this.shootingLaser = shootingLaser;
     }
 }

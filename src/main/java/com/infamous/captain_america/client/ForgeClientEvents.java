@@ -4,6 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.client.util.CARenderHelper;
+import com.infamous.captain_america.client.util.LaserBeamHelper;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
@@ -17,6 +18,7 @@ import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
@@ -30,14 +32,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeClientEvents {
@@ -165,6 +166,29 @@ public class ForgeClientEvents {
             metalArmStack = metalArmCap.getMetalArmOffHand();
         }
         return metalArmStack;
+    }
+
+
+    @SubscribeEvent
+    public static void renderWorld(RenderWorldLastEvent event){
+        List<AbstractClientPlayerEntity> players = null;
+        if (Minecraft.getInstance().level != null) {
+            players = Minecraft.getInstance().level.players();
+
+            PlayerEntity localPlayer = Minecraft.getInstance().player;
+            if(localPlayer != null){
+                for (PlayerEntity player : players) {
+                    if (player.distanceToSqr(localPlayer) > 500){
+                        continue;
+                    }
+
+                    IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
+                    if (falconAbilityCap != null && falconAbilityCap.isShootingLaser()) {
+                        LaserBeamHelper.renderBeam(event, player);
+                    }
+                }
+            }
+        }
     }
 
 }

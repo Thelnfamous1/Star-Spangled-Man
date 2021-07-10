@@ -57,6 +57,15 @@ public class EXO7FalconItem extends CAArmorItem {
         compoundnbt.putBoolean("FlightEnabled", flightEnabled);
     }
 
+    public static ItemStack getEXO7FalconStack(LivingEntity living){
+        ItemStack exo7FalconStack = living.getItemBySlot(SLOT);
+        if(isEXO7FalconStack(exo7FalconStack)){
+            return exo7FalconStack;
+        } else{
+            return ItemStack.EMPTY;
+        }
+    }
+
     public static boolean isEXO7FalconStack(ItemStack stack){
         return FALCON_PREDICATE.test(stack.getItem());
     }

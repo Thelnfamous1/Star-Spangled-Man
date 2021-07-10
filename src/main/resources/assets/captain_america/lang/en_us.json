@@ -84,6 +84,7 @@
   "ability.falcon.combat": "Combat",
   "ability.falcon.combat.missile": "Missile",
   "ability.falcon.combat.grenade": "Grenade",
+  "ability.falcon.combat.laser": "Laser",
 
   "ability.falcon.drone": "Drone",
   "ability.falcon.drone.deploy": "Deploy Drone",

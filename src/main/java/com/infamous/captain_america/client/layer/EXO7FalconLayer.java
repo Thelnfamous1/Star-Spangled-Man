@@ -28,6 +28,7 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
         super(entityRenderer);
     }
 
+    @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, T flyer, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
         ItemStack exo7FalconStack = FalconFlightHelper.getEXO7FalconStack(flyer);
         if (shouldRender(exo7FalconStack, flyer)) {

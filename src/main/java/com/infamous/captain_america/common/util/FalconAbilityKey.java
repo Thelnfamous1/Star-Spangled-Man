@@ -13,7 +13,8 @@ public enum FalconAbilityKey implements IAbilityKey{
     ),
     COMBAT("ability.falcon.combat",
             () -> FalconAbilityValue.MISSILE,
-            () -> FalconAbilityValue.GRENADE
+            () -> FalconAbilityValue.GRENADE,
+            () -> FalconAbilityValue.LASER
     ),
     DRONE("ability.falcon.drone",
             () -> FalconAbilityValue.DEPLOY,
@@ -40,7 +41,7 @@ public enum FalconAbilityKey implements IAbilityKey{
     }
 
     @Override
-    public List<Supplier<FalconAbilityValue>> getChildren() {
+    public List<Supplier<FalconAbilityValue>> getChildrenSuppliers() {
         return this.children;
     }
 

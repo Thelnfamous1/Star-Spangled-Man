@@ -5,10 +5,10 @@ import java.util.function.Supplier;
 
 public interface IAbilityKey extends ITranslatable{
 
-    List<? extends Supplier<? extends IAbilityValue>> getChildren();
+    List<? extends Supplier<? extends IAbilityValue>> getChildrenSuppliers();
 
     default boolean isValidForValue(IAbilityValue value){
-        for(Supplier<? extends IAbilityValue> abilityValue : this.getChildren()){
+        for(Supplier<? extends IAbilityValue> abilityValue : this.getChildrenSuppliers()){
             if(abilityValue.get() == value){
                 return true;
             }

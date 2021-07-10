@@ -89,9 +89,11 @@ public class ForgeCommonEvents {
             boolean wasHovering = falconAbilityCap.isHovering();
             if(!FalconFlightHelper.canHover(living)){
                 falconAbilityCap.setHovering(false);
-                if(!living.level.isClientSide && wasHovering){
+                if(wasHovering){
                     CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
-                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
+                    if(!living.level.isClientSide){
+                        living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
+                    }
                 }
             }
             if(falconAbilityCap.isHovering()){

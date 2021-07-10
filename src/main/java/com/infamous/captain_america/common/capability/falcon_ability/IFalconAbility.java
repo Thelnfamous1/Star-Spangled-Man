@@ -6,7 +6,7 @@ import com.infamous.captain_america.common.util.FalconAbilityValue;
 
 public interface IFalconAbility {
 
-    void put(FalconAbilityKey key, FalconAbilityValue value);
+    boolean put(FalconAbilityKey key, FalconAbilityValue value);
 
     FalconAbilityValue get(FalconAbilityKey key);
 
@@ -24,4 +24,8 @@ public interface IFalconAbility {
             this.put(abilityKey, abilityValue);
         }
     }
+
+    boolean isShootingLaser();
+
+    void setShootingLaser(boolean shootingLaser);
 }

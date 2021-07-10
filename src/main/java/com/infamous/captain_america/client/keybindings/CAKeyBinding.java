@@ -67,16 +67,21 @@ public class CAKeyBinding extends KeyBinding{
         this.initialRelease = wasDown && !this.isDown();
     }
 
-    public static final int R_KEYCODE = GLFW.GLFW_KEY_R;
-    public static final int O_KEYCODE = GLFW.GLFW_KEY_O;
-    public static final int C_KEYCODE = GLFW.GLFW_KEY_C;
-    public static final int V_KEYCODE = GLFW.GLFW_KEY_V;
-    public static final int G_KEYCODE = GLFW.GLFW_KEY_G;
-    public static final int H_KEYCODE = GLFW.GLFW_KEY_H;
-    public static final int UP_KEYCODE = GLFW.GLFW_KEY_UP;
-    public static final int DOWN_KEYCODE = GLFW.GLFW_KEY_DOWN;
-    public static final int LEFT_ALT_KEY_CODE = GLFW.GLFW_KEY_LEFT_ALT;
-    public static final int RIGHT_ALT_KEY_CODE = GLFW.GLFW_KEY_RIGHT_ALT;
+    public static final int FLIGHT_ABILITY_KEYCODE = GLFW.GLFW_KEY_R;
+    public static final int COMBAT_ABILITY_KEYCODE = GLFW.GLFW_KEY_Y;
+    public static final int DRONE_ABILITY_KEYCODE = GLFW.GLFW_KEY_O;
+    public static final int HUD_ABILITY_KEYCODE = GLFW.GLFW_KEY_H;
+
+    public static final int RICOCHET_THROW_SHIELD_KEYCODE = GLFW.GLFW_KEY_C;
+    public static final int BOOMERANG_THROW_SHIELD_KEYCODE = GLFW.GLFW_KEY_V;
+
+    public static final int OPEN_FALCON_SCREEN_KEYCODE = GLFW.GLFW_KEY_G;
+
+    public static final int VERTICAL_FLIGHT_KEYCODE = GLFW.GLFW_KEY_UP;
+    public static final int INVERTED_VERTICAL_FLIGHT_KEYCODE = GLFW.GLFW_KEY_DOWN;
+
+    public static final int TOGGLE_FLIGHT_KEYCODE = GLFW.GLFW_KEY_LEFT_ALT;
+    public static final int TOGGLE_HUD_KEYCODE = GLFW.GLFW_KEY_RIGHT_ALT;
 
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
@@ -106,11 +111,22 @@ public class CAKeyBinding extends KeyBinding{
                     "key.flightAbility",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    R_KEYCODE,
+                    FLIGHT_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.FLIGHT)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.FLIGHT)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.FLIGHT)));
+
+    public static final CAKeyBinding keyCombatAbility =
+            new CAKeyBinding(
+                    "key.combatAbility",
+                    KeyConflictContext.IN_GAME,
+                    InputMappings.Type.KEYSYM,
+                    COMBAT_ABILITY_KEYCODE,
+                    FALCON_TECH_KEY_CATEGORY,
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.COMBAT)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.COMBAT)),
+                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.COMBAT)));
 
 
     public static final CAKeyBinding keyDroneAbility =
@@ -118,7 +134,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.droneAbility",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    O_KEYCODE,
+                    DRONE_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.DRONE)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.DRONE)),
@@ -130,7 +146,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.hudAbility",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    H_KEYCODE,
+                    HUD_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.HUD)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.HUD)),
@@ -141,7 +157,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.boomerangThrowShield",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    V_KEYCODE,
+                    BOOMERANG_THROW_SHIELD_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
                     SHIELD_THROW_ON_HELD,
@@ -160,7 +176,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.ricochetThrowShield",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    C_KEYCODE,
+                    RICOCHET_THROW_SHIELD_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
                     SHIELD_THROW_ON_HELD,
@@ -179,7 +195,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.verticalFlight",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    UP_KEYCODE,
+                    VERTICAL_FLIGHT_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {},
                     (clientPlayer) -> {
@@ -198,7 +214,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.verticalFlightInverted",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    DOWN_KEYCODE,
+                    INVERTED_VERTICAL_FLIGHT_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {},
                     (clientPlayer) -> {
@@ -217,7 +233,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.openFalconScreen",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    G_KEYCODE,
+                    OPEN_FALCON_SCREEN_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
                         Minecraft minecraft = Minecraft.getInstance();
@@ -238,7 +254,7 @@ public class CAKeyBinding extends KeyBinding{
                    "key.toggleFlight",
                    KeyConflictContext.IN_GAME,
                    InputMappings.Type.KEYSYM,
-                   LEFT_ALT_KEY_CODE,
+                    TOGGLE_FLIGHT_KEYCODE,
                    FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
                         if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
@@ -255,7 +271,7 @@ public class CAKeyBinding extends KeyBinding{
                     "key.toggleHUD",
                     KeyConflictContext.IN_GAME,
                     InputMappings.Type.KEYSYM,
-                    RIGHT_ALT_KEY_CODE,
+                    TOGGLE_HUD_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
                         if(!GogglesItem.getGoggles(clientPlayer).isEmpty()){
@@ -273,6 +289,9 @@ public class CAKeyBinding extends KeyBinding{
         }
         if(key == keyFlightAbility.getKey().getValue()){
             keyFlightAbility.handleKey(clientPlayer);
+        }
+        if(key == keyCombatAbility.getKey().getValue()){
+            keyCombatAbility.handleKey(clientPlayer);
         }
         if(key == keyDroneAbility.getKey().getValue()){
             keyDroneAbility.handleKey(clientPlayer);

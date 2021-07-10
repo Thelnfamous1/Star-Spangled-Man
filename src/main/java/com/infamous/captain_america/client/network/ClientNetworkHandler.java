@@ -5,6 +5,7 @@ import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
+import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import com.infamous.captain_america.server.network.packet.SHudPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
@@ -94,6 +95,30 @@ public class ClientNetworkHandler {
                     boolean toggleTo = packet.getFlag();
                     GogglesItem.toggleHUDTo(clientPlayer, toggleTo);
                     CaptainAmerica.LOGGER.debug("Client player {} has toggled their HUD to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
+                    break;
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    public static void handleCombat(SCombatPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() ->{
+            Minecraft minecraft = Minecraft.getInstance();
+            ClientPlayerEntity clientPlayer = minecraft.player;
+            if(clientPlayer == null){
+                return;
+            }
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
+            if(falconAbilityCap == null) return;
+
+            switch (packet.getAction()){
+                case START_LASER:
+                    falconAbilityCap.setShootingLaser(true);
+                    CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
+                    break;
+                case STOP_LASER:
+                    falconAbilityCap.setShootingLaser(false);
+                    CaptainAmerica.LOGGER.debug("Client player {} has stopped firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
             }
         });
