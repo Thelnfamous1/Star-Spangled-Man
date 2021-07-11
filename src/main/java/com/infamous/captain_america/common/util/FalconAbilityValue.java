@@ -74,7 +74,8 @@ public enum FalconAbilityValue implements IAbilityValue {
     LASER(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
-                if(!EXO7FalconItem.getEXO7FalconStack(serverPlayer).isEmpty()){
+                if(!EXO7FalconItem.getEXO7FalconStack(serverPlayer).isEmpty()
+                        && serverPlayer.getMainHandItem().isEmpty()){
                     IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
                     if (falconAbilityCap == null) return;
 
@@ -84,36 +85,30 @@ public enum FalconAbilityValue implements IAbilityValue {
                 }
             },
             (serverPlayer) -> {
-                if(!EXO7FalconItem.getEXO7FalconStack(serverPlayer).isEmpty()){
-                    IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                    if (falconAbilityCap == null) return;
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+                if (falconAbilityCap == null) return;
 
-                    if(falconAbilityCap.isShootingLaser()){
-                        RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
-                        if(rayTraceResult instanceof EntityRayTraceResult){
-                            Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
-                            DamageSource laserDamageSource = DamageSource.playerAttack(serverPlayer).setIsFire();
-                            boolean didHurt = target.hurt(laserDamageSource, 2.0F / 20);
-                            if(didHurt){
-                                target.invulnerableTime = 0;
-                            }
-                        } else{
-                            /*
-                            World world = serverPlayer.level;
-                            Vector3d targetVec = rayTraceResult.getLocation();
-                            BlockPos blockPos = new BlockPos(targetVec.x, targetVec.y, targetVec.z);
-                            BlockState blockState = world.getBlockState(blockPos);
-                            boolean destroyedBlock = false;
-                            if (blockState.canEntityDestroy(world, blockPos, serverPlayer)
-                                    && net.minecraftforge.event.ForgeEventFactory.onEntityDestroyBlock(serverPlayer, blockPos, blockState)) {
-                                destroyedBlock = world.destroyBlock(blockPos, true, serverPlayer);
-                            }
-                            if(destroyedBlock){
-                                world.levelEvent((PlayerEntity)null, 1022, blockPos, 0);
-                            }
-                             */
+                boolean hasCorrectEquipment = !EXO7FalconItem.getEXO7FalconStack(serverPlayer).isEmpty()
+                        && serverPlayer.getMainHandItem().isEmpty();
+                if(falconAbilityCap.isShootingLaser()
+                        && hasCorrectEquipment){
+                    RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
+                    if(rayTraceResult instanceof EntityRayTraceResult){
+                        Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
+                        DamageSource laserDamageSource = DamageSource.playerAttack(serverPlayer).setIsFire();
+                        boolean didHurt = target.hurt(laserDamageSource, 2.0F / 20);
+                        if(didHurt){
+                            target.invulnerableTime = 0;
                         }
+                    } else{
+                        CaptainAmerica.LOGGER.debug("Server player {} is attempting to break a block!", serverPlayer.getDisplayName().getString());
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.CONTINUE_LASER));
                     }
+                } else if(falconAbilityCap.isShootingLaser() && !hasCorrectEquipment){
+                    falconAbilityCap.setShootingLaser(false);
+                    CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
+
                 }
 
             },

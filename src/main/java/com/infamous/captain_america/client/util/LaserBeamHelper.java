@@ -1,170 +1,137 @@
 package com.infamous.captain_america.client.util;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.*;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class LaserBeamHelper {
 
-    private static final ResourceLocation LASER_BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
-    private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(LASER_BEAM_LOCATION);
+    public static void renderBeam(RenderWorldLastEvent event, PlayerEntity player, float frameTime) {
+        Vector3d originVec = player.getEyePosition(frameTime);
+        RayTraceResult trace = CALogicHelper.getLaserRayTrace(player);
 
-    private static Minecraft minecraft;
+        float speedModifier = -0.02f;
 
-    private static WorldRenderer worldRenderer;
-    private static RenderTypeBuffers renderTypeBuffers;
-    private static Method shouldShowEntityOutlinesMethod;
+        drawBeams(event, originVec, trace, 0, 0, 0, 255 / 255f, 0 / 255f, 0 / 255f, 0.02f, player, frameTime, speedModifier);
+    }
 
-    public static void renderBeam(RenderWorldLastEvent event, PlayerEntity player) {
+    private static void drawBeams(RenderWorldLastEvent event, Vector3d originVec, RayTraceResult rayTrace, double xOffset, double yOffset, double zOffset, float r, float g, float b, float thickness, PlayerEntity player, float ticks, float speedModifier) {
+        Hand laserShootingHand = Hand.MAIN_HAND;
 
-        if(minecraft == null){
-            minecraft = Minecraft.getInstance();
-            worldRenderer = minecraft.levelRenderer;
-            renderTypeBuffers = ObfuscationReflectionHelper.getPrivateValue(WorldRenderer.class, worldRenderer, "field_228415_m_");
-            shouldShowEntityOutlinesMethod = ObfuscationReflectionHelper.findMethod(WorldRenderer.class, "func_174985_d");
+        IVertexBuilder builder;
+        double distance = Math.max(1, originVec.subtract(rayTrace.getLocation()).length());
+        long gameTime = player.level.getGameTime();
+        double scaledGameTime = gameTime * speedModifier;
+        float additiveThickness = (thickness * 3.5f) * calculateLaserFlickerModifier(gameTime);
+
+        float beam2r = 255 / 255f;
+        float beam2g = 255 / 255f;
+        float beam2b = 255 / 255f;
+
+        Vector3d view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+
+        MatrixStack matrix = event.getMatrixStack();
+
+        matrix.pushPose();
+
+        matrix.translate(-view.x(), -view.y(), -view.z());
+        matrix.translate(originVec.x, originVec.y, originVec.z);
+        matrix.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(ticks, -player.yRot, -player.yRotO)));
+        matrix.mulPose(Vector3f.XP.rotationDegrees(MathHelper.lerp(ticks, player.xRot, player.xRotO)));
+
+        MatrixStack.Entry matrixstack$entry = matrix.last();
+        Matrix3f matrixNormal = matrixstack$entry.normal();
+        Matrix4f positionMatrix = matrixstack$entry.pose();
+
+        //additive laser beam
+        builder = buffer.getBuffer(CARenderType.BEACON_BEAM_GLOW);
+        drawBeam(xOffset, yOffset, zOffset, builder, positionMatrix, matrixNormal, additiveThickness, laserShootingHand, distance, 0.5, 1, ticks, r,g,b,0.7f);
+
+        //main laser, colored part
+        builder = buffer.getBuffer(CARenderType.BEACON_BEAM_MAIN);
+        drawBeam(xOffset, yOffset, zOffset, builder, positionMatrix, matrixNormal, thickness, laserShootingHand, distance, scaledGameTime, scaledGameTime + distance * 1.5, ticks, r,g,b,1f);
+
+        //core
+        builder = buffer.getBuffer(CARenderType.BEACON_BEAM_CORE);
+        drawBeam(xOffset, yOffset, zOffset, builder, positionMatrix, matrixNormal, thickness/2, laserShootingHand, distance, scaledGameTime, scaledGameTime + distance * 1.5, ticks, beam2r,beam2g,beam2b,1f);
+        matrix.popPose();
+        //RenderSystem.disableDepthTest();
+        buffer.endBatch();
+    }
+
+    private static float calculateLaserFlickerModifier(long gameTime) {
+        return 0.9f + 0.1f * MathHelper.sin(gameTime * 0.99f) * MathHelper.sin(gameTime * 0.3f) * MathHelper.sin(gameTime * 0.1f);
+    }
+
+    private static void drawBeam(double xOffset, double yOffset, double zOffset, IVertexBuilder builder, Matrix4f positionMatrix, Matrix3f matrixNormalIn, float thickness, Hand hand, double distance, double v1, double v2, float ticks, float r, float g, float b, float alpha) {
+        Vector3f vector3f = new Vector3f(0.0f, 1.0f, 0.0f);
+        vector3f.transform(matrixNormalIn);
+        ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
+        // Support for hand sides remembering to take into account of Skin options
+        if( Minecraft.getInstance().options.mainHand != HandSide.RIGHT)
+            hand = hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
+        float startXOffset = -0.25f;
+        float startYOffset = -.115f;
+        float startZOffset = 0;
+        if (clientPlayer != null) {
+            startZOffset = 0.65f + (1 - clientPlayer.getFieldOfViewModifier());
         }
-
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = renderTypeBuffers.bufferSource();
-        IRenderTypeBuffer renderTypeBuffer;
-        Boolean shouldShowEntityOutlines;
-        try {
-            shouldShowEntityOutlines = (Boolean) shouldShowEntityOutlinesMethod.invoke(worldRenderer);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            CaptainAmerica.LOGGER.error("Reflection error! Unable to determine if the world renderer should show entity outlines!");
-            shouldShowEntityOutlines = true; // assume true
+        if (hand == Hand.OFF_HAND) {
+            startYOffset = -.120f;
+            startXOffset = 0.25f;
         }
+        float lerpXRot = 0;
+        if (clientPlayer != null) {
+            lerpXRot = (MathHelper.lerp(ticks, clientPlayer.xRotO, clientPlayer.xRot) - MathHelper.lerp(ticks, clientPlayer.xBobO, clientPlayer.xBob));
+        }
+        float lerpYRot = 0;
+        if (clientPlayer != null) {
+            lerpYRot = (MathHelper.lerp(ticks, clientPlayer.yRotO, clientPlayer.yRot) - MathHelper.lerp(ticks, clientPlayer.yBobO, clientPlayer.yBob));
+        }
+        startXOffset = startXOffset + (lerpYRot / 750);
+        startYOffset = startYOffset + (lerpXRot / 750);
 
-        if (shouldShowEntityOutlines && minecraft.shouldEntityAppearGlowing(player)) {
-            OutlineLayerBuffer outlinelayerbuffer = renderTypeBuffers.outlineBufferSource();
-            renderTypeBuffer = outlinelayerbuffer;
-            int teamColor = player.getTeamColor();
-            int alpha = 255;
-            int red = teamColor >> 16 & alpha;
-            int green = teamColor >> 8 & alpha;
-            int blue = teamColor & alpha;
-            outlinelayerbuffer.setColor(red, green, blue, alpha);
+        Vector4f vec1 = new Vector4f(startXOffset, -thickness + startYOffset, startZOffset, 1.0F);
+        vec1.transform(positionMatrix);
+        Vector4f vec2 = new Vector4f((float) xOffset, -thickness + (float) yOffset, (float) distance + (float) zOffset, 1.0F);
+        vec2.transform(positionMatrix);
+        Vector4f vec3 = new Vector4f((float) xOffset, thickness + (float) yOffset, (float) distance + (float) zOffset, 1.0F);
+        vec3.transform(positionMatrix);
+        Vector4f vec4 = new Vector4f(startXOffset, thickness + startYOffset, startZOffset, 1.0F);
+        vec4.transform(positionMatrix);
+
+        if (hand == Hand.MAIN_HAND) {
+            builder.vertex(vec4.x(), vec4.y(), vec4.z(), r, g, b, alpha, 0, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec3.x(), vec3.y(), vec3.z(), r, g, b, alpha, 0, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec2.x(), vec2.y(), vec2.z(), r, g, b, alpha, 1, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec1.x(), vec1.y(), vec1.z(), r, g, b, alpha, 1, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            //Rendering a 2nd time to allow you to see both sides in multiplayer, shouldn't be necessary with culling disabled but here we are....
+            builder.vertex(vec1.x(), vec1.y(), vec1.z(), r, g, b, alpha, 1, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec2.x(), vec2.y(), vec2.z(), r, g, b, alpha, 1, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec3.x(), vec3.y(), vec3.z(), r, g, b, alpha, 0, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec4.x(), vec4.y(), vec4.z(), r, g, b, alpha, 0, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
         } else {
-            renderTypeBuffer = irendertypebuffer$impl;
+            builder.vertex(vec1.x(), vec1.y(), vec1.z(), r, g, b, alpha, 1, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec2.x(), vec2.y(), vec2.z(), r, g, b, alpha, 1, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec3.x(), vec3.y(), vec3.z(), r, g, b, alpha, 0, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec4.x(), vec4.y(), vec4.z(), r, g, b, alpha, 0, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            //Rendering a 2nd time to allow you to see both sides in multiplayer, shouldn't be necessary with culling disabled but here we are....
+            builder.vertex(vec4.x(), vec4.y(), vec4.z(), r, g, b, alpha, 0, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec3.x(), vec3.y(), vec3.z(), r, g, b, alpha, 0, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec2.x(), vec2.y(), vec2.z(), r, g, b, alpha, 1, (float) v2, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
+            builder.vertex(vec1.x(), vec1.y(), vec1.z(), r, g, b, alpha, 1, (float) v1, OverlayTexture.NO_OVERLAY, 15728880, vector3f.x(), vector3f.y(), vector3f.z());
         }
-
-        float partialTicks = event.getPartialTicks();
-        MatrixStack matrixStack = event.getMatrixStack();
-
-        Vector3d targetVec;
-        RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(player);
-        if (rayTraceResult instanceof EntityRayTraceResult) {
-            Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
-            targetVec = getPosition(target, 0, (double)target.getBbHeight() * 0.5D, 0, partialTicks);
-        } else{
-            Vector3d targetLocation = rayTraceResult.getLocation();
-            targetVec = new Vector3d(targetLocation.x, targetLocation.y, targetLocation.z);
-        }
-        renderLaserBeam(player, targetVec, partialTicks, matrixStack, renderTypeBuffer);
-
-    }
-
-    private static void renderLaserBeam(PlayerEntity player, Vector3d targetVec, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer) {
-        float gameTime = (float) player.level.getGameTime() + partialTicks;
-        float moduloHalfGameTime = gameTime * 0.5F % 1.0F;
-        float playerEyeHeight = player.getEyeHeight();
-        matrixStack.pushPose();
-        matrixStack.translate(0.0D, (double)playerEyeHeight, 0.0D);
-        Vector3d originVec = getPosition(player, 0, (double)playerEyeHeight, 0, partialTicks);
-        Vector3d diffVec = targetVec.subtract(originVec);
-        float diffVecLength = (float)(diffVec.length() + 1.0D);
-        diffVec = diffVec.normalize();
-        float acos = (float)Math.acos(diffVec.y);
-        float atan2 = (float)Math.atan2(diffVec.z, diffVec.x);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees((((float)Math.PI / 2F) - atan2) * (180F / (float)Math.PI)));
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(acos * (180F / (float)Math.PI)));
-        int i = 1;
-        float gameTimePartial = gameTime * 0.05F * -1.5F;
-        int red = 255;
-        int green = 0;
-        int blue = 0;
-        float multiplier2 = 0.2F;
-        float multiplier1 = 0.282F;
-        float x1 = MathHelper.cos(gameTimePartial + (float)Math.PI / 1.33333333F) * multiplier1;
-        float z1 = MathHelper.sin(gameTimePartial + (float)Math.PI / 1.33333333F) * multiplier1;
-        float x2 = MathHelper.cos(gameTimePartial + ((float)Math.PI / 4F)) * multiplier1;
-        float z2 = MathHelper.sin(gameTimePartial + ((float)Math.PI / 4F)) * multiplier1;
-        float x4 = MathHelper.cos(gameTimePartial + (float)Math.PI * 1.25F) * multiplier1;
-        float z4 = MathHelper.sin(gameTimePartial + (float)Math.PI * 1.25F) * multiplier1;
-        float x3 = MathHelper.cos(gameTimePartial + (float)Math.PI * 1.75F) * multiplier1;
-        float z3 = MathHelper.sin(gameTimePartial + (float)Math.PI * 1.75F) * multiplier1;
-        float x5 = MathHelper.cos(gameTimePartial + (float)Math.PI) * multiplier2;
-        float z5 = MathHelper.sin(gameTimePartial + (float)Math.PI) * multiplier2;
-        float x6 = MathHelper.cos(gameTimePartial + 0.0F) * multiplier2;
-        float z6 = MathHelper.sin(gameTimePartial + 0.0F) * multiplier2;
-        float x7 = MathHelper.cos(gameTimePartial + ((float)Math.PI / 2F)) * multiplier2;
-        float z7 = MathHelper.sin(gameTimePartial + ((float)Math.PI / 2F)) * multiplier2;
-        float x8 = MathHelper.cos(gameTimePartial + ((float)Math.PI * 1.5F)) * multiplier2;
-        float z8 = MathHelper.sin(gameTimePartial + ((float)Math.PI * 1.5F)) * multiplier2;
-        float u2 = 0.0F;
-        float u1 = 0.4999F;
-        float v2 = -1.0F + moduloHalfGameTime;
-        float v1 = diffVecLength * 2.5F + v2;
-        IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(getBeamRenderType());
-        MatrixStack.Entry matrixstack$entry = matrixStack.last();
-        Matrix4f matrix4f = matrixstack$entry.pose();
-        Matrix3f matrix3f = matrixstack$entry.normal();
-        vertex(ivertexbuilder, matrix4f, matrix3f, x5, diffVecLength, z5, red, green, blue, u1, v1);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x5, 0.0F, z5, red, green, blue, u1, v2);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x6, 0.0F, z6, red, green, blue, u2, v2);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x6, diffVecLength, z6, red, green, blue, u2, v1);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x7, diffVecLength, z7, red, green, blue, u1, v1);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x7, 0.0F, z7, red, green, blue, u1, v2);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x8, 0.0F, z8, red, green, blue, u2, v2);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x8, diffVecLength, z8, red, green, blue, u2, v1);
-        float v3 = 0.0F;
-        if (player.tickCount % 2 == 0) {
-            v3 = 0.5F;
-        }
-
-        vertex(ivertexbuilder, matrix4f, matrix3f, x1, diffVecLength, z1, red, green, blue, 0.5F, v3 + 0.5F);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x2, diffVecLength, z2, red, green, blue, 1.0F, v3 + 0.5F);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x3, diffVecLength, z3, red, green, blue, 1.0F, v3);
-        vertex(ivertexbuilder, matrix4f, matrix3f, x4, diffVecLength, z4, red, green, blue, 0.5F, v3);
-        matrixStack.popPose();
-    }
-
-    private static Vector3d getPosition(Entity entity, double xOffset, double yOffset, double zOffset, float partialTicks) {
-        double x = MathHelper.lerp((double)partialTicks, entity.xOld, entity.getX() + xOffset);
-        double y = MathHelper.lerp((double)partialTicks, entity.yOld, entity.getY()) + yOffset;
-        double z = MathHelper.lerp((double)partialTicks, entity.zOld, entity.getZ()) + zOffset;
-        return new Vector3d(x, y, z);
-    }
-
-    private static void vertex(IVertexBuilder vertexBuilder, Matrix4f matrix4f, Matrix3f matrix3f, float x, float y, float z, int red, int green, int blue, float u, float v) {
-        vertexBuilder
-                .vertex(matrix4f, x, y, z)
-                .color(red, green, blue, 255)
-                .uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(15728880)
-                .normal(matrix3f, 0.0F, 1.0F, 0.0F).endVertex();
-    }
-
-    private static RenderType getBeamRenderType() {
-        return BEAM_RENDER_TYPE;
     }
 }

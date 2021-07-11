@@ -60,6 +60,7 @@ public class SCombatPacket {
 
     public enum Action {
         START_LASER,
+        CONTINUE_LASER,
         STOP_LASER
     }
 }

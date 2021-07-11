@@ -4,6 +4,7 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.item.GogglesItem;
+import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
@@ -11,8 +12,13 @@ import com.infamous.captain_america.server.network.packet.SHudPacket;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -116,8 +122,25 @@ public class ClientNetworkHandler {
                     falconAbilityCap.setShootingLaser(true);
                     CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
+                case CONTINUE_LASER:
+                    RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(clientPlayer);
+                    if(rayTraceResult instanceof BlockRayTraceResult){
+                        BlockRayTraceResult blockRTR = (BlockRayTraceResult)rayTraceResult;
+                        BlockPos blockPos = blockRTR.getBlockPos();
+                        Direction direction = blockRTR.getDirection();
+                        if (minecraft.level != null && !minecraft.level.isEmptyBlock(blockPos) && minecraft.gameMode != null) {
+                            CaptainAmerica.LOGGER.debug("Client player {} is attempting to break a block!", clientPlayer.getDisplayName().getString());
+                            if (minecraft.gameMode.continueDestroyBlock(blockPos, direction)) {
+                                minecraft.particleEngine.addBlockHitEffects(blockPos, blockRTR);
+                            }
+                        }
+                    }
+                    break;
                 case STOP_LASER:
                     falconAbilityCap.setShootingLaser(false);
+                    if (minecraft.gameMode != null) {
+                        minecraft.gameMode.stopDestroyBlock();
+                    }
                     CaptainAmerica.LOGGER.debug("Client player {} has stopped firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
             }

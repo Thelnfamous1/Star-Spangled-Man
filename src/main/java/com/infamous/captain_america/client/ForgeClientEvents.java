@@ -23,8 +23,10 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -137,7 +139,7 @@ public class ForgeClientEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderLiving(RenderLivingEvent.Post<LivingEntity, EntityModel<LivingEntity>> event){
+    public static void postRenderLiving(RenderLivingEvent.Post<?, ?> event){
         LivingEntity living = event.getEntity();
         LivingRenderer<?, ?> livingRenderer = event.getRenderer();
         if(livingRenderer.getModel() instanceof BipedModel){
@@ -184,8 +186,29 @@ public class ForgeClientEvents {
 
                     IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
                     if (falconAbilityCap != null && falconAbilityCap.isShootingLaser()) {
-                        LaserBeamHelper.renderBeam(event, player);
+                        LaserBeamHelper.renderBeam(event, player, Minecraft.getInstance().getFrameTime());
                     }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void preRenderPlayer(RenderPlayerEvent.Pre event){
+        PlayerEntity player = event.getPlayer();
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
+        if (falconAbilityCap != null && falconAbilityCap.isShootingLaser()) {
+            PlayerRenderer playerRenderer = event.getRenderer();
+            PlayerModel<?> playerModel = playerRenderer.getModel();
+            if(player.getMainArm() == HandSide.RIGHT){
+                BipedModel.ArmPose rightArmPose = playerModel.rightArmPose;
+                if(rightArmPose == BipedModel.ArmPose.EMPTY){
+                    playerModel.rightArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                }
+            } else{
+                BipedModel.ArmPose leftArmPose = playerModel.leftArmPose;
+                if(leftArmPose == BipedModel.ArmPose.EMPTY){
+                    playerModel.leftArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
                 }
             }
         }

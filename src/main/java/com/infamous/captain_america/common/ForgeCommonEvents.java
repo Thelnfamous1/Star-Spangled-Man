@@ -14,6 +14,7 @@ import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.registry.EffectRegistry;
+import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -110,6 +111,12 @@ public class ForgeCommonEvents {
                 boolean isHudEnabled = GogglesItem.isHUDEnabled(gogglesStack);
                 handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
                 handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
+
+                if(falconAbilityCap.isShootingLaser()){
+                    CALogicHelper.extendReachDistance(living);
+                } else{
+                    CALogicHelper.retractReachDistance(living);
+                }
             }
         }
     }
