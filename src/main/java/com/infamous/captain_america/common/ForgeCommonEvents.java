@@ -13,11 +13,13 @@ import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrow
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
+import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -26,6 +28,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleTypes;
@@ -49,6 +52,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -89,7 +93,11 @@ public class ForgeCommonEvents {
         if(falconAbilityCap != null){
             boolean wasHovering = falconAbilityCap.isHovering();
             if(!FalconFlightHelper.canHover(living)){
-                falconAbilityCap.setHovering(false);
+                if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
+                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity)living;
+                    falconAbilityCap.setHovering(false);
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
+                }
                 if(wasHovering){
                     CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                     if(!living.level.isClientSide){

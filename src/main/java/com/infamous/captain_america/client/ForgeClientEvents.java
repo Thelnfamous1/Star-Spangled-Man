@@ -79,7 +79,7 @@ public class ForgeClientEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderXP(RenderGameOverlayEvent.Post event){
+    public static void onRenderXP(RenderGameOverlayEvent.Pre event){
         Minecraft minecraft = Minecraft.getInstance();
         PlayerEntity player = minecraft.player;
         if(player == null) return;
@@ -122,7 +122,7 @@ public class ForgeClientEvents {
         }
     }
 
-    private static void renderShieldThrowMeter(RenderGameOverlayEvent.Post event, PlayerEntity player) {
+    private static void renderShieldThrowMeter(RenderGameOverlayEvent.Pre event, PlayerEntity player) {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(player);
         if (shieldThrowerCap != null
                 && shieldThrowerCap.getShieldChargingScale() > 0.0F
