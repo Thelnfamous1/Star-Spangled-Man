@@ -24,7 +24,7 @@ public class BulletEntity extends AbstractFireballEntity {
 	protected double damage = 1;
 	protected boolean ignoreInvulnerability = false;
 	protected double knockbackStrength = 0;
-	protected int ticksSinceFired;
+	protected int lifeTicks;
 
 	public BulletEntity(EntityType<? extends BulletEntity> p_i50160_1_, World p_i50160_2_) {
 		super(p_i50160_1_, p_i50160_2_);
@@ -32,7 +32,7 @@ public class BulletEntity extends AbstractFireballEntity {
 
 	public BulletEntity(World worldIn, LivingEntity shooter) {
 		this(worldIn, shooter, 0, 0, 0);
-		setPos(shooter.getX(), shooter.getY(0.5), shooter.getZ());
+		this.setPos(shooter.getX(), shooter.getY(0.5), shooter.getZ());
 	}
 
 	public BulletEntity(World worldIn, LivingEntity shooter, double accelX, double accelY, double accelZ) {
@@ -54,10 +54,9 @@ public class BulletEntity extends AbstractFireballEntity {
 
 	@Override
 	public void tick() {
-		//Using a thing I save so that bullets don't get clogged up on chunk borders
-		this.ticksSinceFired++;
-		if (this.ticksSinceFired > 100 || this.getDeltaMovement().lengthSqr() < STOP_THRESHOLD) {
-			remove();
+		this.lifeTicks++;
+		if (this.lifeTicks > 100 || this.getDeltaMovement().lengthSqr() < STOP_THRESHOLD) {
+			this.remove();
 		}
 		super.tick();
 	}
@@ -67,13 +66,14 @@ public class BulletEntity extends AbstractFireballEntity {
 		super.onHitEntity(raytrace);
 		if (!this.level.isClientSide) {
 			Entity target = raytrace.getEntity();
-			Entity shooter = getOwner();
-			IBullet bullet = (IBullet) getItem().getItem();
+			Entity shooter = this.getOwner();
+			IBullet bullet = (IBullet) this.getItem().getItem();
 			
 			if (this.isOnFire()) target.setSecondsOnFire(5);
 			int lastInvulnerableTime = target.invulnerableTime;
 			if (this.ignoreInvulnerability) target.invulnerableTime = 0;
-			boolean damaged = target.hurt((new IndirectEntityDamageSource("arrow", this, shooter)).setProjectile(), (float) bullet.modifyDamage(damage, this, target, shooter, level));
+			DamageSource bulletDamageSource = (new IndirectEntityDamageSource("bullet", this, shooter)).setProjectile();
+			boolean damaged = target.hurt(bulletDamageSource, (float) bullet.modifyDamage(damage, this, target, shooter, this.level));
 			
 			if (damaged && target instanceof LivingEntity) {
 				LivingEntity livingTarget = (LivingEntity)target;
@@ -101,7 +101,7 @@ public class BulletEntity extends AbstractFireballEntity {
 	@Override
 	public void addAdditionalSaveData(CompoundNBT compound) {
 		super.addAdditionalSaveData(compound);
-		compound.putInt("tsf", this.ticksSinceFired);
+		compound.putInt("lifeTicks", this.lifeTicks);
 		compound.putDouble("damage", this.damage);
 		if (this.ignoreInvulnerability) compound.putBoolean("ignoreinv", this.ignoreInvulnerability);
 		if (this.knockbackStrength != 0) compound.putDouble("knockback", this.knockbackStrength);
@@ -110,7 +110,7 @@ public class BulletEntity extends AbstractFireballEntity {
 	@Override
 	public void readAdditionalSaveData(CompoundNBT compound) {
 		super.readAdditionalSaveData(compound);
-		this.ticksSinceFired = compound.getInt("tsf");
+		this.lifeTicks = compound.getInt("lifeTicks");
 		this.damage = compound.getDouble("damage");
 		//The docs says if it's not here it's gonna be false/0 so it should be good
 		this.ignoreInvulnerability = compound.getBoolean("ignoreinv");

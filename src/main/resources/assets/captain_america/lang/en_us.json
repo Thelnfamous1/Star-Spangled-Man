@@ -33,6 +33,7 @@
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
 
   "entity.captain_america.bullet": "Bullet",
+  "entity.captain_america.missile": "Missile",
 
   "effect.captain_america.hud_night_vision": "HUD Night Vision",
   "effect.captain_america.hud_infrared": "HUD Infrared",
@@ -94,6 +95,12 @@
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",
   "ability.falcon.hud.nightVision": "Night Vision",
+
+  "death.attack.bullet": "%1$s was shot by %2$s",
+  "death.attack.bullet.item": "%1$s was shot by %2$s using %3$s",
+
+  "death.attack.missile": "%1$s was shelled by %2$s",
+  "death.attack.missile.item": "%1$s was shelled by %2$s using %3$s",
 
   "advancements.captain_america.captains_orders.root.title": "Captain's Orders",
   "advancements.captain_america.captains_orders.root.description": "Learn what it takes to become Captain America",

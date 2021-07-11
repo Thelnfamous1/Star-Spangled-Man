@@ -5,6 +5,7 @@ import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.layer.EXO7FalconLayer;
 import com.infamous.captain_america.client.layer.LaserLayer;
 import com.infamous.captain_america.client.layer.MetalArmLayer;
+import com.infamous.captain_america.client.renderer.MissileRenderer;
 import com.infamous.captain_america.client.renderer.RedwingRenderer;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
@@ -53,6 +54,7 @@ public class ModClientEvents {
     private static void registerEntityRenderers() {
         CaptainAmerica.LOGGER.info("Registering entity renderers!");
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.BULLET.get(), (manager) -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.MISSILE.get(), MissileRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.FALCON_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD.get(), VibraniumShieldRenderer::new);

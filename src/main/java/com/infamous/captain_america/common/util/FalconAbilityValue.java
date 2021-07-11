@@ -4,20 +4,30 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.entity.projectile.MissileEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ICrossbowUser;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.Items;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -56,7 +66,23 @@ public enum FalconAbilityValue implements IAbilityValue {
     MISSILE(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
+                if(!EXO7FalconItem.getEXO7FalconStack(serverPlayer).isEmpty()){
+                    MissileEntity missile = new MissileEntity(serverPlayer, serverPlayer.level);
+                    if (serverPlayer.abilities.instabuild) {
+                        missile.pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
+                    }
 
+                    Vector3d upVector = serverPlayer.getUpVector(1.0F);
+                    Quaternion quaternion = new Quaternion(new Vector3f(upVector), 0, true);
+                    Vector3d viewVector = serverPlayer.getViewVector(1.0F);
+                    Vector3f viewVectorF = new Vector3f(viewVector);
+                    viewVectorF.transform(quaternion);
+                    missile.shoot((double)viewVectorF.x(), (double)viewVectorF.y(), (double)viewVectorF.z(), 3.2F, 0);
+
+                    serverPlayer.level.addFreshEntity(missile);
+                    serverPlayer.level.playSound((PlayerEntity)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    CaptainAmerica.LOGGER.info("Server player {} has fired a missile!", serverPlayer.getDisplayName().getString());
+                }
             },
             (serverPlayer) -> {},
             (serverPlayer) -> {},

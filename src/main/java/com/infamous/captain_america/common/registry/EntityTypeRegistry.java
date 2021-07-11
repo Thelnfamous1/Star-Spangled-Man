@@ -1,8 +1,10 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.common.capability.falcon_ability.FalconAbility;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
+import com.infamous.captain_america.common.entity.projectile.MissileEntity;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -56,6 +58,14 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
             .setTrackingRange(64)
             .setShouldReceiveVelocityUpdates(true)
             .build(new ResourceLocation(CaptainAmerica.MODID, "bullet").toString()));
+
+    public static final RegistryObject<EntityType<MissileEntity>> MISSILE = ENTITY_TYPES.register("missile",
+            () -> EntityType.Builder.<MissileEntity>of(MissileEntity::new, EntityClassification.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(4)
+                    .updateInterval(20)
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "missile").toString()));
+
 
     @Override
     public String getRegistryTypeForLogger() {
