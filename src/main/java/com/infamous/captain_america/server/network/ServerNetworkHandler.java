@@ -47,6 +47,7 @@ public class ServerNetworkHandler {
                         if(falconAbilityCap.isHovering() && !toggledTo){
                             falconAbilityCap.setHovering(false);
                             CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", serverPlayer.getDisplayName().getString());
+                            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
                         }
                         TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
                         if(wasHovering != falconAbilityCap.isHovering()){

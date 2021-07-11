@@ -55,8 +55,8 @@ public class BulletEntity extends AbstractFireballEntity {
 	@Override
 	public void tick() {
 		//Using a thing I save so that bullets don't get clogged up on chunk borders
-		ticksSinceFired++;
-		if (ticksSinceFired > 100 || this.getDeltaMovement().lengthSqr() < STOP_THRESHOLD) {
+		this.ticksSinceFired++;
+		if (this.ticksSinceFired > 100 || this.getDeltaMovement().lengthSqr() < STOP_THRESHOLD) {
 			remove();
 		}
 		super.tick();
@@ -65,29 +65,29 @@ public class BulletEntity extends AbstractFireballEntity {
 	@Override
 	protected void onHitEntity(EntityRayTraceResult raytrace) {
 		super.onHitEntity(raytrace);
-		if (!level.isClientSide) {
+		if (!this.level.isClientSide) {
 			Entity target = raytrace.getEntity();
 			Entity shooter = getOwner();
 			IBullet bullet = (IBullet) getItem().getItem();
 			
-			if (isOnFire()) target.setSecondsOnFire(5);
-			int lastHurtResistant = target.invulnerableTime;
-			if (ignoreInvulnerability) target.invulnerableTime = 0;
+			if (this.isOnFire()) target.setSecondsOnFire(5);
+			int lastInvulnerableTime = target.invulnerableTime;
+			if (this.ignoreInvulnerability) target.invulnerableTime = 0;
 			boolean damaged = target.hurt((new IndirectEntityDamageSource("arrow", this, shooter)).setProjectile(), (float) bullet.modifyDamage(damage, this, target, shooter, level));
 			
 			if (damaged && target instanceof LivingEntity) {
 				LivingEntity livingTarget = (LivingEntity)target;
-				if (knockbackStrength > 0) {
-					double actualKnockback = knockbackStrength;
-					Vector3d vec = getDeltaMovement().multiply(1, 0, 1).normalize().scale(actualKnockback);
+				if (this.knockbackStrength > 0) {
+					double actualKnockback = this.knockbackStrength;
+					Vector3d vec = this.getDeltaMovement().multiply(1, 0, 1).normalize().scale(actualKnockback);
 					if (vec.lengthSqr() > 0) livingTarget.push(vec.x, 0.1, vec.z);
 				}
 
-				if (shooter instanceof LivingEntity) doEnchantDamageEffects((LivingEntity)shooter, target);
+				if (shooter instanceof LivingEntity) this.doEnchantDamageEffects((LivingEntity)shooter, target);
 				
-				bullet.onLivingEntityHit(this, livingTarget, shooter, level);
+				bullet.onLivingEntityHit(this, livingTarget, shooter, this.level);
 			}
-			else if (!damaged && ignoreInvulnerability) target.invulnerableTime = lastHurtResistant;
+			else if (!damaged && this.ignoreInvulnerability) target.invulnerableTime = lastInvulnerableTime;
 		}
 	}
 
@@ -95,26 +95,26 @@ public class BulletEntity extends AbstractFireballEntity {
 	protected void onHit(RayTraceResult result) {
 		super.onHit(result);
 		//Don't disappear on blocks if we're set to noclipping
-		if (!level.isClientSide && (!noPhysics || result.getType() != RayTraceResult.Type.BLOCK)) remove();
+		if (!this.level.isClientSide && (!this.noPhysics || result.getType() != RayTraceResult.Type.BLOCK)) remove();
 	}
 
 	@Override
 	public void addAdditionalSaveData(CompoundNBT compound) {
 		super.addAdditionalSaveData(compound);
-		compound.putInt("tsf", ticksSinceFired);
-		compound.putDouble("damage", damage);
-		if (ignoreInvulnerability) compound.putBoolean("ignoreinv", ignoreInvulnerability);
-		if (knockbackStrength != 0) compound.putDouble("knockback", knockbackStrength);
+		compound.putInt("tsf", this.ticksSinceFired);
+		compound.putDouble("damage", this.damage);
+		if (this.ignoreInvulnerability) compound.putBoolean("ignoreinv", this.ignoreInvulnerability);
+		if (this.knockbackStrength != 0) compound.putDouble("knockback", this.knockbackStrength);
 	}
 
 	@Override
 	public void readAdditionalSaveData(CompoundNBT compound) {
 		super.readAdditionalSaveData(compound);
-		ticksSinceFired = compound.getInt("tsf");
-		damage = compound.getDouble("damage");
+		this.ticksSinceFired = compound.getInt("tsf");
+		this.damage = compound.getDouble("damage");
 		//The docs says if it's not here it's gonna be false/0 so it should be good
-		ignoreInvulnerability = compound.getBoolean("ignoreinv");
-		knockbackStrength = compound.getDouble("knockback");
+		this.ignoreInvulnerability = compound.getBoolean("ignoreinv");
+		this.knockbackStrength = compound.getDouble("knockback");
 	}
 
 	public void setDamage(double damage) {
@@ -122,7 +122,7 @@ public class BulletEntity extends AbstractFireballEntity {
 	}
 
 	public double getDamage() {
-		return damage;
+		return this.damage;
 	}
 
 	public void setIgnoreInvulnerability(boolean ignoreInvulnerability) {
