@@ -6,6 +6,7 @@ import com.infamous.captain_america.common.item.*;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -61,7 +62,8 @@ public class ItemRegistry implements IRegistryManager<Item> {
                     new EXO7FalconItem(EntityTypeRegistry.FALCON_REDWING,
                             CAArmorMaterial.FALCON_WINGSUIT,
                             (new Item.Properties())
-                                    .tab(ItemGroup.TAB_TRANSPORTATION))
+                                    .tab(ItemGroup.TAB_TRANSPORTATION),
+                            ParticleTypes.FLAME)
     );
 
     public static final RegistryObject<Item> FALCON_LEGGINGS = ITEMS.register(
@@ -96,7 +98,8 @@ public class ItemRegistry implements IRegistryManager<Item> {
                     new EXO7FalconItem(EntityTypeRegistry.FALCON_REDWING,
                             CAArmorMaterial.CAPTAIN_AMERICA_WINGSUIT,
                             (new Item.Properties())
-                                    .tab(ItemGroup.TAB_TRANSPORTATION))
+                                    .tab(ItemGroup.TAB_TRANSPORTATION),
+                            ParticleTypes.SOUL_FIRE_FLAME)
     );
 
     public static final RegistryObject<Item> CAPTAIN_AMERICA_LEGGINGS = ITEMS.register(

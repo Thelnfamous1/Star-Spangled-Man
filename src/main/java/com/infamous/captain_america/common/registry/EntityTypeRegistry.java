@@ -5,6 +5,7 @@ import com.infamous.captain_america.common.capability.falcon_ability.FalconAbili
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.common.entity.projectile.MissileEntity;
+import com.infamous.captain_america.common.entity.projectile.TimedGrenadeEntity;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -65,6 +66,13 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .clientTrackingRange(4)
                     .updateInterval(20)
                     .build(new ResourceLocation(CaptainAmerica.MODID, "missile").toString()));
+
+    public static final RegistryObject<EntityType<TimedGrenadeEntity>> TIMED_GRENADE = ENTITY_TYPES.register("timed_grenade",
+            () -> EntityType.Builder.<TimedGrenadeEntity>of(TimedGrenadeEntity::new, EntityClassification.MISC)
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(4)
+                    .updateInterval(20)
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "timed_grenade").toString()));
 
 
     @Override

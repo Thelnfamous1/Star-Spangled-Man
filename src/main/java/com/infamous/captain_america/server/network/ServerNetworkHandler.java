@@ -69,6 +69,7 @@ public class ServerNetworkHandler {
                 case BOOST_FLIGHT:
                     if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
                         FalconFlightHelper.boostFlight(serverPlayer);
+                        FalconFlightHelper.animatePropulsion(serverPlayer);
                         CaptainAmerica.LOGGER.debug("Server player {} has boosted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.BOOST_FLIGHT));
                     } else {

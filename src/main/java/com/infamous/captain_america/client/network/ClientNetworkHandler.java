@@ -13,7 +13,6 @@ import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -53,6 +52,7 @@ public class ClientNetworkHandler {
                     break;
                 case BOOST_FLIGHT:
                     FalconFlightHelper.boostFlight(clientPlayer);
+                    //FalconFlightHelper.animatePropulsion(clientPlayer);
                     CaptainAmerica.LOGGER.debug("Client player {} has boosted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
                     break;
                 case TOGGLE_HOVER:

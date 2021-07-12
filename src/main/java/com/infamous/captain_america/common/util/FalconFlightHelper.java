@@ -2,11 +2,18 @@ package com.infamous.captain_america.common.util;
 
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.SoundRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.HandSide;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
+
+import java.util.Optional;
 
 public class FalconFlightHelper {
 
@@ -123,5 +130,69 @@ public class FalconFlightHelper {
 
     public static void playFlightBoostSound(LivingEntity player) {
         player.playSound(SoundRegistry.FLIGHT_BOOST.get(), 1.0F, 1.0F);
+    }
+
+    public static void animatePropulsion(LivingEntity living){
+        Optional<EXO7FalconItem> optionalItem = EXO7FalconItem.getEXO7FalconItem(living);
+        if(optionalItem.isPresent()) {
+            IParticleData propulsionParticle = optionalItem.get().getPropulsionParticle();
+
+            Vector3d particleSpawnPos = getPropulsionParticleSpawnPos(living);
+
+            spawnParticles(living, propulsionParticle,  particleSpawnPos.x, particleSpawnPos.y, particleSpawnPos.z);
+        }
+    }
+
+    private static Vector3d getPropulsionParticleSpawnPos(LivingEntity living) {
+        double xOffset = 0.0D;
+        double yOffset = living.getEyeHeight() * 0.5D;
+        double zOffset = -0.2D;
+        float xRot = living.xRot * ((float)Math.PI / 180F);
+        float yBodyRot = living.yBodyRot * ((float)Math.PI / 180F);
+        if (!living.isFallFlying() && !living.isAutoSpinAttack()) {
+            if (living.isVisuallySwimming()) {
+                return living.position()
+                        .add((new Vector3d(xOffset, yOffset, zOffset))
+                                .xRot(-xRot)
+                                .yRot(-yBodyRot));
+            } else {
+                if(living.isCrouching()){
+                    zOffset += -0.2D;
+                }
+                return living.position()
+                        .add((new Vector3d(xOffset, yOffset, zOffset))
+                                .yRot(-yBodyRot));
+            }
+        } else {
+            Vector3d viewVector = living.getViewVector(0.0F);
+            Vector3d deltaMove = living.getDeltaMovement();
+            double deltaMoveHDS = Entity.getHorizontalDistanceSqr(deltaMove);
+            double viewVectorHDS = Entity.getHorizontalDistanceSqr(viewVector);
+            float zRot;
+            if (deltaMoveHDS > 0.0D && viewVectorHDS > 0.0D) {
+                double d3 = (deltaMove.x * viewVector.x + deltaMove.z * viewVector.z) / Math.sqrt(deltaMoveHDS * viewVectorHDS);
+                double d4 = deltaMove.x * viewVector.z - deltaMove.z * viewVector.x;
+                zRot = (float)(Math.signum(d4) * Math.acos(d3));
+            } else {
+                zRot = 0.0F;
+            }
+
+            return living.position()
+                    .add((new Vector3d(xOffset, yOffset, zOffset))
+                            .zRot(-zRot)
+                            .xRot(-xRot)
+                            .yRot(-yBodyRot));
+        }
+    }
+
+    private static void spawnParticles(LivingEntity living, IParticleData propulsionParticle, double x, double y, double z) {
+        if(living.level instanceof ServerWorld){
+            int anInt = 1;
+            double aDouble = 0.0D;
+            ServerWorld serverWorld = (ServerWorld) living.level;
+            serverWorld.sendParticles(propulsionParticle, x, y, z, anInt, 0.0D, 0.0D, 0.0D, aDouble);
+        } else{
+            living.level.addParticle(propulsionParticle, x, y, z, 0.0D, 0.0D, 0.0D);
+        }
     }
 }

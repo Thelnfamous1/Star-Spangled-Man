@@ -1,9 +1,13 @@
 package com.infamous.captain_america.common.util;
 
+import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -12,6 +16,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class CALogicHelper {
@@ -56,4 +61,9 @@ public class CALogicHelper {
             return blockRTR;
         }
     }
+
+    public static DamageSource arrow(CAProjectileEntity p_76353_0_, @Nullable Entity p_76353_1_) {
+        return (new IndirectEntityDamageSource("arrow", p_76353_0_, p_76353_1_)).setProjectile();
+    }
+
 }

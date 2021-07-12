@@ -111,6 +111,9 @@ public class ForgeCommonEvents {
                 } else{
                     falconAbilityCap.setVerticallyFlying(false);
                 }
+                if(!living.level.isClientSide){
+                    FalconFlightHelper.animatePropulsion(living);
+                }
                 living.fallDistance = 0;
             }
             if(!living.level.isClientSide){

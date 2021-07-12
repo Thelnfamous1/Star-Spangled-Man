@@ -21,7 +21,7 @@ public class FalconAbilityStorage implements Capability.IStorage<IFalconAbility>
         for(FalconAbilityKey key : FalconAbilityKey.values()){
             tag.putString(key.name(), instance.get(key).name());
         }
-        tag.putBoolean(HOVERING, instance.isHovering());
+        //tag.putBoolean(HOVERING, instance.isHovering());
         return tag;
     }
 
@@ -41,6 +41,6 @@ public class FalconAbilityStorage implements Capability.IStorage<IFalconAbility>
                 instance.put(key, value);
             }
         }
-        instance.setHovering(tag.getBoolean(HOVERING));
+        //instance.setHovering(tag.getBoolean(HOVERING));
     }
 }
