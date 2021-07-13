@@ -69,6 +69,17 @@ public class ForgeClientEvents {
     }
 
     @SubscribeEvent
+    public static void onFOVEvent(FOVUpdateEvent event){
+        PlayerEntity player = event.getEntity();
+        if(player == Minecraft.getInstance().player){
+            if(FalconFlightHelper.isFlying(player) && LOCAL_BOOSTING){
+                float newFOV = event.getNewfov();
+                event.setNewfov(newFOV + 0.1F);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event){
         Minecraft minecraft = Minecraft.getInstance();
         ClientPlayerEntity clientPlayer = minecraft.player;

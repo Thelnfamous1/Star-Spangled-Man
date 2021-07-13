@@ -52,6 +52,15 @@ public class EntityTypeRegistry implements IRegistryManager<EntityType<?>> {
                     .build(new ResourceLocation(CaptainAmerica.MODID, "vibranium_shield").toString())
     );
 
+    public static final RegistryObject<EntityType<? extends VibraniumShieldEntity>> US_AGENT_SHIELD = ENTITY_TYPES.register("us_agent_shield",
+            () -> EntityType.Builder.<VibraniumShieldEntity>of(VibraniumShieldEntity::new, EntityClassification.MISC)
+                    .sized(1.0F, 0.25F)
+                    .fireImmune()
+                    .clientTrackingRange(4)
+                    .updateInterval(10)
+                    .build(new ResourceLocation(CaptainAmerica.MODID, "us_agent_shield").toString())
+    );
+
     public static final RegistryObject<EntityType<BulletEntity>> BULLET = ENTITY_TYPES.register("bullet",
             () -> EntityType.Builder.<BulletEntity>of(BulletEntity::new, EntityClassification.MISC)
             .sized(0.3125f, 0.3125f)

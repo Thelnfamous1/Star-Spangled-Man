@@ -21,6 +21,7 @@
 
   "item.captain_america.vibranium_shield": "Vibranium Shield",
   "item.captain_america.captain_america_shield": "Captain America's Shield",
+  "item.captain_america.us_agent_shield": "US Agent's Shield",
 
   "item.captain_america.vibranium_arm": "Vibranium Arm",
 
@@ -31,6 +32,7 @@
 
   "entity.captain_america.vibranium_shield": "Vibranium Shield",
   "entity.captain_america.captain_america_shield": "Captain America's Shield",
+  "entity.captain_america.us_agent_shield": "US Agent's Shield",
 
   "entity.captain_america.bullet": "Bullet",
   "entity.captain_america.missile": "Missile",

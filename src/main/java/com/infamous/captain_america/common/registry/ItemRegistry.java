@@ -148,6 +148,15 @@ public class ItemRegistry implements IRegistryManager<Item> {
                                     .set(() -> CARenderMaterial::getVibraniumShield))
     );
 
+    public static final RegistryObject<Item> US_AGENT_SHIELD = ITEMS.register(
+            "us_agent_shield", () ->
+                    new VibraniumShieldItem(EntityTypeRegistry.US_AGENT_SHIELD,
+                            (new Item.Properties())
+                                    .tab(ItemGroup.TAB_COMBAT),
+                            new CARenderMaterial()
+                                    .set(() -> CARenderMaterial::getUSAgentShield))
+    );
+
     public static final RegistryObject<Item> VIBRANIUM_ARM = ITEMS.register(
             "vibranium_arm", () ->
                     new MetalArmItem(

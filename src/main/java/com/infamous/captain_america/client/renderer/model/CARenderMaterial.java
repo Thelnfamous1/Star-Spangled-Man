@@ -12,6 +12,8 @@ public class CARenderMaterial implements DistExecutor.SafeCallable<net.minecraft
             new net.minecraft.client.renderer.model.RenderMaterial(net.minecraft.client.renderer.texture.AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(CaptainAmerica.MODID, "entity/shield/vibranium_shield"));
     public static final net.minecraft.client.renderer.model.RenderMaterial CAPTAIN_AMERICA_SHIELD =
             new net.minecraft.client.renderer.model.RenderMaterial(net.minecraft.client.renderer.texture.AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(CaptainAmerica.MODID,"entity/shield/captain_america_shield"));
+    public static final net.minecraft.client.renderer.model.RenderMaterial US_AGENT_SHIELD =
+            new net.minecraft.client.renderer.model.RenderMaterial(net.minecraft.client.renderer.texture.AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(CaptainAmerica.MODID,"entity/shield/us_agent_shield"));
 
     private Supplier<Callable<net.minecraft.client.renderer.model.RenderMaterial>> renderMaterial;
 
@@ -35,6 +37,10 @@ public class CARenderMaterial implements DistExecutor.SafeCallable<net.minecraft
 
     public static net.minecraft.client.renderer.model.RenderMaterial getVibraniumShield(){
         return VIBRANIUM_SHIELD;
+    }
+
+    public static net.minecraft.client.renderer.model.RenderMaterial getUSAgentShield(){
+        return US_AGENT_SHIELD;
     }
 
 }

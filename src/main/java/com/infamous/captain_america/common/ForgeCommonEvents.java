@@ -96,7 +96,9 @@ public class ForgeCommonEvents {
                 if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
                     ServerPlayerEntity serverPlayer = (ServerPlayerEntity)living;
                     falconAbilityCap.setHovering(false);
-                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
+                    if(wasHovering){
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
+                    }
                 }
                 if(wasHovering){
                     CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());

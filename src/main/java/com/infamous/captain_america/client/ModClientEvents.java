@@ -3,13 +3,12 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.layer.EXO7FalconLayer;
-import com.infamous.captain_america.client.layer.LaserLayer;
 import com.infamous.captain_america.client.layer.MetalArmLayer;
 import com.infamous.captain_america.client.renderer.MissileRenderer;
 import com.infamous.captain_america.client.renderer.RedwingRenderer;
 import com.infamous.captain_america.client.renderer.TimedGrenadeRenderer;
-import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.client.renderer.VibraniumShieldRenderer;
+import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.*;
@@ -37,6 +36,7 @@ public class ModClientEvents {
             CaptainAmerica.LOGGER.info("Stitching shield textures!");
             event.addSprite(CARenderMaterial.VIBRANIUM_SHIELD.texture());
             event.addSprite(CARenderMaterial.CAPTAIN_AMERICA_SHIELD.texture());
+            event.addSprite(CARenderMaterial.US_AGENT_SHIELD.texture());
             CaptainAmerica.LOGGER.info("Finished stitching shield textures!");
         }
     }
@@ -61,6 +61,7 @@ public class ModClientEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.CAPTAIN_AMERICA_SHIELD.get(), VibraniumShieldRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.VIBRANIUM_SHIELD.get(), VibraniumShieldRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.US_AGENT_SHIELD.get(), VibraniumShieldRenderer::new);
         CaptainAmerica.LOGGER.info("Finished registering entity renderers!");
     }
 

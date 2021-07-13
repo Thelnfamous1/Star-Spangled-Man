@@ -27,6 +27,10 @@ public class CAItemModelProperties {
                 new ResourceLocation("blocking"),
                 (stack, clientWorld, livingEntity) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == stack ? 1.0F : 0.0F);
 
+        ItemModelsProperties.register(ItemRegistry.US_AGENT_SHIELD.get(),
+                new ResourceLocation("blocking"),
+                (stack, clientWorld, livingEntity) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == stack ? 1.0F : 0.0F);
+
         CaptainAmerica.LOGGER.info("Finished registering item model properties!");
     }
 }
