@@ -3,6 +3,8 @@ package com.infamous.captain_america.common.registry;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.common.item.*;
+import com.infamous.captain_america.common.item.gauntlet.ControlGauntletItem;
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -174,6 +176,20 @@ public class ItemRegistry implements IRegistryManager<Item> {
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT)
                                     .stacksTo(1), 6)
+    );
+
+    public static final RegistryObject<Item> CONTROL_GAUNTLET = ITEMS.register(
+            "control_gauntlet", () ->
+                    new ControlGauntletItem((new Item.Properties()
+                            .tab(ItemGroup.TAB_COMBAT)
+                            .stacksTo(1)))
+    );
+
+    public static final RegistryObject<Item> WEAPON_GAUNTLET = ITEMS.register(
+            "weapon_gauntlet", () ->
+                    new WeaponGauntletItem((new Item.Properties()
+                            .tab(ItemGroup.TAB_COMBAT)
+                            .stacksTo(1)))
     );
 
     @Override

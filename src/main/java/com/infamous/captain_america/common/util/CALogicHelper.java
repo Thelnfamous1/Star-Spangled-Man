@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
 import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -64,6 +65,10 @@ public class CALogicHelper {
 
     public static DamageSource arrow(CAProjectileEntity p_76353_0_, @Nullable Entity p_76353_1_) {
         return (new IndirectEntityDamageSource("arrow", p_76353_0_, p_76353_1_)).setProjectile();
+    }
+
+    public static Hand getOppositeHand(Hand handIn){
+        return handIn == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
     }
 
 }

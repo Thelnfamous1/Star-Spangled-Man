@@ -8,6 +8,7 @@ import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
 import com.infamous.captain_america.common.entity.projectile.MissileEntity;
 import com.infamous.captain_america.common.entity.projectile.TimedGrenadeEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
@@ -60,7 +61,7 @@ public enum FalconAbilityValue implements IAbilityValue {
     MISSILE(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
-                if(EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()){
+                if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                     MissileEntity missile = new MissileEntity(serverPlayer, serverPlayer.level);
                     if (serverPlayer.abilities.instabuild) {
                         missile.pickup = CAProjectileEntity.PickupStatus.CREATIVE_ONLY;
@@ -85,7 +86,7 @@ public enum FalconAbilityValue implements IAbilityValue {
     GRENADE(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
-                if(EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()){
+                if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                     TimedGrenadeEntity timedGrenade = new TimedGrenadeEntity(serverPlayer, serverPlayer.level);
                     if (serverPlayer.abilities.instabuild) {
                         timedGrenade.pickup = CAProjectileEntity.PickupStatus.CREATIVE_ONLY;
@@ -110,8 +111,7 @@ public enum FalconAbilityValue implements IAbilityValue {
     LASER(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
-                if(EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()
-                        && serverPlayer.getMainHandItem().isEmpty()){
+                if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                     IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
                     if (falconAbilityCap == null) return;
 
@@ -127,7 +127,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                 boolean hasCorrectEquipment = EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()
                         && serverPlayer.getMainHandItem().isEmpty();
                 if(falconAbilityCap.isShootingLaser()
-                        && hasCorrectEquipment){
+                        && WeaponGauntletItem.isHoldingThis(serverPlayer)){
                     RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
                     if(rayTraceResult instanceof EntityRayTraceResult){
                         Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
