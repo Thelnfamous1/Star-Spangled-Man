@@ -91,7 +91,7 @@ public class EXO7FalconItem extends CAArmorItem {
 
     @Override
     public boolean canElytraFly(ItemStack stack, LivingEntity entity) {
-        return FALCON_PREDICATE.test(stack.getItem());
+        return isEXO7FalconStack(stack);
     }
 
     @Override

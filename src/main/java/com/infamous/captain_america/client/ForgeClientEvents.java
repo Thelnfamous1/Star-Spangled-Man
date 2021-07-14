@@ -3,6 +3,7 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
+import com.infamous.captain_america.client.sound.HoverSound;
 import com.infamous.captain_america.client.util.CARenderHelper;
 import com.infamous.captain_america.client.util.LaserBeamHelper;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
@@ -14,24 +15,19 @@ import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EffectRegistry;
-import com.infamous.captain_america.common.util.FalconAbilityKey;
-import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effects;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -46,6 +42,7 @@ import java.util.List;
 public class ForgeClientEvents {
 
     private static boolean LOCAL_BOOSTING;
+    private static boolean LOCAL_HOVERING;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event){
@@ -63,6 +60,15 @@ public class ForgeClientEvents {
                     NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.BOOST_FLIGHT));
                 } else{
                     LOCAL_BOOSTING = false;
+                }
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
+                if(falconAbilityCap != null && falconAbilityCap.isHovering() && FalconFlightHelper.canHover(clientPlayer)){
+                    if(!LOCAL_HOVERING){
+                        LOCAL_HOVERING = true;
+                        minecraft.getSoundManager().play(new HoverSound(clientPlayer));
+                    }
+                } else{
+                    LOCAL_HOVERING = false;
                 }
             }
         }

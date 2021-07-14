@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -18,7 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BulletItem extends Item implements IBullet {
-	private int damage;
+	private final int damage;
 
 	public BulletItem(Properties properties, int damage) {
 		super(properties);
@@ -29,30 +28,14 @@ public class BulletItem extends Item implements IBullet {
 	public BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter) {
 		BulletEntity entity = new BulletEntity(world, shooter);
 		entity.setItem(stack);
-		entity.setDamage(damage);
+		entity.setDamage(this.damage);
 		return entity;
-	}
-
-	@Override
-	public BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter, double x, double y, double z) {
-		BulletEntity entity = new BulletEntity(world, shooter, x, y, z);
-		entity.setItem(stack);
-		entity.setDamage(damage);
-		return entity;
-	}
-
-	@Override
-	public void consume(ItemStack stack, PlayerEntity player) {
-		stack.shrink(1);
-		if (stack.isEmpty()) {
-			player.inventory.removeItem(stack);
-		}
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-		tooltip.add(new TranslationTextComponent("tooltip.gunswithoutroses.bullet.damage", damage).withStyle(TextFormatting.DARK_GREEN));
+		tooltip.add(new TranslationTextComponent("tooltip.captain_america.bullet.damage", this.damage).withStyle(TextFormatting.DARK_GREEN));
 	}
 
 }

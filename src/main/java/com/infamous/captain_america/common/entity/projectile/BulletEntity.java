@@ -73,7 +73,7 @@ public class BulletEntity extends AbstractFireballEntity {
 			int lastInvulnerableTime = target.invulnerableTime;
 			if (this.ignoreInvulnerability) target.invulnerableTime = 0;
 			DamageSource bulletDamageSource = (new IndirectEntityDamageSource("bullet", this, shooter)).setProjectile();
-			boolean damaged = target.hurt(bulletDamageSource, (float) bullet.modifyDamage(damage, this, target, shooter, this.level));
+			boolean damaged = target.hurt(bulletDamageSource, (float) this.damage);
 			
 			if (damaged && target instanceof LivingEntity) {
 				LivingEntity livingTarget = (LivingEntity)target;
@@ -84,8 +84,6 @@ public class BulletEntity extends AbstractFireballEntity {
 				}
 
 				if (shooter instanceof LivingEntity) this.doEnchantDamageEffects((LivingEntity)shooter, target);
-				
-				bullet.onLivingEntityHit(this, livingTarget, shooter, this.level);
 			}
 			else if (!damaged && this.ignoreInvulnerability) target.invulnerableTime = lastInvulnerableTime;
 		}

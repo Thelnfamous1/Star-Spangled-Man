@@ -36,10 +36,10 @@ public class ModCommonEvents {
     @SubscribeEvent
     public static void setup(final FMLCommonSetupEvent event)
     {
-        DeferredWorkQueue.runLater(
+        event.enqueueWork(
                 CACriteriaTriggers::init
         );
-        DeferredWorkQueue.runLater(
+        event.enqueueWork(
                 NetworkHandler::init
         );
         CapabilityManager.INSTANCE.register(IDroneController.class, new DroneControllerStorage(), RedwingController::new);

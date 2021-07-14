@@ -143,6 +143,7 @@ public class FalconFlightHelper {
         }
     }
 
+    // See PlayerEntity#getRopeHoldPosition which inspired this
     private static Vector3d getPropulsionParticleSpawnPos(LivingEntity living) {
         double xOffset = 0.0D;
         double yOffset = living.getEyeHeight() * 0.5D;

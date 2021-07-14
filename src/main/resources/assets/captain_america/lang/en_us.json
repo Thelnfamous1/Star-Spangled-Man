@@ -123,5 +123,7 @@
   "advancements.captain_america.air_superiority.obtain_wingsuit.title": "I Never Said I Was A Pilot",
   "advancements.captain_america.air_superiority.obtain_wingsuit.description": "Obtain an EXO-7 FALCON wingsuit",
   "advancements.captain_america.air_superiority.bird_costume.title": "Bird Costume",
-  "advancements.captain_america.air_superiority.bird_costume.description": "Get a full suit of Falcon's armor"
+  "advancements.captain_america.air_superiority.bird_costume.description": "Get a full suit of Falcon's armor",
+
+  "tooltip.captain_america.bullet.damage" : "Damage: %d"
 }
