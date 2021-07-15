@@ -54,4 +54,7 @@ public abstract class AbstractGauntletItem extends Item {
 
     protected abstract void releaseOnServer(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft);
 
+    public static boolean isStackOfThis(ItemStack stack){
+        return stack.getItem() instanceof AbstractGauntletItem;
+    }
 }

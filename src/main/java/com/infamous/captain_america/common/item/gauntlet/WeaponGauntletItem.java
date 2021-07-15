@@ -45,7 +45,9 @@ public class WeaponGauntletItem extends AbstractGauntletItem {
     }
 
     private boolean canUseWeapon(PlayerEntity player, Hand hand) {
-        return !player.isSecondaryUseActive() || (hand == Hand.MAIN_HAND && !ControlGauntletItem.hasThisInOppositeHand(player, hand));
+        return !player.isSecondaryUseActive()
+                || hand == Hand.OFF_HAND
+                || !ControlGauntletItem.hasThisInOppositeHand(player, hand);
     }
 
     @Override
@@ -88,5 +90,9 @@ public class WeaponGauntletItem extends AbstractGauntletItem {
         Hand oppositeHand = CALogicHelper.getOppositeHand(handIn);
         Item itemInOppositeHand = livingEntity.getItemInHand(oppositeHand).getItem();
         return itemInOppositeHand instanceof WeaponGauntletItem;
+    }
+
+    public static boolean isStackOfThis(ItemStack stack){
+        return stack.getItem() instanceof WeaponGauntletItem;
     }
 }

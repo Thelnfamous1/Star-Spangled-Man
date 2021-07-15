@@ -1,6 +1,7 @@
 package com.infamous.captain_america.client.network;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.client.ForgeClientEvents;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.item.GogglesItem;
@@ -114,15 +115,14 @@ public class ClientNetworkHandler {
             if(clientPlayer == null){
                 return;
             }
-            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
-            if(falconAbilityCap == null) return;
 
             switch (packet.getAction()){
                 case START_LASER:
-                    falconAbilityCap.setShootingLaser(true);
+                    ForgeClientEvents.LOCAL_LASER = true;
                     CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
                 case CONTINUE_LASER:
+                    ForgeClientEvents.LOCAL_LASER = true;
                     RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(clientPlayer);
                     if(rayTraceResult instanceof BlockRayTraceResult){
                         BlockRayTraceResult blockRTR = (BlockRayTraceResult)rayTraceResult;
@@ -137,7 +137,7 @@ public class ClientNetworkHandler {
                     }
                     break;
                 case STOP_LASER:
-                    falconAbilityCap.setShootingLaser(false);
+                    ForgeClientEvents.LOCAL_LASER = false;
                     if (minecraft.gameMode != null) {
                         minecraft.gameMode.stopDestroyBlock();
                     }

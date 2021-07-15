@@ -10,6 +10,7 @@ import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
 import com.infamous.captain_america.common.entity.projectile.MissileEntity;
 import com.infamous.captain_america.common.entity.projectile.TimedGrenadeEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
@@ -74,24 +75,13 @@ public class CombatAbilityManagers {
     public static final AbilityManager LASER = AbilityManager.createOrReplace(Ability.LASER,
             new InputManager()
                     .onInitialPress(serverPlayer -> {
-                        if(EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()
-                                && serverPlayer.getMainHandItem().isEmpty()){
-                            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                            if (falconAbilityCap == null) return;
-
-                            falconAbilityCap.setShootingLaser(true);
+                        if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                             CaptainAmerica.LOGGER.debug("Server player {} has started firing their laser!", serverPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.START_LASER));
                         }
                     })
                     .onHeld(serverPlayer -> {
-                        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                        if (falconAbilityCap == null) return;
-
-                        boolean hasCorrectEquipment = EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()
-                                && serverPlayer.getMainHandItem().isEmpty();
-                        if(falconAbilityCap.isShootingLaser()
-                                && hasCorrectEquipment){
+                        if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                             RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
                             if(rayTraceResult instanceof EntityRayTraceResult){
                                 Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
@@ -104,18 +94,13 @@ public class CombatAbilityManagers {
                                 CaptainAmerica.LOGGER.debug("Server player {} is attempting to break a block!", serverPlayer.getDisplayName().getString());
                                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.CONTINUE_LASER));
                             }
-                        } else if(falconAbilityCap.isShootingLaser() && !hasCorrectEquipment){
-                            falconAbilityCap.setShootingLaser(false);
+                        } else {
                             CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
 
                         }
                     })
                     .onRelease(serverPlayer -> {
-                        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                        if (falconAbilityCap == null) return;
-
-                        falconAbilityCap.setShootingLaser(false);
                         CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
                     })

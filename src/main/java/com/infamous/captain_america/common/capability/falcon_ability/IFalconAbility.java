@@ -24,8 +24,4 @@ public interface IFalconAbility {
             this.put(abilityKey, abilityValue);
         }
     }
-
-    boolean isShootingLaser();
-
-    void setShootingLaser(boolean shootingLaser);
 }

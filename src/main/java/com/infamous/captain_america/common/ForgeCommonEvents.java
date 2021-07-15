@@ -13,6 +13,7 @@ import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrow
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.util.CALogicHelper;
@@ -125,7 +126,8 @@ public class ForgeCommonEvents {
                 handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
                 handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
 
-                if(falconAbilityCap.isShootingLaser()){
+                if(WeaponGauntletItem.isStackOfThis(living.getUseItem())
+                    && falconAbilityCap.get(FalconAbilityKey.COMBAT) == FalconAbilityValue.LASER){
                     CALogicHelper.extendReachDistance(living);
                 } else{
                     CALogicHelper.retractReachDistance(living);

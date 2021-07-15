@@ -117,17 +117,6 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.FLIGHT)),
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.FLIGHT)));
 
-    public static final CAKeyBinding keyCombatAbility =
-            new CAKeyBinding(
-                    "key.combatAbility",
-                    KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
-                    COMBAT_ABILITY_KEYCODE,
-                    FALCON_TECH_KEY_CATEGORY,
-                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.COMBAT)),
-                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.HELD, FalconAbilityKey.COMBAT)),
-                    (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.RELEASE, FalconAbilityKey.COMBAT)));
-
 
     public static final CAKeyBinding keyDroneAbility =
             new CAKeyBinding(
@@ -228,27 +217,6 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> {}
             );
 
-    public static final CAKeyBinding keyOpenFalconScreen =
-            new CAKeyBinding(
-                    "key.openFalconScreen",
-                    KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
-                    OPEN_FALCON_SCREEN_KEYCODE,
-                    FALCON_TECH_KEY_CATEGORY,
-                    (clientPlayer) -> {
-                        Minecraft minecraft = Minecraft.getInstance();
-                        if(minecraft.screen == null
-                                && minecraft.level != null
-                                && !clientPlayer.isDeadOrDying()
-                                && FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                            CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", clientPlayer.getDisplayName().getString());
-                            minecraft.setScreen(new FalconAbilitySelectionScreen());
-                        }
-                    },
-                    (clientPlayer) -> {},
-                    (clientPlayer) -> {}
-            );
-
     public static final CAKeyBinding keyToggleFlight =
             new CAKeyBinding(
                    "key.toggleFlight",
@@ -284,14 +252,8 @@ public class CAKeyBinding extends KeyBinding{
             );
 
     public static void handleAllKeys(int key, ClientPlayerEntity clientPlayer) {
-        if(key == keyOpenFalconScreen.getKey().getValue()){
-            keyOpenFalconScreen.handleKey(clientPlayer);
-        }
         if(key == keyFlightAbility.getKey().getValue()){
             keyFlightAbility.handleKey(clientPlayer);
-        }
-        if(key == keyCombatAbility.getKey().getValue()){
-            keyCombatAbility.handleKey(clientPlayer);
         }
         if(key == keyDroneAbility.getKey().getValue()){
             keyDroneAbility.handleKey(clientPlayer);

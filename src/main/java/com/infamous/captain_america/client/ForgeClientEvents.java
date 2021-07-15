@@ -13,6 +13,9 @@ import com.infamous.captain_america.common.capability.shield_thrower.IShieldThro
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
+import com.infamous.captain_america.common.item.gauntlet.AbstractGauntletItem;
+import com.infamous.captain_america.common.item.gauntlet.ControlGauntletItem;
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -28,6 +31,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -43,6 +47,7 @@ public class ForgeClientEvents {
 
     private static boolean LOCAL_BOOSTING;
     private static boolean LOCAL_HOVERING;
+    public static boolean LOCAL_LASER;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event){
@@ -201,8 +206,7 @@ public class ForgeClientEvents {
                         continue;
                     }
 
-                    IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
-                    if (falconAbilityCap != null && falconAbilityCap.isShootingLaser()) {
+                    if (WeaponGauntletItem.isStackOfThis(player.getUseItem()) && LOCAL_LASER) {
                         LaserBeamHelper.renderBeam(event, player, Minecraft.getInstance().getFrameTime());
                     }
                 }
@@ -213,19 +217,24 @@ public class ForgeClientEvents {
     @SubscribeEvent
     public static void preRenderPlayer(RenderPlayerEvent.Pre event){
         PlayerEntity player = event.getPlayer();
-        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
-        if (falconAbilityCap != null && falconAbilityCap.isShootingLaser()) {
+        ItemStack useItem = player.getUseItem();
+        Hand useHand = player.getUsedItemHand();
+        boolean notSwinging = !player.swinging;
+        boolean isUsingGauntlet = AbstractGauntletItem.isStackOfThis(useItem);
+        if (isUsingGauntlet && notSwinging) {
             PlayerRenderer playerRenderer = event.getRenderer();
             PlayerModel<?> playerModel = playerRenderer.getModel();
             if(player.getMainArm() == HandSide.RIGHT){
-                BipedModel.ArmPose rightArmPose = playerModel.rightArmPose;
-                if(rightArmPose == BipedModel.ArmPose.EMPTY){
+                if(useHand == Hand.MAIN_HAND){
                     playerModel.rightArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                } else{
+                    playerModel.leftArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
                 }
             } else{
-                BipedModel.ArmPose leftArmPose = playerModel.leftArmPose;
-                if(leftArmPose == BipedModel.ArmPose.EMPTY){
+                if(useHand == Hand.MAIN_HAND){
                     playerModel.leftArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                } else{
+                    playerModel.rightArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
                 }
             }
         }

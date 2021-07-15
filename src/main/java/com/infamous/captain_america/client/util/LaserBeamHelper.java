@@ -1,5 +1,6 @@
 package com.infamous.captain_america.client.util;
 
+import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -27,7 +28,14 @@ public class LaserBeamHelper {
     }
 
     private static void drawBeams(RenderWorldLastEvent event, Vector3d originVec, RayTraceResult rayTrace, double xOffset, double yOffset, double zOffset, float r, float g, float b, float thickness, PlayerEntity player, float ticks, float speedModifier) {
-        Hand laserShootingHand = Hand.MAIN_HAND;
+        Hand laserShootingHand;
+        if (WeaponGauntletItem.isStackOfThis(player.getMainHandItem())) {
+            laserShootingHand = Hand.MAIN_HAND;
+        } else if (WeaponGauntletItem.isStackOfThis(player.getOffhandItem())) {
+            laserShootingHand = Hand.OFF_HAND;
+        } else {
+            return;
+        }
 
         IVertexBuilder builder;
         double distance = Math.max(1, originVec.subtract(rayTrace.getLocation()).length());

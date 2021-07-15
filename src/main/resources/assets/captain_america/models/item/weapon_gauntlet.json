@@ -1,0 +1,63 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [64, 32],
+	"textures": {
+		"0": "captain_america:item/weapon_gauntlet"
+	},
+	"elements": [
+		{
+			"name": "gauntlet",
+			"from": [5.5, -0.5, 5.5],
+			"to": [10.5, 12.5, 10.5],
+			"faces": {
+				"north": {"uv": [11, 10, 12, 16], "texture": "#0"},
+				"east": {"uv": [10, 10, 11, 16], "texture": "#0"},
+				"south": {"uv": [13, 10, 14, 16], "texture": "#0"},
+				"west": {"uv": [12, 10, 13, 16], "texture": "#0"},
+				"up": {"uv": [12, 10, 11, 8], "texture": "#0"},
+				"down": {"uv": [13, 8, 12, 10], "texture": "#0"}
+			}
+		}
+	],
+	"gui_light": "front",
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [90, 0, 0],
+			"translation": [0, -2, 8]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [90, -180, 0],
+			"translation": [0, -2, 8]
+		},
+		"firstperson_righthand": {
+			"rotation": [135, 0, 0],
+			"translation": [-6, 3.5, 8],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"firstperson_lefthand": {
+			"rotation": [135, -180, 0],
+			"translation": [-6, 3.5, 8],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"ground": {
+			"rotation": [-180, 0, 0],
+			"translation": [0, -6, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [0, 90, -180],
+			"translation": [0, -6, 0]
+		},
+		"fixed": {
+			"rotation": [0, -90, -180],
+			"translation": [0, -6, 0]
+		}
+	},
+	"groups": [
+		{
+			"name": "arm",
+			"origin": [5, 22, 0],
+			"children": [0]
+		}
+	]
+}

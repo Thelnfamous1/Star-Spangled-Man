@@ -112,22 +112,12 @@ public enum FalconAbilityValue implements IAbilityValue {
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
                 if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
-                    IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                    if (falconAbilityCap == null) return;
-
-                    falconAbilityCap.setShootingLaser(true);
                     CaptainAmerica.LOGGER.debug("Server player {} has started firing their laser!", serverPlayer.getDisplayName().getString());
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.START_LASER));
                 }
             },
             (serverPlayer) -> {
-                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                if (falconAbilityCap == null) return;
-
-                boolean hasCorrectEquipment = EXO7FalconItem.getEXO7FalconStack(serverPlayer).isPresent()
-                        && serverPlayer.getMainHandItem().isEmpty();
-                if(falconAbilityCap.isShootingLaser()
-                        && WeaponGauntletItem.isHoldingThis(serverPlayer)){
+                if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
                     RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
                     if(rayTraceResult instanceof EntityRayTraceResult){
                         Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
@@ -140,8 +130,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                         CaptainAmerica.LOGGER.debug("Server player {} is attempting to break a block!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.CONTINUE_LASER));
                     }
-                } else if(falconAbilityCap.isShootingLaser() && !hasCorrectEquipment){
-                    falconAbilityCap.setShootingLaser(false);
+                } else {
                     CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
 
@@ -149,10 +138,6 @@ public enum FalconAbilityValue implements IAbilityValue {
 
             },
             (serverPlayer) -> {
-                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
-                if (falconAbilityCap == null) return;
-
-                falconAbilityCap.setShootingLaser(false);
                 CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
             },

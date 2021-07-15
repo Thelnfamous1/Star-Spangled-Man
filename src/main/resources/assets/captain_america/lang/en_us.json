@@ -19,6 +19,9 @@
   "item.captain_america.wingpack": "Wingpack",
   "item.captain_america.vibranium_wingpack": "Vibranium Wingpack",
 
+  "item.captain_america.control_gauntlet": "Control Gauntlet",
+  "item.captain_america.weapon_gauntlet": "Weapon Gauntlet",
+
   "item.captain_america.vibranium_shield": "Vibranium Shield",
   "item.captain_america.captain_america_shield": "Captain America's Shield",
   "item.captain_america.us_agent_shield": "US Agent's Shield",
@@ -64,9 +67,7 @@
   "action.falcon.respawn": "Reset all abilities!",
 
   "key.categories.falconTech": "Falcon Techniques",
-  "key.openFalconScreen": "Open Falcon Screen",
   "key.flightAbility": "Flight Ability",
-  "key.combatAbility": "Combat Ability",
   "key.droneAbility": "Drone Ability",
   "key.hudAbility": "HUD Ability",
   "key.verticalFlight": "Vertical Flight (While Hovering)",

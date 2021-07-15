@@ -12,7 +12,6 @@ public class FalconAbility implements IFalconAbility {
     private final Map<FalconAbilityKey, FalconAbilityValue> abilityMap = Maps.newHashMap();
     private boolean hovering;
     private boolean verticallyFlying;
-    private boolean shootingLaser;
 
     public FalconAbility(){
         this.abilityMap.put(FalconAbilityKey.FLIGHT, FalconAbilityValue.TOGGLE_HOVER);
@@ -60,13 +59,4 @@ public class FalconAbility implements IFalconAbility {
         this.verticallyFlying = verticallyFlying;
     }
 
-    @Override
-    public boolean isShootingLaser() {
-        return this.shootingLaser;
-    }
-
-    @Override
-    public void setShootingLaser(boolean shootingLaser) {
-        this.shootingLaser = shootingLaser;
-    }
 }
