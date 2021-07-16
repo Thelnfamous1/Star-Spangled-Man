@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BulletItem extends Item implements IBullet {
+public class BulletItem extends Item {
 	private final int damage;
 
 	public BulletItem(Properties properties, int damage) {
@@ -24,8 +24,7 @@ public class BulletItem extends Item implements IBullet {
 		this.damage = damage;
 	}
 
-	@Override
-	public BulletEntity createProjectile(World world, ItemStack stack, LivingEntity shooter) {
+	public BulletEntity createBullet(World world, ItemStack stack, LivingEntity shooter) {
 		BulletEntity entity = new BulletEntity(world, shooter);
 		entity.setItem(stack);
 		entity.setDamage(this.damage);

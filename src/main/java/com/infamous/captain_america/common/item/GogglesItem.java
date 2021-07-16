@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class GogglesItem extends CAArmorItem {
@@ -17,25 +18,33 @@ public class GogglesItem extends CAArmorItem {
         super(armorMaterial, SLOT, properties);
     }
 
-    public static ItemStack getGoggles(LivingEntity living){
+    public static Optional<ItemStack> getGoggles(LivingEntity living){
         ItemStack goggles = living.getItemBySlot(SLOT);
         if(GOGGLES_PREDICATE.test(goggles.getItem())){
-            return goggles;
+            return Optional.of(goggles);
         } else{
-            return ItemStack.EMPTY;
+            return Optional.empty();
         }
     }
 
     public static boolean toggleHUD(LivingEntity living) {
-        ItemStack gogglesStack = getGoggles(living);
-        boolean isEnabled = isHUDEnabled(gogglesStack);
-        setHUDEnabled(gogglesStack, !isEnabled);
-        return !isEnabled;
+        Optional<ItemStack> optionalGoggles = getGoggles(living);
+        if(optionalGoggles.isPresent()){
+            ItemStack gogglesStack = optionalGoggles.get();
+            boolean isEnabled = isHUDEnabled(gogglesStack);
+            setHUDEnabled(gogglesStack, !isEnabled);
+            return !isEnabled;
+        } else{
+            return false;
+        }
     }
 
     public static void toggleHUDTo(LivingEntity livingEntity, boolean toggleTo){
-        ItemStack gogglesStack = getGoggles(livingEntity);
-        setHUDEnabled(gogglesStack, toggleTo);
+        Optional<ItemStack> optionalGoggles = getGoggles(livingEntity);
+        if(optionalGoggles.isPresent()){
+            ItemStack gogglesStack = optionalGoggles.get();
+            setHUDEnabled(gogglesStack, toggleTo);
+        }
     }
 
     public static boolean isHUDEnabled(ItemStack gogglesStack) {

@@ -3,8 +3,7 @@ package com.infamous.captain_america.common.entity.drone;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
-import com.infamous.captain_america.common.item.BulletItem;
-import com.infamous.captain_america.common.registry.ItemRegistry;
+import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.server.ai.goals.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -15,10 +14,6 @@ import net.minecraft.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.IFlyingAnimal;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.SnowballEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -33,10 +28,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -45,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, ICrossbowUser, IAttachableDrone {
+public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRangedAttackMob, IAttachableDrone {
     protected static final DataParameter<Boolean> DATA_OWNED = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Optional<UUID>> DATA_OWNER_UUID = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.OPTIONAL_UUID);
     private boolean patrolling;
@@ -173,43 +164,9 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, ICro
 
     @Override
     public void performRangedAttack(LivingEntity target, float p_82196_2_) {
-        BulletEntity bulletEntity = this.createBullet();
-        this.shootCrossbowProjectile(target, ItemStack.EMPTY, bulletEntity, 0.0F);
+        BulletEntity bulletEntity = CALogicHelper.createBullet(this);
+        CALogicHelper.shootBulletAtTarget(this, target, bulletEntity, 0.0F, 1.6F);
         this.level.addFreshEntity(bulletEntity);
-    }
-
-    private BulletEntity createBullet() {
-        BulletItem bulletItem = ItemRegistry.PISTOL_BULLET.get();
-        ItemStack bulletStack = bulletItem.getDefaultInstance();
-        BulletEntity bulletEntity = bulletItem.createProjectile(this.level, bulletStack, this);
-        bulletEntity.setIgnoreInvulnerability(true);
-        return bulletEntity;
-    }
-
-    @Override
-    public void shootCrossbowProjectile(LivingEntity target, ItemStack stack, ProjectileEntity projectile, float inaccuracy) {
-        this.shootCrossbowProjectile(this, target, projectile, inaccuracy, 1.6F);
-    }
-
-    @Override
-    public void shootCrossbowProjectile(LivingEntity shooter, LivingEntity target, ProjectileEntity projectile, float inaccuracy, float velocity) {
-        double xDiff = target.getX() - shooter.getX();
-        double zDiff = target.getZ() - shooter.getZ();
-        double horizDist = (double)MathHelper.sqrt(xDiff * xDiff + zDiff * zDiff);
-        double yDiff = target.getY(0.3333333333333333D) - projectile.getY();
-        Vector3f projectileShotVector = this.getProjectileShotVector(shooter, new Vector3d(xDiff, yDiff, zDiff), inaccuracy);
-        projectile.shoot((double)projectileShotVector.x(), (double)projectileShotVector.y(), (double)projectileShotVector.z(), velocity, inaccuracy);
-        shooter.playSound(SoundEvents.CROSSBOW_SHOOT, 1.0F, 1.0F / (shooter.getRandom().nextFloat() * 0.4F + 0.8F));
-    }
-
-    @Override
-    public void setChargingCrossbow(boolean p_213671_1_) {
-        // NO-OP
-    }
-
-    @Override
-    public void onCrossbowAttackPerformed() {
-        // NO-OP
     }
 
     @Nullable

@@ -4,10 +4,10 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
 import com.infamous.captain_america.common.entity.projectile.MissileEntity;
 import com.infamous.captain_america.common.entity.projectile.TimedGrenadeEntity;
-import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
@@ -15,10 +15,10 @@ import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.item.DyeColor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.*;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Quaternion;
@@ -31,12 +31,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public enum FalconAbilityValue implements IAbilityValue {
+    /*
     HALT(
             () -> FalconAbilityKey.FLIGHT,
             FalconAbilityValue::haltIfFlying,
             (serverPlayer) -> {},
             (serverPlayer) -> {},
             "halt"),
+     */
     TOGGLE_HOVER(
             () -> FalconAbilityKey.FLIGHT,
             (serverPlayer) -> {
@@ -58,6 +60,22 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {},
             "toggleHover"),
 
+    DEPLOY_FLARES(
+            () -> FalconAbilityKey.FLIGHT,
+            (serverPlayer) -> {
+                ItemStack flareStack = CALogicHelper.createFirework(DyeColor.YELLOW, 0);
+                FireworkRocketEntity fireworkRocketEntity = new FireworkRocketEntity(serverPlayer.level, flareStack, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), true);
+                fireworkRocketEntity.setOwner(serverPlayer);
+                Direction[] closestLookDirections = Direction.orderedByNearest(serverPlayer);
+                Direction closestLookDirection = closestLookDirections[0];
+                Direction oppositeLookDirection = closestLookDirection.getOpposite();
+                fireworkRocketEntity.shoot(oppositeLookDirection.getStepX(), oppositeLookDirection.getStepY(), oppositeLookDirection.getStepZ(), 0.0F, 1.0F);
+                serverPlayer.level.addFreshEntity(fireworkRocketEntity);
+                serverPlayer.sendMessage(new TranslationTextComponent("action.falcon.deployFlares"), Util.NIL_UUID);
+            },
+            (serverPlayer) -> {},
+            (serverPlayer) -> {},
+            "deployFlares"),
     MISSILE(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
@@ -142,6 +160,20 @@ public enum FalconAbilityValue implements IAbilityValue {
                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
             },
             "laser"),
+    MACHINE_GUN(
+            () -> FalconAbilityKey.COMBAT,
+            serverPlayer -> {},
+            serverPlayer -> {
+                if(serverPlayer.tickCount % 5 == 0){
+                    BulletEntity bulletEntity = CALogicHelper.createBullet(serverPlayer);
+                    CALogicHelper.shootBullet(serverPlayer, bulletEntity, 0.0F, 1.6F);
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.FIRING_MACHINE_GUN));
+                    serverPlayer.level.addFreshEntity(bulletEntity);
+                    CaptainAmerica.LOGGER.info("Server player {} has fired a bullet!", serverPlayer.getDisplayName().getString());
+                }
+            },
+            serverPlayer -> {},
+            "machineGun"),
 
     DEPLOY(
             () -> FalconAbilityKey.DRONE,

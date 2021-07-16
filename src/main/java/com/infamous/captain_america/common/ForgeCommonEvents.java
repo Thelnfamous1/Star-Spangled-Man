@@ -58,6 +58,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -121,8 +122,8 @@ public class ForgeCommonEvents {
             }
             if(!living.level.isClientSide){
                 FalconAbilityValue hudValue = falconAbilityCap.get(FalconAbilityKey.HUD);
-                ItemStack gogglesStack = GogglesItem.getGoggles(living);
-                boolean isHudEnabled = GogglesItem.isHUDEnabled(gogglesStack);
+                Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(living);
+                boolean isHudEnabled = optionalGoggles.isPresent() && GogglesItem.isHUDEnabled(optionalGoggles.get());
                 handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
                 handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
 

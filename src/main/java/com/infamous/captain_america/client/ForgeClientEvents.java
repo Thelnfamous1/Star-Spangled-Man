@@ -41,6 +41,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeClientEvents {
@@ -65,6 +66,11 @@ public class ForgeClientEvents {
                     NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.BOOST_FLIGHT));
                 } else{
                     LOCAL_BOOSTING = false;
+                }
+                if(minecraft.options.keyShift.isDown()
+                        && FalconFlightHelper.isFlying(clientPlayer)
+                        && !AbstractGauntletItem.isHoldingThisInBothHands(clientPlayer)){
+                    NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
                 }
                 IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
                 if(falconAbilityCap != null && falconAbilityCap.isHovering() && FalconFlightHelper.canHover(clientPlayer)){
@@ -123,12 +129,12 @@ public class ForgeClientEvents {
         IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(livingRenderEntity);
         if(falconAbilityCap == null) return;
 
-        ItemStack goggles = GogglesItem.getGoggles(livingRenderEntity);
+        Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(livingRenderEntity);
 
         boolean hasHUDNightVision =
                 livingRenderEntity.hasEffect(EffectRegistry.HUD_NIGHT_VISION.get())
-                && !goggles.isEmpty()
-                && GogglesItem.isHUDEnabled(goggles);
+                && optionalGoggles.isPresent()
+                && GogglesItem.isHUDEnabled(optionalGoggles.get());
 
         if (hasHUDNightVision){
             float nightVisionScale = 1.0F; // Pretend we have an active NIGHT_VISION effect with a duration greater than 10 seconds

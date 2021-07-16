@@ -15,7 +15,7 @@ public class Ability implements ITranslatable {
     private static final Pattern INVALID_NAME = Pattern.compile("[^a-z_]");
     private static final Map<String, Ability> VALUES = new ConcurrentHashMap<>();
 
-    public static final Ability HALT = createOrReplace(AbilityType.FLIGHT, "halt");
+    //public static final Ability HALT = createOrReplace(AbilityType.FLIGHT, "halt");
     public static final Ability TOGGLE_HOVER = createOrReplace(AbilityType.FLIGHT, "toggle_hover");
 
     public static final Ability MISSILE = createOrReplace(AbilityType.COMBAT, "missile");

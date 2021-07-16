@@ -28,7 +28,7 @@
 
   "item.captain_america.vibranium_arm": "Vibranium Arm",
 
-  "item.captain_america.pistol_bullet": "Pistol Bullet",
+  "item.captain_america.small_caliber_bullet": "Small-Caliber Bullet",
 
   "entity.captain_america.falcon_redwing": "Falcon's Redwing",
   "entity.captain_america.captain_america_redwing": "Captain America's Redwing",
@@ -55,6 +55,7 @@
   "action.falcon.hoverOff": "Deactivated hover mode!",
   "action.falcon.hudOn": "Activated HUD!",
   "action.falcon.hudOff": "Deactivated HUD!",
+  "action.falcon.deployFlares": "Deployed Flares!",
 
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
@@ -84,11 +85,13 @@
   "ability.falcon.flight": "Flight",
   "ability.falcon.flight.halt": "Halt Flight",
   "ability.falcon.flight.toggleHover": "Toggle Hover",
+  "ability.falcon.flight.deployFlares": "Deploy Flares",
 
   "ability.falcon.combat": "Combat",
   "ability.falcon.combat.missile": "Missile",
   "ability.falcon.combat.grenade": "Grenade",
   "ability.falcon.combat.laser": "Laser",
+  "ability.falcon.combat.machineGun": "Machine Gun",
 
   "ability.falcon.drone": "Drone",
   "ability.falcon.drone.deploy": "Deploy Drone",

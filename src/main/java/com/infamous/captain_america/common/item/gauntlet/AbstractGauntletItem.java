@@ -57,4 +57,7 @@ public abstract class AbstractGauntletItem extends Item {
     public static boolean isStackOfThis(ItemStack stack){
         return stack.getItem() instanceof AbstractGauntletItem;
     }
+    public static boolean isHoldingThisInBothHands(LivingEntity living){
+        return isStackOfThis(living.getMainHandItem()) && isStackOfThis(living.getOffhandItem());
+    }
 }

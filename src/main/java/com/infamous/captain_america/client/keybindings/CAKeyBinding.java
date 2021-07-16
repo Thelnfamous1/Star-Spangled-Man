@@ -242,7 +242,7 @@ public class CAKeyBinding extends KeyBinding{
                     TOGGLE_HUD_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
-                        if(!GogglesItem.getGoggles(clientPlayer).isEmpty()){
+                        if(GogglesItem.getGoggles(clientPlayer).isPresent()){
                             CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their HUD!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CHUDPacket(CHUDPacket.Action.TOGGLE_HUD));
                         }

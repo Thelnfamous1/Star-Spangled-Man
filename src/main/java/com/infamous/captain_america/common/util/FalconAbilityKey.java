@@ -8,13 +8,15 @@ import java.util.function.Supplier;
 
 public enum FalconAbilityKey implements IAbilityKey{
     FLIGHT("ability.falcon.flight",
-            () -> FalconAbilityValue.HALT,
-            () -> FalconAbilityValue.TOGGLE_HOVER
+            //() -> FalconAbilityValue.HALT,
+            () -> FalconAbilityValue.TOGGLE_HOVER,
+            () -> FalconAbilityValue.DEPLOY_FLARES
     ),
     COMBAT("ability.falcon.combat",
             () -> FalconAbilityValue.MISSILE,
             () -> FalconAbilityValue.GRENADE,
-            () -> FalconAbilityValue.LASER
+            () -> FalconAbilityValue.LASER,
+            () -> FalconAbilityValue.MACHINE_GUN
     ),
     DRONE("ability.falcon.drone",
             () -> FalconAbilityValue.DEPLOY,

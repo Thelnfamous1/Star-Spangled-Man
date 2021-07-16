@@ -143,6 +143,8 @@ public class ClientNetworkHandler {
                     }
                     CaptainAmerica.LOGGER.debug("Client player {} has stopped firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
+                case FIRING_MACHINE_GUN:
+                    CALogicHelper.playShootBulletSound(clientPlayer);
             }
         });
         ctx.get().setPacketHandled(true);

@@ -1,6 +1,5 @@
 package com.infamous.captain_america.common.entity.projectile;
 
-import com.infamous.captain_america.common.item.IBullet;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import com.infamous.captain_america.common.registry.ItemRegistry;
 import net.minecraft.entity.Entity;
@@ -47,7 +46,7 @@ public class BulletEntity extends AbstractFireballEntity {
 	@OnlyIn(Dist.CLIENT)
 	public ItemStack getItem() {
 		ItemStack itemstack = this.getItemRaw();
-		return itemstack.isEmpty() ? new ItemStack(ItemRegistry.PISTOL_BULLET.get()) : itemstack;
+		return itemstack.isEmpty() ? new ItemStack(ItemRegistry.SMALL_CALIBER_BULLET.get()) : itemstack;
 	}
 
 	private static final double STOP_THRESHOLD = 0.01;
@@ -62,13 +61,12 @@ public class BulletEntity extends AbstractFireballEntity {
 	}
 
 	@Override
-	protected void onHitEntity(EntityRayTraceResult raytrace) {
-		super.onHitEntity(raytrace);
+	protected void onHitEntity(EntityRayTraceResult entityRTR) {
+		super.onHitEntity(entityRTR);
 		if (!this.level.isClientSide) {
-			Entity target = raytrace.getEntity();
+			Entity target = entityRTR.getEntity();
 			Entity shooter = this.getOwner();
-			IBullet bullet = (IBullet) this.getItem().getItem();
-			
+
 			if (this.isOnFire()) target.setSecondsOnFire(5);
 			int lastInvulnerableTime = target.invulnerableTime;
 			if (this.ignoreInvulnerability) target.invulnerableTime = 0;

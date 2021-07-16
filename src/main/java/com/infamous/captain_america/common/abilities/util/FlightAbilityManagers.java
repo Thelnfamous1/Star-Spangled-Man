@@ -16,10 +16,13 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public class FlightAbilityManagers {
 
+    /*
     public static final AbilityManager HALT = AbilityManager.createOrReplace(Ability.HALT,
             new InputManager()
                     .onInitialPress(FlightAbilityManagers::haltIfFlying)
     );
+     */
+
     public static final AbilityManager TOGGLE_HOVER = AbilityManager.createOrReplace(Ability.TOGGLE_HOVER,
             new InputManager()
                     .onInitialPress(serverPlayer -> {

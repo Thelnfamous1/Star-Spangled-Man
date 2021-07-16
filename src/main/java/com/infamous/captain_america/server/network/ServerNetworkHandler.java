@@ -35,6 +35,11 @@ public class ServerNetworkHandler {
             if(falconAbilityCap == null) return;
 
             switch (packet.getAction()){
+                case HALT_FLIGHT:
+                    if(FalconFlightHelper.isFlying(serverPlayer)){
+                        FalconFlightHelper.haltFlight(serverPlayer);
+                    }
+                    break;
                 case TOGGLE_FLIGHT:
                     if (FalconFlightHelper.hasEXO7Falcon(serverPlayer)) {
                         boolean toggledTo = FalconFlightHelper.toggleEXO7Falcon(serverPlayer);
@@ -184,7 +189,7 @@ public class ServerNetworkHandler {
 
             switch (packet.getAction()){
                 case TOGGLE_HUD:
-                    if (!GogglesItem.getGoggles(serverPlayer).isEmpty()) {
+                    if (GogglesItem.getGoggles(serverPlayer).isPresent()) {
                         boolean toggledTo = GogglesItem.toggleHUD(serverPlayer);
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_HUD, toggledTo));
                         CaptainAmerica.LOGGER.debug("Server player {} has toggled their HUD to: {}", serverPlayer.getDisplayName().getString(), toggledTo);

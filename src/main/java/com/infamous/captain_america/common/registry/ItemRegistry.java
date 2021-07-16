@@ -170,8 +170,8 @@ public class ItemRegistry implements IRegistryManager<Item> {
                                     .stacksTo(1))
     );
 
-    public static final RegistryObject<BulletItem> PISTOL_BULLET = ITEMS.register(
-            "pistol_bullet", () ->
+    public static final RegistryObject<BulletItem> SMALL_CALIBER_BULLET = ITEMS.register(
+            "small_caliber_bullet", () ->
                     new BulletItem(
                             (new Item.Properties())
                                     .tab(ItemGroup.TAB_COMBAT)
