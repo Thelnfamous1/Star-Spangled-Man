@@ -86,6 +86,7 @@
   "ability.falcon.flight.halt": "Halt Flight",
   "ability.falcon.flight.toggleHover": "Toggle Hover",
   "ability.falcon.flight.deployFlares": "Deploy Flares",
+  "ability.falcon.flight.barrelRoll": "Barrel Roll",
 
   "ability.falcon.combat": "Combat",
   "ability.falcon.combat.missile": "Missile",

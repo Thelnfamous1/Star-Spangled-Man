@@ -76,6 +76,18 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {},
             (serverPlayer) -> {},
             "deployFlares"),
+
+    BARREL_ROLL(
+            () -> FalconAbilityKey.FLIGHT,
+            (serverPlayer) -> {
+                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                    serverPlayer.startAutoSpinAttack(20);
+                }
+            },
+            (serverPlayer) -> {},
+            (serverPlayer) -> {},
+            "barrelRoll"),
+
     MISSILE(
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {

@@ -65,6 +65,10 @@ public class FalconFlightHelper {
         return living.getItemBySlot(EXO7FalconItem.SLOT);
     }
 
+    public static boolean isBarrelRolling(LivingEntity living){
+        return isFlying(living) && living.isAutoSpinAttack();
+    }
+
     public static void takeOff(PlayerEntity player) {
         player.startFallFlying();
     }

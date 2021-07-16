@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -56,6 +57,7 @@ public class ForgeClientEvents {
             Minecraft minecraft = Minecraft.getInstance();
             ClientPlayerEntity clientPlayer = minecraft.player;
             if(clientPlayer != null){
+                // HANDLE BOOST
                 if(minecraft.options.keySprint.isDown() && FalconFlightHelper.canBoostFlight(clientPlayer)){
                     if(!LOCAL_BOOSTING){
                         LOCAL_BOOSTING = true;
@@ -67,11 +69,14 @@ public class ForgeClientEvents {
                 } else{
                     LOCAL_BOOSTING = false;
                 }
+                // HANDLE HALT FLIGHT
                 if(minecraft.options.keyShift.isDown()
                         && FalconFlightHelper.isFlying(clientPlayer)
                         && !AbstractGauntletItem.isHoldingThisInBothHands(clientPlayer)){
                     NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.HALT_FLIGHT));
                 }
+
+                // HANDLE HOVERING
                 IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
                 if(falconAbilityCap != null && falconAbilityCap.isHovering() && FalconFlightHelper.canHover(clientPlayer)){
                     if(!LOCAL_HOVERING){
