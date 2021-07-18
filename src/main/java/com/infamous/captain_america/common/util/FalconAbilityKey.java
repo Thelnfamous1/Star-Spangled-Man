@@ -26,7 +26,8 @@ public enum FalconAbilityKey implements IAbilityKey{
     ),
     HUD("ability.falcon.hud",
             () -> FalconAbilityValue.INFRARED,
-            () -> FalconAbilityValue.NIGHT_VISION
+            () -> FalconAbilityValue.NIGHT_VISION,
+            () -> FalconAbilityValue.EAGLE_EYES
     );
 
     private final String translationKey;

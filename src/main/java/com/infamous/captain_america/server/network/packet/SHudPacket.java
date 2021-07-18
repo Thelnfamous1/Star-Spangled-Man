@@ -60,5 +60,6 @@ public class SHudPacket {
 
     public enum Action {
         TOGGLE_HUD,
+        TOGGLE_EAGLE_EYES,
     }
 }

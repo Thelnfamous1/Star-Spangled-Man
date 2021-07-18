@@ -103,6 +103,9 @@ public class ClientNetworkHandler {
                     GogglesItem.toggleHUDTo(clientPlayer, toggleTo);
                     CaptainAmerica.LOGGER.debug("Client player {} has toggled their HUD to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
                     break;
+                case TOGGLE_EAGLE_EYES:
+                    ForgeClientEvents.LOCAL_EAGLE_EYES = !ForgeClientEvents.LOCAL_EAGLE_EYES;
+                    break;
             }
         });
         ctx.get().setPacketHandled(true);

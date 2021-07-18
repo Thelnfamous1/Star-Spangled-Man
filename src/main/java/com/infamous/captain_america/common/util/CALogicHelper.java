@@ -158,4 +158,8 @@ public class CALogicHelper {
         return vector3f1;
     }
 
+    public static double getGravity(LivingEntity living){
+        ModifiableAttributeInstance gravityAttribute = living.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+        return gravityAttribute == null ? 0.08D : gravityAttribute.getValue();
+    }
 }

@@ -83,6 +83,66 @@ public class ForgeCommonEvents {
     @SubscribeEvent
     public static void onLivingUpdate(LivingEvent.LivingUpdateEvent event){
         LivingEntity living = event.getEntityLiving();
+        handleShieldThrow(living);
+        handleBarrelRoll(living);
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
+        if(falconAbilityCap != null){
+            handleHover(living, falconAbilityCap);
+            if(!living.level.isClientSide){
+                handleHud(living, falconAbilityCap);
+                handleLaser(living, falconAbilityCap);
+            }
+        }
+    }
+
+    private static void handleLaser(LivingEntity living, IFalconAbility falconAbilityCap) {
+        if(WeaponGauntletItem.isStackOfThis(living.getUseItem())
+            && falconAbilityCap.get(FalconAbilityKey.COMBAT) == FalconAbilityValue.LASER){
+            CALogicHelper.extendReachDistance(living);
+        } else{
+            CALogicHelper.retractReachDistance(living);
+        }
+    }
+
+    private static void handleHud(LivingEntity living, IFalconAbility falconAbilityCap) {
+        FalconAbilityValue hudValue = falconAbilityCap.get(FalconAbilityKey.HUD);
+        Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(living);
+        boolean isHudEnabled = optionalGoggles.isPresent() && GogglesItem.isHUDEnabled(optionalGoggles.get());
+        handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
+        handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
+    }
+
+    private static void handleHover(LivingEntity living, IFalconAbility falconAbilityCap) {
+        boolean wasHovering = falconAbilityCap.isHovering();
+        if(!FalconFlightHelper.canHover(living)){
+            if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
+                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) living;
+                falconAbilityCap.setHovering(false);
+                if(wasHovering){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
+                }
+            }
+            if(wasHovering){
+                CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
+                if(!living.level.isClientSide){
+                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
+                }
+            }
+        }
+        if(falconAbilityCap.isHovering()){
+            if(!falconAbilityCap.isVerticallyFlying()){
+                living.setDeltaMovement(living.getDeltaMovement().multiply(1, 0, 1));
+            } else{
+                falconAbilityCap.setVerticallyFlying(false);
+            }
+            if(!living.level.isClientSide){
+                FalconFlightHelper.animatePropulsion(living);
+            }
+            living.fallDistance = 0;
+        }
+    }
+
+    private static void handleShieldThrow(LivingEntity living) {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(living);
         if(shieldThrowerCap != null){
             boolean hasAcceleratedMovement = living.isSprinting() || living.isFallFlying();
@@ -91,49 +151,27 @@ public class ForgeCommonEvents {
                 chargingStar(living);
             }
         }
-        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
-        if(falconAbilityCap != null){
-            boolean wasHovering = falconAbilityCap.isHovering();
-            if(!FalconFlightHelper.canHover(living)){
-                if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
-                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity)living;
-                    falconAbilityCap.setHovering(false);
-                    if(wasHovering){
-                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
-                    }
-                }
-                if(wasHovering){
-                    CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
-                    if(!living.level.isClientSide){
-                        living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
-                    }
-                }
-            }
-            if(falconAbilityCap.isHovering()){
-                if(!falconAbilityCap.isVerticallyFlying()){
-                    living.setDeltaMovement(living.getDeltaMovement().multiply(1, 0, 1));
-                } else{
-                    falconAbilityCap.setVerticallyFlying(false);
-                }
-                if(!living.level.isClientSide){
-                    FalconFlightHelper.animatePropulsion(living);
-                }
-                living.fallDistance = 0;
-            }
-            if(!living.level.isClientSide){
-                FalconAbilityValue hudValue = falconAbilityCap.get(FalconAbilityKey.HUD);
-                Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(living);
-                boolean isHudEnabled = optionalGoggles.isPresent() && GogglesItem.isHUDEnabled(optionalGoggles.get());
-                handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
-                handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
+    }
 
-                if(WeaponGauntletItem.isStackOfThis(living.getUseItem())
-                    && falconAbilityCap.get(FalconAbilityKey.COMBAT) == FalconAbilityValue.LASER){
-                    CALogicHelper.extendReachDistance(living);
-                } else{
-                    CALogicHelper.retractReachDistance(living);
-                }
-            }
+    private static void handleBarrelRoll(LivingEntity living) {
+        if(FalconFlightHelper.isBarrelRolling(living)){
+            Vector3d travelVec = new Vector3d(living.xxa, living.yya, living.zza);
+            Vector3d lateralTravelVec = new Vector3d(travelVec.x, 0, 0);
+            float barrelRollScale = 20.0F;
+            double momentumReduction = 0.8F;
+            Vector3d deltaMovement = living.getDeltaMovement();
+            boolean isFalling = deltaMovement.y <= 0.0D;
+            double verticalMomentumReduction = isFalling ? 1 : momentumReduction;
+            double gravity = CALogicHelper.getGravity(living);
+
+            Vector3d deltaMoveWhileRolling =
+                    deltaMovement
+                            .multiply(momentumReduction, verticalMomentumReduction, momentumReduction)
+                            .subtract(0, gravity, 0);
+
+            living.setDeltaMovement(deltaMoveWhileRolling);
+            float vanillaFlyingSpeed = 0.02F; // see LivingEntity#flyingSpeed
+            living.moveRelative(vanillaFlyingSpeed * barrelRollScale, lateralTravelVec);
         }
     }
 

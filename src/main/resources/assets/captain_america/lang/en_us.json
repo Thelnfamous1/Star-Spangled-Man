@@ -102,6 +102,7 @@
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",
   "ability.falcon.hud.nightVision": "Night Vision",
+  "ability.falcon.hud.eagleEyes": "Eagle Eyes",
 
   "death.attack.bullet": "%1$s was shot by %2$s",
   "death.attack.bullet.item": "%1$s was shot by %2$s using %3$s",

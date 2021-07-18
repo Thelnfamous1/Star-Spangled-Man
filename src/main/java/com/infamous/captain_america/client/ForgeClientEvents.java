@@ -47,6 +47,7 @@ import java.util.Optional;
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeClientEvents {
 
+    public static boolean LOCAL_EAGLE_EYES;
     private static boolean LOCAL_BOOSTING;
     private static boolean LOCAL_HOVERING;
     public static boolean LOCAL_LASER;
@@ -94,10 +95,17 @@ public class ForgeClientEvents {
     public static void onFOVEvent(FOVUpdateEvent event){
         PlayerEntity player = event.getEntity();
         if(player == Minecraft.getInstance().player){
+            float newFOV = event.getNewfov();
             if(FalconFlightHelper.isFlying(player) && LOCAL_BOOSTING){
-                float newFOV = event.getNewfov();
-                event.setNewfov(newFOV + 0.1F);
+                newFOV *= 1.1F;
             }
+            Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(player);
+            if(optionalGoggles.isPresent()
+                    && GogglesItem.isHUDEnabled(optionalGoggles.get())
+                    && LOCAL_EAGLE_EYES){
+                newFOV *= 0.25F;
+            }
+            event.setNewfov(newFOV);
         }
     }
 

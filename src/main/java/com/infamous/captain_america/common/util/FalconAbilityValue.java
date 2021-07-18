@@ -12,6 +12,7 @@ import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SHudPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -84,7 +85,11 @@ public enum FalconAbilityValue implements IAbilityValue {
                     serverPlayer.startAutoSpinAttack(20);
                 }
             },
-            (serverPlayer) -> {},
+            (serverPlayer) -> {
+                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                    serverPlayer.startAutoSpinAttack(20);
+                }
+            },
             (serverPlayer) -> {},
             "barrelRoll"),
 
@@ -254,7 +259,16 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {},
             (serverPlayer) -> {},
             (serverPlayer) -> {},
-            "nightVision");
+            "nightVision"),
+
+    EAGLE_EYES(
+            () -> FalconAbilityKey.HUD,
+            (serverPlayer) -> {
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_EAGLE_EYES));
+            },
+            (serverPlayer) -> {},
+            (serverPlayer) -> {},
+            "eagleEyes");
 
     private static void haltIfFlying(ServerPlayerEntity serverPlayer) {
         if (FalconFlightHelper.isFlying(serverPlayer)) {
