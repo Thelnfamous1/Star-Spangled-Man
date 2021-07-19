@@ -10,6 +10,7 @@ import com.infamous.captain_america.common.capability.metal_arm.IMetalArm;
 import com.infamous.captain_america.common.capability.metal_arm.MetalArmProvider;
 import com.infamous.captain_america.common.capability.shield_thrower.IShieldThrower;
 import com.infamous.captain_america.common.capability.shield_thrower.ShieldThrowerProvider;
+import com.infamous.captain_america.common.entity.drone.IVisualLinker;
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.MetalArmItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
@@ -39,16 +40,15 @@ import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.PotionEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -84,7 +84,7 @@ public class ForgeCommonEvents {
     public static void onLivingUpdate(LivingEvent.LivingUpdateEvent event){
         LivingEntity living = event.getEntityLiving();
         handleShieldThrow(living);
-        handleBarrelRoll(living);
+        handleLateralFlight(living);
         IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
         if(falconAbilityCap != null){
             handleHover(living, falconAbilityCap);
@@ -125,7 +125,7 @@ public class ForgeCommonEvents {
             if(wasHovering){
                 CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                 if(!living.level.isClientSide){
-                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff"), Util.NIL_UUID);
+                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff").withStyle(TextFormatting.RED), Util.NIL_UUID);
                 }
             }
         }
@@ -153,20 +153,21 @@ public class ForgeCommonEvents {
         }
     }
 
-    private static void handleBarrelRoll(LivingEntity living) {
-        if(FalconFlightHelper.isBarrelRolling(living)){
+    private static void handleLateralFlight(LivingEntity living) {
+        boolean rollFlying = FalconFlightHelper.isRollFlying(living);
+        if(FalconFlightHelper.isLaterallyFlying(living) || rollFlying){
             Vector3d travelVec = new Vector3d(living.xxa, living.yya, living.zza);
             Vector3d lateralTravelVec = new Vector3d(travelVec.x, 0, 0);
-            float barrelRollScale = 20.0F;
-            double momentumReduction = 0.8F;
-            Vector3d deltaMovement = living.getDeltaMovement();
-            boolean isFalling = deltaMovement.y <= 0.0D;
-            double verticalMomentumReduction = isFalling ? 1 : momentumReduction;
+            float barrelRollScale = 10.0F * (rollFlying ? 2 : 1);
+            double momentumScale = 0.8D * (rollFlying ? 0.5D : 1);
+            Vector3d originalDeltaMove = living.getDeltaMovement();
+            boolean isFalling = originalDeltaMove.y <= 0.0D;
+            double vertMomentumScale = isFalling ? 1 : momentumScale;
             double gravity = CALogicHelper.getGravity(living);
 
             Vector3d deltaMoveWhileRolling =
-                    deltaMovement
-                            .multiply(momentumReduction, verticalMomentumReduction, momentumReduction)
+                    originalDeltaMove
+                            .multiply(momentumScale, vertMomentumScale, momentumScale)
                             .subtract(0, gravity, 0);
 
             living.setDeltaMovement(deltaMoveWhileRolling);
@@ -178,10 +179,7 @@ public class ForgeCommonEvents {
     private static void handleVisionEffect(LivingEntity living, FalconAbilityValue hudValue, FalconAbilityValue valueToCheckAgainst, Effect visionEffect, boolean isHudEnabled) {
         boolean hasVisionAbility = hudValue == valueToCheckAgainst;
         boolean hasVisionEffect = living.hasEffect(visionEffect);
-        if(hasVisionAbility && !hasVisionEffect && isHudEnabled){
-            EffectInstance visionEffectInstance = new EffectInstance(visionEffect, 120000, 0, false, false, false);
-            living.addEffect(visionEffectInstance);
-        } else if((!hasVisionAbility || !isHudEnabled) && hasVisionEffect){
+        if((!hasVisionAbility || !isHudEnabled) && hasVisionEffect){
             living.removeEffect(visionEffect);
         }
     }
@@ -244,7 +242,28 @@ public class ForgeCommonEvents {
         IFalconAbility newFalconAbilityCap = CapabilityHelper.getFalconAbilityCap(newPlayer);
         if(oldFalconAbilityCap != null && newFalconAbilityCap != null){
             newFalconAbilityCap.copyValuesFrom(oldFalconAbilityCap);
-        }    }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onVisualLinkDeath(LivingDeathEvent event){
+        if(!event.isCanceled()){
+            LivingEntity living = event.getEntityLiving();
+            IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(living);
+            if(droneControllerCap != null){
+                Optional<? extends Entity> optionalDrone = droneControllerCap.getDeployedDrone(living);
+                if(optionalDrone.isPresent()){
+                    Entity deployedDrone = optionalDrone.get();
+                    if(deployedDrone instanceof IVisualLinker){
+                        IVisualLinker visualLinker = (IVisualLinker) deployedDrone;
+                        if(visualLinker.hasVisualLink()){
+                            visualLinker.setVisualLink(false);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event){
@@ -401,6 +420,5 @@ public class ForgeCommonEvents {
             }
         }
     }
-
 
 }

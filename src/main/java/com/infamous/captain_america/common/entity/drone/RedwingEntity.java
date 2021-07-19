@@ -36,9 +36,10 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRangedAttackMob, IAttachableDrone {
+public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRangedAttackMob, IAttachableDrone, IVisualLinker {
     protected static final DataParameter<Boolean> DATA_OWNED = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Optional<UUID>> DATA_OWNER_UUID = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.OPTIONAL_UUID);
+    protected static final DataParameter<Boolean> DATA_VISUAL_LINK = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
     private boolean patrolling;
     private boolean recalled;
 
@@ -91,6 +92,7 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
         super.defineSynchedData();
         entityData.define(DATA_OWNED, false);
         entityData.define(DATA_OWNER_UUID, Optional.empty());
+        entityData.define(DATA_VISUAL_LINK, false);
     }
 
     @Override
@@ -272,5 +274,15 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     @Override
     public boolean canBeAffected(EffectInstance p_70687_1_) {
         return false;
+    }
+
+    @Override
+    public boolean hasVisualLink() {
+        return this.entityData.get(DATA_VISUAL_LINK);
+    }
+
+    @Override
+    public void setVisualLink(boolean visualLink) {
+        this.entityData.set(DATA_VISUAL_LINK, visualLink);
     }
 }

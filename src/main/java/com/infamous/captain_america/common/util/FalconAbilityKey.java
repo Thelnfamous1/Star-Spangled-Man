@@ -11,7 +11,7 @@ public enum FalconAbilityKey implements IAbilityKey{
             //() -> FalconAbilityValue.HALT,
             () -> FalconAbilityValue.TOGGLE_HOVER,
             () -> FalconAbilityValue.DEPLOY_FLARES,
-            () -> FalconAbilityValue.BARREL_ROLL
+            () -> FalconAbilityValue.ROLL
     ),
     COMBAT("ability.falcon.combat",
             () -> FalconAbilityValue.MISSILE,
@@ -22,7 +22,8 @@ public enum FalconAbilityKey implements IAbilityKey{
     DRONE("ability.falcon.drone",
             () -> FalconAbilityValue.DEPLOY,
             () -> FalconAbilityValue.TOGGLE_PATROL,
-            () -> FalconAbilityValue.TOGGLE_RECALL
+            () -> FalconAbilityValue.TOGGLE_RECALL,
+            () -> FalconAbilityValue.TOGGLE_CAMERA
     ),
     HUD("ability.falcon.hud",
             () -> FalconAbilityValue.INFRARED,

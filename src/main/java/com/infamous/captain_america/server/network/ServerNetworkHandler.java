@@ -16,6 +16,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -46,7 +47,7 @@ public class ServerNetworkHandler {
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_FLIGHT, toggledTo));
                         CaptainAmerica.LOGGER.debug("Server player {} has toggled their EXO-7 Falcon flight to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
                         TranslationTextComponent flightToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.flightOn") : new TranslationTextComponent("action.falcon.flightOff");
-                        serverPlayer.sendMessage(flightToggleMessage, Util.NIL_UUID);
+                        serverPlayer.sendMessage(flightToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
 
                         boolean wasHovering = falconAbilityCap.isHovering();
                         if(falconAbilityCap.isHovering() && !toggledTo){
@@ -56,7 +57,7 @@ public class ServerNetworkHandler {
                         }
                         TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
                         if(wasHovering != falconAbilityCap.isHovering()){
-                            serverPlayer.sendMessage(hoverToggleMessage, Util.NIL_UUID);
+                            serverPlayer.sendMessage(hoverToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
                         }
                     } else {
                         CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
@@ -152,7 +153,8 @@ public class ServerNetworkHandler {
                         serverPlayer.sendMessage(
                                 new TranslationTextComponent("action.falcon.setAbility",
                                         new TranslationTextComponent(packet.getKey().getTranslationKey()),
-                                        new TranslationTextComponent(packet.getKey().getTranslationKey(packet.getValue()))),
+                                        new TranslationTextComponent(packet.getKey().getTranslationKey(packet.getValue())))
+                                        .withStyle(TextFormatting.RED),
                                 Util.NIL_UUID);
                         CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
                     }
@@ -194,7 +196,7 @@ public class ServerNetworkHandler {
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_HUD, toggledTo));
                         CaptainAmerica.LOGGER.debug("Server player {} has toggled their HUD to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
                         TranslationTextComponent hudToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.hudOn") : new TranslationTextComponent("action.falcon.hudOff");
-                        serverPlayer.sendMessage(hudToggleMessage, Util.NIL_UUID);
+                        serverPlayer.sendMessage(hudToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
                     } else {
                         CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their HUD!", serverPlayer.getDisplayName().getString());
                     }

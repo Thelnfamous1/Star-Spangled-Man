@@ -65,8 +65,16 @@ public class FalconFlightHelper {
         return living.getItemBySlot(EXO7FalconItem.SLOT);
     }
 
-    public static boolean isBarrelRolling(LivingEntity living){
+    public static boolean isRollFlying(LivingEntity living){
         return isFlying(living) && living.isAutoSpinAttack();
+    }
+
+    public static boolean isLaterallyFlying(LivingEntity living){
+        return isFlying(living) && hasLateralImpulse(living);
+    }
+
+    private static boolean hasLateralImpulse(LivingEntity living) {
+        return living.xxa != 0.0F;
     }
 
     public static void takeOff(PlayerEntity player) {

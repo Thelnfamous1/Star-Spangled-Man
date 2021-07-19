@@ -4,21 +4,22 @@ import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.ForgeClientEvents;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
+import com.infamous.captain_america.common.entity.drone.IVisualLinker;
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import com.infamous.captain_america.server.network.packet.SCombatPacket;
-import com.infamous.captain_america.server.network.packet.SFlightPacket;
-import com.infamous.captain_america.server.network.packet.SHudPacket;
-import com.infamous.captain_america.server.network.packet.SShieldPacket;
+import com.infamous.captain_america.server.network.packet.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.settings.PointOfView;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -148,6 +149,33 @@ public class ClientNetworkHandler {
                     break;
                 case FIRING_MACHINE_GUN:
                     CALogicHelper.playShootBulletSound(clientPlayer);
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    public static void handleDrone(SDronePacket packet, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() ->{
+            Minecraft minecraft = Minecraft.getInstance();
+            ClientPlayerEntity clientPlayer = minecraft.player;
+            if(clientPlayer == null){
+                return;
+            }
+            World clientWorld = clientPlayer.level;
+
+            switch (packet.getAction()){
+                case TOGGLE_CAMERA:
+                    Entity deployedDrone = clientWorld.getEntity(packet.getId());
+                    if(deployedDrone instanceof IVisualLinker){
+                        IVisualLinker visualLinker = (IVisualLinker) deployedDrone;
+                        visualLinker.setVisualLink(packet.getFlag());
+                        if(visualLinker.hasVisualLink()){
+                            ForgeClientEvents.PREVIOUS_CONTROLLED_POV = minecraft.options.getCameraType();
+                            minecraft.setCameraEntity(deployedDrone);
+                            minecraft.options.setCameraType(PointOfView.THIRD_PERSON_BACK);
+                        }
+                    }
+                    break;
             }
         });
         ctx.get().setPacketHandled(true);

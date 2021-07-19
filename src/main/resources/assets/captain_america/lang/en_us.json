@@ -55,7 +55,6 @@
   "action.falcon.hoverOff": "Deactivated hover mode!",
   "action.falcon.hudOn": "Activated HUD!",
   "action.falcon.hudOff": "Deactivated HUD!",
-  "action.falcon.deployFlares": "Deployed Flares!",
 
   "action.redwing.deployed": "Deployed Redwing!",
   "action.redwing.attached": "Attached Redwing!",
@@ -86,7 +85,7 @@
   "ability.falcon.flight.halt": "Halt Flight",
   "ability.falcon.flight.toggleHover": "Toggle Hover",
   "ability.falcon.flight.deployFlares": "Deploy Flares",
-  "ability.falcon.flight.barrelRoll": "Barrel Roll",
+  "ability.falcon.flight.roll": "Roll",
 
   "ability.falcon.combat": "Combat",
   "ability.falcon.combat.missile": "Missile",
@@ -98,6 +97,7 @@
   "ability.falcon.drone.deploy": "Deploy Drone",
   "ability.falcon.drone.togglePatrol": "Toggle Patrol",
   "ability.falcon.drone.toggleRecall": "Toggle Recall",
+  "ability.falcon.drone.toggleCamera": "Toggle Camera",
 
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",

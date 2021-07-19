@@ -71,6 +71,10 @@ public class ControlGauntletItem extends AbstractGauntletItem {
         return itemInOppositeHand instanceof ControlGauntletItem;
     }
 
+    public static boolean isHoldingThis(LivingEntity livingEntity){
+        return livingEntity.isHolding(item -> item instanceof ControlGauntletItem);
+    }
+
     public static boolean isStackOfThis(ItemStack stack){
         return stack.getItem() instanceof ControlGauntletItem;
     }

@@ -32,6 +32,9 @@ public abstract class WorldRendererMixin {
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;render(Lnet/minecraft/entity/Entity;DDDFFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;I)V"), method = "renderEntity", cancellable = true)
     private void checkInfrared(Entity entityToRender, double renderInfoX, double renderInfoY, double renderInfoZ, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, CallbackInfo ci){
+        if(entityToRender == this.minecraft.player){
+            return;
+        }
         boolean entityIsAlreadyGlowing = this.minecraft.shouldEntityAppearGlowing(entityToRender);
         boolean clientHasInfrared = this.minecraft.player != null && this.minecraft.player.hasEffect(EffectRegistry.HUD_INFRARED.get());
         if(this.shouldShowEntityOutlines() && clientHasInfrared && !entityIsAlreadyGlowing){
