@@ -3,6 +3,8 @@ package com.infamous.captain_america.common.capability.falcon_ability;
 
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface IFalconAbility {
 
@@ -25,4 +27,15 @@ public interface IFalconAbility {
         }
     }
 
+    boolean shouldRenderLaser();
+
+    void setRenderLaser(boolean renderLaser);
+
+    boolean isRolling();
+
+    void setRolling(boolean rolling);
+
+    boolean isFlipping();
+
+    void setFlipping(boolean flipping);
 }

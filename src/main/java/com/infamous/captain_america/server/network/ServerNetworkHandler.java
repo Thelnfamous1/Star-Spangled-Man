@@ -7,6 +7,7 @@ import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbil
 import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.item.VibraniumShieldItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
+import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
@@ -89,6 +90,11 @@ public class ServerNetworkHandler {
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.VERTICAL_FLIGHT, packet.getFlag()));
                     }
                     break;
+                case LATERAL_FLIGHT:
+                    float lateralMove = packet.getData();
+                    if(lateralMove != 0.0F){
+                        CALogicHelper.moveLaterally(serverPlayer, FalconFlightHelper.isRollFlying(serverPlayer), lateralMove);
+                    }
 
             }
         });

@@ -61,7 +61,6 @@ public class ForgeClientEvents {
     public static boolean LOCAL_EAGLE_EYES;
     private static boolean LOCAL_BOOSTING;
     private static boolean LOCAL_HOVERING;
-    public static boolean LOCAL_LASER;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event){
@@ -112,10 +111,12 @@ public class ForgeClientEvents {
             }
             Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(player);
             if(optionalGoggles.isPresent()
-                    && GogglesItem.isHUDEnabled(optionalGoggles.get())
-                    && LOCAL_EAGLE_EYES){
-                newFOV *= 0.25F;
+                    && GogglesItem.isHUDEnabled(optionalGoggles.get())){
+                if(LOCAL_EAGLE_EYES){
+                    newFOV *= 0.25F;
+                }
             }
+
             event.setNewfov(newFOV);
         }
     }
@@ -237,7 +238,7 @@ public class ForgeClientEvents {
     }
 
     @SubscribeEvent
-    public void onRenderHand(RenderHandEvent event) {
+    public static void onRenderHand(RenderHandEvent event) {
         if (Minecraft.getInstance().getCameraEntity() instanceof IVisualLinker) {
             event.setCanceled(true);
         }
@@ -313,7 +314,10 @@ public class ForgeClientEvents {
                 continue;
             }
 
-            if (WeaponGauntletItem.isStackOfThis(player.getUseItem()) && LOCAL_LASER) {
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(player);
+            if(falconAbilityCap == null) continue;
+
+            if (WeaponGauntletItem.isStackOfThis(player.getUseItem()) && falconAbilityCap.shouldRenderLaser()) {
                 LaserBeamHelper.renderBeam(event, player, Minecraft.getInstance().getFrameTime());
             }
         }

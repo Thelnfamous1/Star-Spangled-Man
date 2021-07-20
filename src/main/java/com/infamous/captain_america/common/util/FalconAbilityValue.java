@@ -101,7 +101,36 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {},
             "roll"),
 
+    FLIP(
+            () -> FalconAbilityKey.FLIGHT,
+            (serverPlayer) -> {
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+                if(falconAbilityCap == null) return;
+                falconAbilityCap.setFlipping(true);
 
+                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.START_FLIP));
+                }
+            },
+            (serverPlayer) -> {
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+                if(falconAbilityCap == null) return;
+
+                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                    falconAbilityCap.setFlipping(true);
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.CONTINUE_FLIP));
+                } else{
+                    falconAbilityCap.setFlipping(false);
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.STOP_FLIP));
+                }
+            },
+            (serverPlayer) -> {
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
+                if(falconAbilityCap == null) return;
+                falconAbilityCap.setFlipping(false);
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.STOP_FLIP));
+                },
+            "flip"),
 
     MISSILE(
             () -> FalconAbilityKey.COMBAT,

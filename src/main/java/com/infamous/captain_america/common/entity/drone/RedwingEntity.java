@@ -40,6 +40,7 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     protected static final DataParameter<Boolean> DATA_OWNED = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Optional<UUID>> DATA_OWNER_UUID = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.OPTIONAL_UUID);
     protected static final DataParameter<Boolean> DATA_VISUAL_LINK = EntityDataManager.defineId(RedwingEntity.class, DataSerializers.BOOLEAN);
+    public static final double AI_SPEED_MODIFIER = 3.0D;
     private boolean patrolling;
     private boolean recalled;
 
@@ -48,7 +49,6 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
         this.moveControl = new FlyingMovementController(this, 20, true);
         this.setPathfindingMalus(PathNodeType.DANGER_FIRE, -1.0F);
         this.setPathfindingMalus(PathNodeType.DAMAGE_FIRE, -1.0F);
-        this.setPathfindingMalus(PathNodeType.COCOA, -1.0F);
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
@@ -63,10 +63,10 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new AttachableDroneFollowOwnerGoal<>(this, 1.5D, 10.0F, 2.0F, 12.0F, true));
-        this.goalSelector.addGoal(2, new RangedAttackGoal(this, 1.5D, 5, 10.0F));
-        this.goalSelector.addGoal(3, new FlyingDroneWanderGoal<>(this, 1.5D));
-        this.goalSelector.addGoal(4, new FlyingDronePatrollingGoal<>(this, 1.5D));
+        this.goalSelector.addGoal(1, new AttachableDroneFollowOwnerGoal<>(this, AI_SPEED_MODIFIER, 10.0F, 2.0F, 12.0F, true));
+        this.goalSelector.addGoal(2, new RangedAttackGoal(this, AI_SPEED_MODIFIER, 5, 10.0F));
+        this.goalSelector.addGoal(3, new FlyingDroneWanderGoal<>(this, AI_SPEED_MODIFIER));
+        this.goalSelector.addGoal(4, new FlyingDronePatrollingGoal<>(this, AI_SPEED_MODIFIER));
 
         this.targetSelector.addGoal(1, new DroneOwnerHurtByTargetGoal<>(this));
         this.targetSelector.addGoal(2, new DroneOwnerHurtTargetGoal<>(this));
@@ -78,7 +78,7 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     protected PathNavigator createNavigation(World world) {
         FlyingPathNavigator flyingpathnavigator = new FlyingPathNavigator(this, world) {
             public boolean isStableDestination(BlockPos pos) {
-                return !this.level.getBlockState(pos.below()).isAir();
+                return !this.level.isEmptyBlock(pos.below());
             }
         };
         flyingpathnavigator.setCanOpenDoors(false);
@@ -152,7 +152,7 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
 
     @Override
     public float getWalkTargetValue(BlockPos pos, IWorldReader worldReader) {
-        return worldReader.getBlockState(pos).isAir() ? 10.0F : 0.0F;
+        return worldReader.isEmptyBlock(pos) ? 10.0F : 0.0F;
     }
 
     @Override
@@ -272,7 +272,7 @@ public class RedwingEntity extends CreatureEntity implements IFlyingAnimal, IRan
     }
 
     @Override
-    public boolean canBeAffected(EffectInstance p_70687_1_) {
+    public boolean canBeAffected(EffectInstance effectInstance) {
         return false;
     }
 

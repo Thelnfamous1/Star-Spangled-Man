@@ -65,6 +65,7 @@ public class CFlightPacket {
         BOOST_FLIGHT,
         HALT_FLIGHT,
         TOGGLE_HOVER,
-        VERTICAL_FLIGHT
+        VERTICAL_FLIGHT,
+        LATERAL_FLIGHT
     }
 }

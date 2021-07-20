@@ -64,6 +64,12 @@ public class SFlightPacket {
         TAKEOFF_FLIGHT,
         BOOST_FLIGHT,
         TOGGLE_HOVER,
-        VERTICAL_FLIGHT
+        VERTICAL_FLIGHT,
+        START_ROLL,
+        CONTINUE_ROLL,
+        STOP_ROLL,
+        START_FLIP,
+        CONTINUE_FLIP,
+        STOP_FLIP,
     }
 }

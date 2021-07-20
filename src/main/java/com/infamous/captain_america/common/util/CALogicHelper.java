@@ -1,14 +1,17 @@
 package com.infamous.captain_america.common.util;
 
 import com.google.common.collect.Lists;
+import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
 import com.infamous.captain_america.common.item.BulletItem;
+import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.ItemRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.FireworkRocketItem;
@@ -161,5 +164,25 @@ public class CALogicHelper {
     public static double getGravity(LivingEntity living){
         ModifiableAttributeInstance gravityAttribute = living.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
         return gravityAttribute == null ? 0.08D : gravityAttribute.getValue();
+    }
+
+    public static void moveLaterally(LivingEntity living, boolean rollFlying, float lateralMovement) {
+        boolean laterallyFlying = lateralMovement != 0.0F;
+        Vector3d lateralTravelVec = new Vector3d(lateralMovement, 0, 0);
+        float barrelRollScale = 10.0F * (rollFlying ? 2 : 1);
+        double momentumScale = 0.8D * (rollFlying && laterallyFlying ? 0.5D : 1);
+        Vector3d originalDeltaMove = living.getDeltaMovement();
+        boolean isFalling = originalDeltaMove.y <= 0.0D;
+        double vertMomentumScale = isFalling ? 1 : momentumScale;
+        double gravity = getGravity(living);
+
+        Vector3d deltaMoveWhileRolling =
+                originalDeltaMove
+                        .multiply(momentumScale, vertMomentumScale, momentumScale)
+                        .subtract(0, gravity, 0);
+
+        living.setDeltaMovement(deltaMoveWhileRolling);
+        float vanillaFlyingSpeed = 0.02F; // see LivingEntity#flyingSpeed
+        living.moveRelative(vanillaFlyingSpeed * barrelRollScale, lateralTravelVec);
     }
 }

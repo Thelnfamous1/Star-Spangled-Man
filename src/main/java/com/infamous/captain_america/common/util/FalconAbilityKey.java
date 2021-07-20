@@ -11,7 +11,8 @@ public enum FalconAbilityKey implements IAbilityKey{
             //() -> FalconAbilityValue.HALT,
             () -> FalconAbilityValue.TOGGLE_HOVER,
             () -> FalconAbilityValue.DEPLOY_FLARES,
-            () -> FalconAbilityValue.ROLL
+            () -> FalconAbilityValue.ROLL,
+            () -> FalconAbilityValue.FLIP
     ),
     COMBAT("ability.falcon.combat",
             () -> FalconAbilityValue.MISSILE,

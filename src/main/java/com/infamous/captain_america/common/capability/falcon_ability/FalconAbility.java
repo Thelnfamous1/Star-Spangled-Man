@@ -12,6 +12,9 @@ public class FalconAbility implements IFalconAbility {
     private final Map<FalconAbilityKey, FalconAbilityValue> abilityMap = Maps.newHashMap();
     private boolean hovering;
     private boolean verticallyFlying;
+    private boolean renderLaser;
+    private boolean rolling;
+    private boolean flipping;
 
     public FalconAbility(){
         this.abilityMap.put(FalconAbilityKey.FLIGHT, FalconAbilityValue.TOGGLE_HOVER);
@@ -57,6 +60,36 @@ public class FalconAbility implements IFalconAbility {
     @Override
     public void setVerticallyFlying(boolean verticallyFlying) {
         this.verticallyFlying = verticallyFlying;
+    }
+
+    @Override
+    public boolean shouldRenderLaser() {
+        return this.renderLaser;
+    }
+
+    @Override
+    public void setRenderLaser(boolean renderLaser) {
+        this.renderLaser = renderLaser;
+    }
+
+    @Override
+    public boolean isRolling() {
+        return this.rolling;
+    }
+
+    @Override
+    public void setRolling(boolean rolling) {
+        this.rolling = rolling;
+    }
+
+    @Override
+    public boolean isFlipping() {
+        return this.flipping;
+    }
+
+    @Override
+    public void setFlipping(boolean flipping) {
+        this.flipping = flipping;
     }
 
 }

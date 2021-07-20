@@ -1,6 +1,7 @@
 package com.infamous.captain_america.common;
 
 import com.infamous.captain_america.CaptainAmerica;
+import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.drone_controller.DroneControllerProvider;
 import com.infamous.captain_america.common.capability.drone_controller.IDroneController;
@@ -150,29 +151,6 @@ public class ForgeCommonEvents {
             if(shieldThrowerCap.isShieldRunning() && !living.level.isClientSide){
                 chargingStar(living);
             }
-        }
-    }
-
-    private static void handleLateralFlight(LivingEntity living) {
-        boolean rollFlying = FalconFlightHelper.isRollFlying(living);
-        if(FalconFlightHelper.isLaterallyFlying(living) || rollFlying){
-            Vector3d travelVec = new Vector3d(living.xxa, living.yya, living.zza);
-            Vector3d lateralTravelVec = new Vector3d(travelVec.x, 0, 0);
-            float barrelRollScale = 10.0F * (rollFlying ? 2 : 1);
-            double momentumScale = 0.8D * (rollFlying ? 0.5D : 1);
-            Vector3d originalDeltaMove = living.getDeltaMovement();
-            boolean isFalling = originalDeltaMove.y <= 0.0D;
-            double vertMomentumScale = isFalling ? 1 : momentumScale;
-            double gravity = CALogicHelper.getGravity(living);
-
-            Vector3d deltaMoveWhileRolling =
-                    originalDeltaMove
-                            .multiply(momentumScale, vertMomentumScale, momentumScale)
-                            .subtract(0, gravity, 0);
-
-            living.setDeltaMovement(deltaMoveWhileRolling);
-            float vanillaFlyingSpeed = 0.02F; // see LivingEntity#flyingSpeed
-            living.moveRelative(vanillaFlyingSpeed * barrelRollScale, lateralTravelVec);
         }
     }
 
@@ -418,6 +396,19 @@ public class ForgeCommonEvents {
                     attackKnockback.addTransientModifier(new AttributeModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID, "Metal arm attack knockback", metalArmItem.getAttackKnockback(), AttributeModifier.Operation.ADDITION));
                 }
             }
+        }
+    }
+
+    public static void handleLateralFlight(LivingEntity living) {
+        boolean rollFlying = FalconFlightHelper.isRollFlying(living);
+        boolean laterallyFlying = FalconFlightHelper.isLaterallyFlying(living);
+        if(laterallyFlying && living.level.isClientSide){ // TODO: Kind of ugly
+            if(living instanceof net.minecraft.client.entity.player.ClientPlayerEntity){
+                NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.LATERAL_FLIGHT, living.xxa));
+            }
+        }
+        if(laterallyFlying || rollFlying){
+            CALogicHelper.moveLaterally(living, rollFlying, living.xxa);
         }
     }
 

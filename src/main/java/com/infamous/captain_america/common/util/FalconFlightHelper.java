@@ -1,5 +1,7 @@
 package com.infamous.captain_america.common.util;
 
+import com.infamous.captain_america.common.capability.CapabilityHelper;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.registry.SoundRegistry;
 import net.minecraft.entity.Entity;
@@ -63,6 +65,13 @@ public class FalconFlightHelper {
 
     public static ItemStack getEXO7FalconStack(LivingEntity living) {
         return living.getItemBySlot(EXO7FalconItem.SLOT);
+    }
+
+    public static boolean isFlipFlying(LivingEntity living){
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
+        if(falconAbilityCap == null) return false;
+
+        return isFlying(living) && falconAbilityCap.isFlipping();
     }
 
     public static boolean isRollFlying(LivingEntity living){
@@ -177,19 +186,7 @@ public class FalconFlightHelper {
                                 .yRot(-yBodyRot));
             }
         } else {
-            Vector3d viewVector = living.getViewVector(0.0F);
-            Vector3d deltaMove = living.getDeltaMovement();
-            double deltaMoveHDS = Entity.getHorizontalDistanceSqr(deltaMove);
-            double viewVectorHDS = Entity.getHorizontalDistanceSqr(viewVector);
-            float zRot;
-            if (deltaMoveHDS > 0.0D && viewVectorHDS > 0.0D) {
-                double d3 = (deltaMove.x * viewVector.x + deltaMove.z * viewVector.z) / Math.sqrt(deltaMoveHDS * viewVectorHDS);
-                double d4 = deltaMove.x * viewVector.z - deltaMove.z * viewVector.x;
-                zRot = (float)(Math.signum(d4) * Math.acos(d3));
-            } else {
-                zRot = 0.0F;
-            }
-
+            float zRot = calculateZRot(living);
             return living.position()
                     .add((new Vector3d(xOffset, yOffset, zOffset))
                             .zRot(-zRot)
@@ -207,5 +204,21 @@ public class FalconFlightHelper {
         } else{
             living.level.addParticle(propulsionParticle, x, y, z, 0.0D, 0.0D, 0.0D);
         }
+    }
+
+    public static float calculateZRot(LivingEntity living) {
+        Vector3d viewVector = living.getViewVector(0.0F);
+        Vector3d deltaMove = living.getDeltaMovement();
+        double deltaMoveHDS = Entity.getHorizontalDistanceSqr(deltaMove);
+        double viewVectorHDS = Entity.getHorizontalDistanceSqr(viewVector);
+        float zRot;
+        if (deltaMoveHDS > 0.0D && viewVectorHDS > 0.0D) {
+            double d3 = (deltaMove.x * viewVector.x + deltaMove.z * viewVector.z) / Math.sqrt(deltaMoveHDS * viewVectorHDS);
+            double d4 = deltaMove.x * viewVector.z - deltaMove.z * viewVector.x;
+            zRot = (float)(Math.signum(d4) * Math.acos(d3));
+        } else {
+            zRot = 0.0F;
+        }
+        return zRot;
     }
 }

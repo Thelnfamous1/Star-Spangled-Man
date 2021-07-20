@@ -69,6 +69,18 @@ public class ClientNetworkHandler {
                     falconAbilityCap.setVerticallyFlying(true);
                     FalconFlightHelper.verticallyFly(clientPlayer, packet.getFlag());
                     break;
+                case START_FLIP:
+                case CONTINUE_FLIP:
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setFlipping(true);
+                    break;
+
+                case STOP_FLIP:
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setFlipping(false);
+                    break;
             }
         });
         ctx.get().setPacketHandled(true);
@@ -119,14 +131,19 @@ public class ClientNetworkHandler {
             if(clientPlayer == null){
                 return;
             }
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
 
             switch (packet.getAction()){
                 case START_LASER:
-                    ForgeClientEvents.LOCAL_LASER = true;
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setRenderLaser(true);
                     CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
                 case CONTINUE_LASER:
-                    ForgeClientEvents.LOCAL_LASER = true;
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setRenderLaser(true);
                     RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(clientPlayer);
                     if(rayTraceResult instanceof BlockRayTraceResult){
                         BlockRayTraceResult blockRTR = (BlockRayTraceResult)rayTraceResult;
@@ -141,7 +158,9 @@ public class ClientNetworkHandler {
                     }
                     break;
                 case STOP_LASER:
-                    ForgeClientEvents.LOCAL_LASER = false;
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setRenderLaser(false);
                     if (minecraft.gameMode != null) {
                         minecraft.gameMode.stopDestroyBlock();
                     }
