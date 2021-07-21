@@ -30,11 +30,20 @@ public abstract class LivingRendererMixin<T extends LivingEntity, M extends Enti
     }
 
     @Inject(at = @At("RETURN"), method = "getRenderType", cancellable = true)
-    private void checkInfrared(T living, boolean isBodyVisible, boolean isTranslucent, boolean isGlowing, CallbackInfoReturnable<RenderType> cir){
+    private void checkInfrared(T livingToRender, boolean isBodyVisible, boolean isTranslucent, boolean isGlowing, CallbackInfoReturnable<RenderType> cir){
         if(cir.getReturnValue() == null && !isGlowing){
             ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
             if(clientPlayer != null && clientPlayer.hasEffect(EffectRegistry.HUD_INFRARED.get())){
-                cir.setReturnValue(RenderType.outline(this.getTextureLocation(living)));
+                cir.setReturnValue(RenderType.outline(this.getTextureLocation(livingToRender)));
+            }
+            else if(clientPlayer != null && clientPlayer.hasEffect(EffectRegistry.HUD_COMBAT_TRACKER.get())){
+                IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
+                if(falconAbilityCap != null){
+                    int livingToRenderId = livingToRender.getId();
+                    if(livingToRenderId == falconAbilityCap.getLastHurtById() || livingToRenderId == falconAbilityCap.getLastHurtId()){
+                        cir.setReturnValue(RenderType.outline(this.getTextureLocation(livingToRender)));
+                    }
+                }
             }
         }
     }

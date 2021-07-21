@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 public enum FalconAbilityKey implements IAbilityKey{
     FLIGHT("ability.falcon.flight",
-            //() -> FalconAbilityValue.HALT,
             () -> FalconAbilityValue.TOGGLE_HOVER,
             () -> FalconAbilityValue.DEPLOY_FLARES,
             () -> FalconAbilityValue.ROLL,
@@ -29,7 +28,8 @@ public enum FalconAbilityKey implements IAbilityKey{
     HUD("ability.falcon.hud",
             () -> FalconAbilityValue.INFRARED,
             () -> FalconAbilityValue.NIGHT_VISION,
-            () -> FalconAbilityValue.EAGLE_EYES
+            () -> FalconAbilityValue.ZOOM,
+            () -> FalconAbilityValue.COMBAT_TRACKER
     );
 
     private final String translationKey;

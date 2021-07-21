@@ -153,7 +153,7 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> {
                         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
-                            CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
                             NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.BOOMERANG_THROW, shieldCharge));
@@ -172,7 +172,7 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> {
                         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
-                            CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
                             int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
                             NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.RICOCHET_THROW, shieldCharge));
@@ -226,7 +226,7 @@ public class CAKeyBinding extends KeyBinding{
                    FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
                         if(FalconFlightHelper.hasEXO7Falcon(clientPlayer)){
-                            CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.TOGGLE_FLIGHT));
                         }
                     },
@@ -243,7 +243,7 @@ public class CAKeyBinding extends KeyBinding{
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
                         if(GogglesItem.getGoggles(clientPlayer).isPresent()){
-                            CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their HUD!", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.debug("Client player {} wants to toggle their HUD!", clientPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.sendToServer(new CHUDPacket(CHUDPacket.Action.TOGGLE_HUD));
                         }
                     },

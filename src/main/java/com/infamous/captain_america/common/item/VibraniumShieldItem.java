@@ -2,8 +2,11 @@ package com.infamous.captain_america.common.item;
 
 import com.infamous.captain_america.client.renderer.CAItemStackTileEntityRenderer;
 import com.infamous.captain_america.common.advancements.CACriteriaTriggers;
+import com.infamous.captain_america.common.capability.CapabilityHelper;
+import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
 import com.infamous.captain_america.common.entity.projectile.VibraniumShieldEntity;
 import com.infamous.captain_america.common.registry.EffectRegistry;
+import com.infamous.captain_america.common.util.FalconFlightHelper;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -139,8 +142,16 @@ public class VibraniumShieldItem extends ShieldItem implements IHasRenderMateria
         return thrower.hasEffect(EffectRegistry.SUPER_SOLDIER.get());
     }
 
+    private static boolean isFlipFlying(LivingEntity thrower){
+        IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(thrower);
+        return falconAbilityCap != null & FalconFlightHelper.isFlipFlying(thrower);
+    }
+
     private static float getThrowFactor(LivingEntity thrower, ItemStack stack) {
-        return isSuperSoldier(thrower) ? 6.0F : 3.0F;
+        float throwFactor = 3.0F;
+        if(isSuperSoldier(thrower)) throwFactor += 3.0F;
+        if(isFlipFlying(thrower)) throwFactor += 3.0F;
+        return throwFactor;
     }
 
     public static boolean hasVibraniumShield(LivingEntity living) {

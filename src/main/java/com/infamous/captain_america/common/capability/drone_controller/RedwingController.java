@@ -66,7 +66,7 @@ public class RedwingController implements IDroneController {
 
     @Override
     public <T extends Entity & IDrone> Optional<T> createDrone(LivingEntity controller) {
-        CaptainAmerica.LOGGER.info("Creating drone!");
+        //CaptainAmerica.LOGGER.info("Creating drone!");
         ItemStack chestStack = controller.getItemBySlot(EXO7FalconItem.SLOT);
         Optional<EntityType<? extends RedwingEntity>> optionalEntityType =
                 EXO7FalconItem.getRedwingType(chestStack);
@@ -75,12 +75,12 @@ public class RedwingController implements IDroneController {
             if (redwingEntity != null) {
                 redwingEntity.setPos(controller.getX(), controller.getEyeY(), controller.getZ());
                 redwingEntity.own(controller);
-                CaptainAmerica.LOGGER.info("Created drone!");
+                //CaptainAmerica.LOGGER.info("Created drone!");
                 //noinspection unchecked
                 return (Optional<T>) Optional.of(redwingEntity);
             }
         }
-        CaptainAmerica.LOGGER.info("Failed to create drone!");
+        //CaptainAmerica.LOGGER.info("Failed to create drone!");
         return Optional.empty();
     }
 

@@ -74,6 +74,7 @@ public class FalconFlightHelper {
         return isFlying(living) && falconAbilityCap.isFlipping();
     }
 
+    //TODO: Check for the isRolling value of the cap rather than vanilla spin attack flag
     public static boolean isRollFlying(LivingEntity living){
         return isFlying(living) && living.isAutoSpinAttack();
     }
@@ -99,6 +100,10 @@ public class FalconFlightHelper {
         return living.isFallFlying()
                 && EXO7FalconItem.isEXO7FalconStack(falconStack)
                 && !EXO7FalconItem.isFlightEnabled(falconStack);
+    }
+
+    public static boolean canFlipFly(LivingEntity living){
+        return living.isFallFlying() && hasEXO7Falcon(living);
     }
 
     public static void haltFlight(PlayerEntity player) {

@@ -15,6 +15,8 @@ public class FalconAbility implements IFalconAbility {
     private boolean renderLaser;
     private boolean rolling;
     private boolean flipping;
+    private int lastHurtById = -1;
+    private int lastHurtId = -1;
 
     public FalconAbility(){
         this.abilityMap.put(FalconAbilityKey.FLIGHT, FalconAbilityValue.TOGGLE_HOVER);
@@ -90,6 +92,26 @@ public class FalconAbility implements IFalconAbility {
     @Override
     public void setFlipping(boolean flipping) {
         this.flipping = flipping;
+    }
+
+    @Override
+    public int getLastHurtById() {
+        return this.lastHurtById;
+    }
+
+    @Override
+    public void setLastHurtById(int lastHurtBy) {
+        this.lastHurtById = lastHurtBy;
+    }
+
+    @Override
+    public int getLastHurtId() {
+        return this.lastHurtId;
+    }
+
+    @Override
+    public void setLastHurtId(int lastHurt) {
+        this.lastHurtId = lastHurt;
     }
 
 }

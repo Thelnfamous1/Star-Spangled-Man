@@ -54,13 +54,4 @@ public class ModCommonEvents {
         event.put(EntityTypeRegistry.CAPTAIN_AMERICA_REDWING.get(), RedwingEntity.createAttributes().build());
     }
 
-    @SubscribeEvent
-    public static void onComplete(FMLLoadCompleteEvent event){
-        // ensures the enums are initialized
-        CaptainAmerica.LOGGER.info("Initializing FalconAbilityKey fields");
-        Arrays.stream(FalconAbilityKey.values()).forEach((e) -> CaptainAmerica.LOGGER.info("{}", e.toString()));
-        CaptainAmerica.LOGGER.info("Initializing FalconAbilityValue fields");
-        Arrays.stream(FalconAbilityValue.values()).forEach((e) -> CaptainAmerica.LOGGER.info("{}", e.toString()));
-    }
-
 }

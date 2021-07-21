@@ -23,6 +23,7 @@ import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
+import com.infamous.captain_america.server.network.packet.SHudPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -86,13 +87,21 @@ public class ForgeCommonEvents {
         LivingEntity living = event.getEntityLiving();
         handleShieldThrow(living);
         handleLateralFlight(living);
+        handleDiving(living);
         IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(living);
         if(falconAbilityCap != null){
             handleHover(living, falconAbilityCap);
+            handleFlip(living, falconAbilityCap);
             if(!living.level.isClientSide){
                 handleHud(living, falconAbilityCap);
                 handleLaser(living, falconAbilityCap);
             }
+        }
+    }
+
+    private static void handleDiving(LivingEntity living){
+        if(FalconFlightHelper.isDiving(living)){
+            CALogicHelper.dive(living, new Vector3d(living.xxa, living.yya, living.zza));
         }
     }
 
@@ -111,6 +120,7 @@ public class ForgeCommonEvents {
         boolean isHudEnabled = optionalGoggles.isPresent() && GogglesItem.isHUDEnabled(optionalGoggles.get());
         handleVisionEffect(living, hudValue, FalconAbilityValue.NIGHT_VISION, EffectRegistry.HUD_NIGHT_VISION.get(), isHudEnabled);
         handleVisionEffect(living, hudValue, FalconAbilityValue.INFRARED, EffectRegistry.HUD_INFRARED.get(), isHudEnabled);
+        handleVisionEffect(living, hudValue, FalconAbilityValue.COMBAT_TRACKER, EffectRegistry.HUD_COMBAT_TRACKER.get(), isHudEnabled);
     }
 
     private static void handleHover(LivingEntity living, IFalconAbility falconAbilityCap) {
@@ -124,7 +134,7 @@ public class ForgeCommonEvents {
                 }
             }
             if(wasHovering){
-                CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
+                //CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                 if(!living.level.isClientSide){
                     living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff").withStyle(TextFormatting.RED), Util.NIL_UUID);
                 }
@@ -140,6 +150,33 @@ public class ForgeCommonEvents {
                 FalconFlightHelper.animatePropulsion(living);
             }
             living.fallDistance = 0;
+        }
+    }
+
+    private static void handleFlip(LivingEntity living, IFalconAbility falconAbilityCap) {
+        boolean wasFlipping = falconAbilityCap.isFlipping();
+        if(!FalconFlightHelper.canFlipFly(living)){
+            if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
+                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) living;
+                falconAbilityCap.setFlipping(false);
+                if(wasFlipping){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.STOP_FLIP));
+                }
+            }
+        }
+        if(falconAbilityCap.isFlipping()){
+            Vector3d originalDeltaMove = living.getDeltaMovement();
+            double momentumScale = CALogicHelper.FLIP_MOMENTUM_SCALE;
+            boolean isFalling = originalDeltaMove.y <= 0.0D;
+            double vertMomentumScale = isFalling ? 1 : momentumScale;
+            double gravity = CALogicHelper.getGravity(living);
+
+            Vector3d deltaMoveWhileFlipping =
+                    originalDeltaMove
+                            .multiply(momentumScale, vertMomentumScale, momentumScale)
+                            .subtract(0, gravity, 0);
+
+            living.setDeltaMovement(deltaMoveWhileFlipping);
         }
     }
 
@@ -177,11 +214,13 @@ public class ForgeCommonEvents {
                     // normal sprinting results in about 1.0 damage
                     // boosted elytra flight results in about 15.0 damage
                     float scaledChargeDamage = (float) (initialChargeDamage * preHitDeltaMove.length());
-                    CaptainAmerica.LOGGER.debug("Initial damage: {}, Delta movement length: {}, Scaled damage: {}", initialChargeDamage, preHitDeltaMove.length(), scaledChargeDamage);
+                    scaledChargeDamage = CALogicHelper.roundToHalf(scaledChargeDamage);
+                    //CaptainAmerica.LOGGER.debug("Initial damage: {}, Delta movement length: {}, Scaled damage: {}", initialChargeDamage, preHitDeltaMove.length(), scaledChargeDamage);
                     // normal sprinting results in about 1 block pushed back
                     // boosted elytra flight results in about 15.0 blocks pushed back
                     float scaledChargeKnockback = (float) (initialChargeKnockback * preHitDeltaMove.length());
-                    CaptainAmerica.LOGGER.debug("Initial knockback: {}, Delta movement length: {}, Scaled knockback: {}", initialChargeKnockback, preHitDeltaMove.length(), scaledChargeKnockback);
+                    scaledChargeKnockback = CALogicHelper.roundToHalf(scaledChargeKnockback);
+                    //CaptainAmerica.LOGGER.debug("Initial knockback: {}, Delta movement length: {}, Scaled knockback: {}", initialChargeKnockback, preHitDeltaMove.length(), scaledChargeKnockback);
                     for (int duration = 0; duration < 10; duration++) {
                         double xSpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
                         double ySpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
@@ -334,6 +373,25 @@ public class ForgeCommonEvents {
             float damage = event.getAmount();
             float adjustedDamage = damage * superSoldierKineticResistanceFactor;
             event.setAmount(adjustedDamage);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onCombat(LivingDamageEvent event){
+        if(!event.isCanceled() && event.getAmount() != 0 && !event.getEntityLiving().level.isClientSide){
+            LivingEntity victim = event.getEntityLiving();
+            Entity attacker = event.getSource().getEntity();
+            if(attacker != null){
+                IFalconAbility attackerFAC = CapabilityHelper.getFalconAbilityCap(attacker);
+                IFalconAbility victimFAC = CapabilityHelper.getFalconAbilityCap(victim);
+                if(attackerFAC != null && attacker instanceof ServerPlayerEntity){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)attacker), new SHudPacket(SHudPacket.Action.TRACK_HURT, victim.getId()));
+                }
+                if(victimFAC != null && victim instanceof ServerPlayerEntity){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)victim), new SHudPacket(SHudPacket.Action.TRACK_HURT_BY, attacker.getId()));
+                }
+            }
+
         }
     }
 

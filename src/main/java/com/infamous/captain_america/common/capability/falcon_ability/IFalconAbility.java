@@ -6,6 +6,9 @@ import com.infamous.captain_america.common.util.FalconAbilityValue;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
+import java.util.UUID;
+
 public interface IFalconAbility {
 
     boolean put(FalconAbilityKey key, FalconAbilityValue value);
@@ -38,4 +41,12 @@ public interface IFalconAbility {
     boolean isFlipping();
 
     void setFlipping(boolean flipping);
+
+    int getLastHurtById();
+
+    void setLastHurtById(int lastHurtBy);
+
+    int getLastHurtId();
+
+    void setLastHurtId(int lastHurt);
 }

@@ -46,14 +46,14 @@ public class ServerNetworkHandler {
                     if (FalconFlightHelper.hasEXO7Falcon(serverPlayer)) {
                         boolean toggledTo = FalconFlightHelper.toggleEXO7Falcon(serverPlayer);
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_FLIGHT, toggledTo));
-                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their EXO-7 Falcon flight to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
+                        //CaptainAmerica.LOGGER.debug("Server player {} has toggled their EXO-7 Falcon flight to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
                         TranslationTextComponent flightToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.flightOn") : new TranslationTextComponent("action.falcon.flightOff");
                         serverPlayer.sendMessage(flightToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
 
                         boolean wasHovering = falconAbilityCap.isHovering();
                         if(falconAbilityCap.isHovering() && !toggledTo){
                             falconAbilityCap.setHovering(false);
-                            CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", serverPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", serverPlayer.getDisplayName().getString());
                             NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
                         }
                         TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
@@ -61,26 +61,26 @@ public class ServerNetworkHandler {
                             serverPlayer.sendMessage(hoverToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
                         }
                     } else {
-                        CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                     }
                     break;
                 case TAKEOFF_FLIGHT:
                     if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
                         FalconFlightHelper.playFlightBoostSound(serverPlayer);
-                        CaptainAmerica.LOGGER.debug("Server player {} has taken off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} has taken off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TAKEOFF_FLIGHT));
                     } else {
-                        CaptainAmerica.LOGGER.debug("Server player {} cannot take off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} cannot take off using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString());
                     }
                     break;
                 case BOOST_FLIGHT:
                     if (FalconFlightHelper.canBoostFlight(serverPlayer)) {
                         FalconFlightHelper.boostFlight(serverPlayer);
                         FalconFlightHelper.animatePropulsion(serverPlayer);
-                        CaptainAmerica.LOGGER.debug("Server player {} has boosted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} has boosted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.BOOST_FLIGHT));
                     } else {
-                        CaptainAmerica.LOGGER.debug("Server player {} cannot boost their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} cannot boost their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());
                     }
                     break;
                 case VERTICAL_FLIGHT:
@@ -108,33 +108,15 @@ public class ServerNetworkHandler {
                 return;
             }
             switch (packet.getThrowType()){
-                case BOOMERANG_THROW:{
+                case BOOMERANG_THROW:
+                case RICOCHET_THROW:
                     if (VibraniumShieldItem.hasVibraniumShield(serverPlayer)) {
                         Hand shieldHoldingHand = VibraniumShieldItem.getShieldHoldingHand(serverPlayer);
                         ItemStack heldShield = serverPlayer.getItemInHand(shieldHoldingHand);
                         Optional<VibraniumShieldItem> optionalShield = VibraniumShieldItem.getShieldItem(heldShield);
-                        if(optionalShield.isPresent() && optionalShield.get().throwShield(heldShield, serverPlayer.level, serverPlayer, packet.getThrowType(), packet.getData())){
-                            CaptainAmerica.LOGGER.info("Server player {} has boomerang-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
-                        } else{
-                            CaptainAmerica.LOGGER.info("Server player {} has failed to boomerang-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
-                        }
+                        optionalShield.ifPresent(vibraniumShieldItem -> vibraniumShieldItem.throwShield(heldShield, serverPlayer.level, serverPlayer, packet.getThrowType(), packet.getData()));
                     }
                     break;
-                }
-
-                case RICOCHET_THROW:{
-                    if (VibraniumShieldItem.hasVibraniumShield(serverPlayer)) {
-                        Hand shieldHoldingHand = VibraniumShieldItem.getShieldHoldingHand(serverPlayer);
-                        ItemStack heldShield = serverPlayer.getItemInHand(shieldHoldingHand);
-                        Optional<VibraniumShieldItem> optionalShield = VibraniumShieldItem.getShieldItem(heldShield);
-                        if(optionalShield.isPresent() && optionalShield.get().throwShield(heldShield, serverPlayer.level, serverPlayer, packet.getThrowType(), packet.getData())){
-                            CaptainAmerica.LOGGER.info("Server player {} has ricochet-thrown their Vibranium Shield!", serverPlayer.getDisplayName().getString());
-                        } else{
-                            CaptainAmerica.LOGGER.info("Server player {} has failed to ricochet-throw their Vibranium Shield!", serverPlayer.getDisplayName().getString());
-                        }
-                    }
-                    break;
-                }
             }
         });
         ctx.get().setPacketHandled(true);
@@ -162,7 +144,7 @@ public class ServerNetworkHandler {
                                         new TranslationTextComponent(packet.getKey().getTranslationKey(packet.getValue())))
                                         .withStyle(TextFormatting.RED),
                                 Util.NIL_UUID);
-                        CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
+                        //CaptainAmerica.LOGGER.info("Server player {} has set their {} ability to {}!", serverPlayer.getDisplayName().getString(), packet.getKey().name(), packet.getValue().name());
                     }
 
                 }
@@ -200,11 +182,11 @@ public class ServerNetworkHandler {
                     if (GogglesItem.getGoggles(serverPlayer).isPresent()) {
                         boolean toggledTo = GogglesItem.toggleHUD(serverPlayer);
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_HUD, toggledTo));
-                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their HUD to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
+                        //CaptainAmerica.LOGGER.debug("Server player {} has toggled their HUD to: {}", serverPlayer.getDisplayName().getString(), toggledTo);
                         TranslationTextComponent hudToggleMessage = toggledTo ? new TranslationTextComponent("action.falcon.hudOn") : new TranslationTextComponent("action.falcon.hudOff");
                         serverPlayer.sendMessage(hudToggleMessage.withStyle(TextFormatting.RED), Util.NIL_UUID);
                     } else {
-                        CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their HUD!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} cannot toggle their HUD!", serverPlayer.getDisplayName().getString());
                     }
                     break;
 

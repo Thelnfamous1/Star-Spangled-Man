@@ -1,17 +1,14 @@
 package com.infamous.captain_america.common.util;
 
 import com.google.common.collect.Lists;
-import com.infamous.captain_america.client.network.packet.CFlightPacket;
 import com.infamous.captain_america.common.entity.projectile.BulletEntity;
 import com.infamous.captain_america.common.entity.projectile.CAProjectileEntity;
 import com.infamous.captain_america.common.item.BulletItem;
-import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.ItemRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.FireworkRocketItem;
@@ -19,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.IndirectEntityDamageSource;
@@ -37,6 +35,9 @@ import java.util.UUID;
 public class CALogicHelper {
     public static final UUID LASER_BEAM_REACH_DISTANCE_MODIFIER_UUID = UUID.fromString("0755016e-270a-48c4-93c0-832a69dc48ab");
     public static final double RAYTRACE_DISTANCE = 16;
+    public static final double LATERAL_FLIGHT_MOMENTUM_SCALE = 0.8D;
+    public static final double FLIP_MOMENTUM_SCALE = 0.5D;
+    public static final float LATERAL_FLIGHT_SCALE = 10.0F;
 
     public static void extendReachDistance(LivingEntity livingEntity){
         ModifiableAttributeInstance reachAttribute = livingEntity.getAttribute(ForgeMod.REACH_DISTANCE.get());
@@ -169,8 +170,8 @@ public class CALogicHelper {
     public static void moveLaterally(LivingEntity living, boolean rollFlying, float lateralMovement) {
         boolean laterallyFlying = lateralMovement != 0.0F;
         Vector3d lateralTravelVec = new Vector3d(lateralMovement, 0, 0);
-        float barrelRollScale = 10.0F * (rollFlying ? 2 : 1);
-        double momentumScale = 0.8D * (rollFlying && laterallyFlying ? 0.5D : 1);
+        float lateralFlightScale = LATERAL_FLIGHT_SCALE * (rollFlying ? 2 : 1);
+        double momentumScale = LATERAL_FLIGHT_MOMENTUM_SCALE * (rollFlying && laterallyFlying ? 0.5D : 1);
         Vector3d originalDeltaMove = living.getDeltaMovement();
         boolean isFalling = originalDeltaMove.y <= 0.0D;
         double vertMomentumScale = isFalling ? 1 : momentumScale;
@@ -183,6 +184,44 @@ public class CALogicHelper {
 
         living.setDeltaMovement(deltaMoveWhileRolling);
         float vanillaFlyingSpeed = 0.02F; // see LivingEntity#flyingSpeed
-        living.moveRelative(vanillaFlyingSpeed * barrelRollScale, lateralTravelVec);
+        living.moveRelative(vanillaFlyingSpeed * lateralFlightScale, lateralTravelVec);
+    }
+
+    public static float roundToHalf(float original) {
+        return Math.round(original * 2) / 2.0F;
+    }
+
+    public static void dive(LivingEntity living, Vector3d travelVec){
+        BlockPos posBelowThatAffectsMyMovement = getBlockPosBelowAffectingMovement(living);
+        float slipperiness = living.level.getBlockState(posBelowThatAffectsMyMovement).getSlipperiness(living.level, posBelowThatAffectsMyMovement, living);
+        float horizMoveFactor = living.isOnGround() ? slipperiness * 0.91F : 0.91F;
+        Vector3d frictionMovement = living.handleRelativeFrictionAndCalculateMovement(travelVec, slipperiness);
+
+        double vertMovement = calculateVerticalMovement(living, frictionMovement);
+
+        living.setDeltaMovement(frictionMovement.x * (double)horizMoveFactor, vertMovement * (double)0.98F, frictionMovement.z * (double)horizMoveFactor);
+    }
+
+    private static double calculateVerticalMovement(LivingEntity living, Vector3d frictionMovement) {
+        double gravity = getGravity(living);
+        BlockPos posBelowThatAffectsMyMovement = getBlockPosBelowAffectingMovement(living);
+        double vertMovement = frictionMovement.y;
+        if (living.hasEffect(Effects.LEVITATION)) {
+            vertMovement += (0.05D * (double)(living.getEffect(Effects.LEVITATION).getAmplifier() + 1) - frictionMovement.y) * 0.2D;
+            living.fallDistance = 0.0F;
+        } else if (living.level.isClientSide && !living.level.hasChunkAt(posBelowThatAffectsMyMovement)) {
+            if (living.getY() > 0.0D) {
+                vertMovement = -0.1D;
+            } else {
+                vertMovement = 0.0D;
+            }
+        } else if (!living.isNoGravity()) {
+            vertMovement -= gravity;
+        }
+        return vertMovement;
+    }
+
+    private static BlockPos getBlockPosBelowAffectingMovement(LivingEntity living){
+        return new BlockPos(living.position().x, living.getBoundingBox().minY - 0.5000001D, living.position().z);
     }
 }

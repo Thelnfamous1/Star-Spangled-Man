@@ -33,7 +33,7 @@ public class ControlGauntletItem extends AbstractGauntletItem {
                 && !player.isDeadOrDying()
                 && FalconFlightHelper.hasEXO7Falcon(player)
                 && canUseControl){
-            CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", player.getDisplayName().getString());
+            //CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", player.getDisplayName().getString());
             minecraft.setScreen(new FalconAbilitySelectionScreen());
             return ActionResult.consume(heldItem);
         } else{

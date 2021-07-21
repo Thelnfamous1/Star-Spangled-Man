@@ -1,7 +1,6 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
-import com.infamous.captain_america.common.capability.falcon_ability.FalconAbility;
 import com.infamous.captain_america.common.potion.UncurableEffect;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -24,12 +23,19 @@ public class EffectRegistry implements IRegistryManager<Effect> {
     private static final double ATTACK_KNOCKBACK_MODIFIER_VALUE_SERUM = 1.0F;
     private static final double MAX_HEALTH_MODIFIER_VALUE_SERUM = 1.0F;
 
+    public static final int INDIGO = 0x7000ff;
     public static final RegistryObject<Effect> HUD_NIGHT_VISION = EFFECTS.register(
-      "hud_night_vision", () -> new UncurableEffect(EffectType.BENEFICIAL,0x7000ff)
+      "hud_night_vision", () -> new UncurableEffect(EffectType.BENEFICIAL, INDIGO)
     );
 
+    public static final int RED = 0xff0000;
     public static final RegistryObject<Effect> HUD_INFRARED = EFFECTS.register(
-            "hud_infrared", () -> new UncurableEffect(EffectType.BENEFICIAL,0xff0000 )
+            "hud_infrared", () -> new UncurableEffect(EffectType.BENEFICIAL, RED)
+    );
+
+    public static final int BURNT_ORANGE = 0xcc5500;
+    public static final RegistryObject<Effect> HUD_COMBAT_TRACKER = EFFECTS.register(
+            "hud_combat_tracker", () -> new UncurableEffect(EffectType.BENEFICIAL, BURNT_ORANGE)
     );
 
     public static final RegistryObject<Effect> SUPER_SOLDIER = EFFECTS.register(

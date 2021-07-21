@@ -59,7 +59,7 @@ public enum FalconAbilityValue implements IAbilityValue {
 
                 boolean wasHovering = falconAbilityCap.isHovering();
                 falconAbilityCap.setHovering(!falconAbilityCap.isHovering() && FalconFlightHelper.canHover(serverPlayer));
-                CaptainAmerica.LOGGER.debug("Server player {} is {} hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString(), falconAbilityCap.isHovering() ? "" : "no longer");
+                //CaptainAmerica.LOGGER.debug("Server player {} is {} hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString(), falconAbilityCap.isHovering() ? "" : "no longer");
                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, falconAbilityCap.isHovering()));
                 TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
                 if (wasHovering != falconAbilityCap.isHovering()) {
@@ -106,9 +106,9 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {
                 IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
                 if(falconAbilityCap == null) return;
-                falconAbilityCap.setFlipping(true);
 
-                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                if(FalconFlightHelper.canFlipFly(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                    falconAbilityCap.setFlipping(true);
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.START_FLIP));
                 }
             },
@@ -116,7 +116,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                 IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(serverPlayer);
                 if(falconAbilityCap == null) return;
 
-                if(FalconFlightHelper.isFlying(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
+                if(FalconFlightHelper.canFlipFly(serverPlayer) && !serverPlayer.isAutoSpinAttack()){
                     falconAbilityCap.setFlipping(true);
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.CONTINUE_FLIP));
                 } else{
@@ -150,7 +150,7 @@ public enum FalconAbilityValue implements IAbilityValue {
 
                     serverPlayer.level.addFreshEntity(missile);
                     serverPlayer.level.playSound((PlayerEntity)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                    CaptainAmerica.LOGGER.info("Server player {} has fired a missile!", serverPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.info("Server player {} has fired a missile!", serverPlayer.getDisplayName().getString());
                 }
             },
             (serverPlayer) -> {},
@@ -175,7 +175,7 @@ public enum FalconAbilityValue implements IAbilityValue {
 
                     serverPlayer.level.addFreshEntity(timedGrenade);
                     serverPlayer.level.playSound((PlayerEntity)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                    CaptainAmerica.LOGGER.info("Server player {} has fired a timed grenade!", serverPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.info("Server player {} has fired a timed grenade!", serverPlayer.getDisplayName().getString());
                 }
             },
             (serverPlayer) -> {},
@@ -186,7 +186,7 @@ public enum FalconAbilityValue implements IAbilityValue {
             () -> FalconAbilityKey.COMBAT,
             (serverPlayer) -> {
                 if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
-                    CaptainAmerica.LOGGER.debug("Server player {} has started firing their laser!", serverPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Server player {} has started firing their laser!", serverPlayer.getDisplayName().getString());
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.START_LASER));
                 }
             },
@@ -201,18 +201,18 @@ public enum FalconAbilityValue implements IAbilityValue {
                             target.invulnerableTime = 0;
                         }
                     } else{
-                        CaptainAmerica.LOGGER.debug("Server player {} is attempting to break a block!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} is attempting to break a block!", serverPlayer.getDisplayName().getString());
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.CONTINUE_LASER));
                     }
                 } else {
-                    CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
 
                 }
 
             },
             (serverPlayer) -> {
-                CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
+                //CaptainAmerica.LOGGER.debug("Server player {} has stopped firing their laser!", serverPlayer.getDisplayName().getString());
                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.STOP_LASER));
             },
             "laser"),
@@ -225,7 +225,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                     CALogicHelper.shootBullet(serverPlayer, bulletEntity, 0.0F, 1.6F);
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SCombatPacket(SCombatPacket.Action.FIRING_MACHINE_GUN));
                     serverPlayer.level.addFreshEntity(bulletEntity);
-                    CaptainAmerica.LOGGER.info("Server player {} has fired a bullet!", serverPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.info("Server player {} has fired a bullet!", serverPlayer.getDisplayName().getString());
                 }
             },
             serverPlayer -> {},
@@ -237,7 +237,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                 IDroneController droneControllerCap = CapabilityHelper.getDroneControllerCap(serverPlayer);
                 if (droneControllerCap != null) {
                     if (droneControllerCap.deployDrone(serverPlayer)) {
-                        CaptainAmerica.LOGGER.debug("Server player {} has deployed a Redwing drone!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} has deployed a Redwing drone!", serverPlayer.getDisplayName().getString());
                         serverPlayer.sendMessage(new TranslationTextComponent("action.redwing.deployed").withStyle(TextFormatting.RED), Util.NIL_UUID);
                     }
                 }
@@ -252,7 +252,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                 if (droneControllerCap != null) {
                     boolean wasDroneRecalled = droneControllerCap.isDroneRecalled();
                     if (droneControllerCap.toggleDronePatrol(serverPlayer)) {
-                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's patrol mode!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's patrol mode!", serverPlayer.getDisplayName().getString());
                         boolean dronePatrolling = droneControllerCap.isDronePatrolling();
                         boolean droneRecalled = droneControllerCap.isDroneRecalled();
                         serverPlayer.sendMessage(new TranslationTextComponent(dronePatrolling ? "action.redwing.patrolOn" : "action.redwing.patrolOff").withStyle(TextFormatting.RED), Util.NIL_UUID);
@@ -272,7 +272,7 @@ public enum FalconAbilityValue implements IAbilityValue {
                 if (droneControllerCap != null) {
                     boolean wasDronePatrolling = droneControllerCap.isDronePatrolling();
                     if (droneControllerCap.toggleRecallDrone(serverPlayer)) {
-                        CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's recall!", serverPlayer.getDisplayName().getString());
+                        //CaptainAmerica.LOGGER.debug("Server player {} has toggled their Redwing drone's recall!", serverPlayer.getDisplayName().getString());
                         boolean droneRecalled = droneControllerCap.isDroneRecalled();
                         boolean dronePatrolling = droneControllerCap.isDronePatrolling();
                         serverPlayer.sendMessage(new TranslationTextComponent(droneRecalled ? "action.redwing.recallOn" : "action.redwing.recallOff").withStyle(TextFormatting.RED), Util.NIL_UUID);
@@ -328,14 +328,23 @@ public enum FalconAbilityValue implements IAbilityValue {
             (serverPlayer) -> {},
             "nightVision"),
 
-    EAGLE_EYES(
+    ZOOM(
             () -> FalconAbilityKey.HUD,
             (serverPlayer) -> {
                 NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SHudPacket(SHudPacket.Action.TOGGLE_EAGLE_EYES));
             },
             (serverPlayer) -> {},
             (serverPlayer) -> {},
-            "eagleEyes");
+            "zoom"),
+
+    COMBAT_TRACKER(
+            () -> FalconAbilityKey.HUD,
+            (serverPlayer) -> {
+                toggleVisionEffect(serverPlayer, EffectRegistry.HUD_COMBAT_TRACKER.get());
+            },
+            (serverPlayer) -> {},
+            (serverPlayer) -> {},
+            "combatTracker");
 
     private static void toggleVisionEffect(LivingEntity living, Effect visionEffect) {
         Optional<ItemStack> optionalGoggles = GogglesItem.getGoggles(living);

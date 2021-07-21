@@ -42,6 +42,7 @@
 
   "effect.captain_america.hud_night_vision": "HUD Night Vision",
   "effect.captain_america.hud_infrared": "HUD Infrared",
+  "effect.captain_america.hud_combat_tracker": "HUD Combat Tracker",
 
   "effect.captain_america.super_soldier": "Super Soldier",
   "item.minecraft.tipped_arrow.effect.super_soldier": "Arrow of the Super Soldier",
@@ -94,7 +95,7 @@
   "ability.falcon.combat.machineGun": "Machine Gun",
 
   "ability.falcon.drone": "Drone",
-  "ability.falcon.drone.deploy": "Deploy Drone",
+  "ability.falcon.drone.deploy": "Deploy Redwing",
   "ability.falcon.drone.togglePatrol": "Toggle Patrol",
   "ability.falcon.drone.toggleRecall": "Toggle Recall",
   "ability.falcon.drone.toggleCamera": "Toggle Camera",
@@ -102,7 +103,8 @@
   "ability.falcon.hud": "HUD",
   "ability.falcon.hud.infrared": "Infrared",
   "ability.falcon.hud.nightVision": "Night Vision",
-  "ability.falcon.hud.eagleEyes": "Eagle Eyes",
+  "ability.falcon.hud.zoom": "Zoom",
+  "ability.falcon.hud.combatTracker": "Combat Tracker",
 
   "death.attack.bullet": "%1$s was shot by %2$s",
   "death.attack.bullet.item": "%1$s was shot by %2$s using %3$s",

@@ -39,29 +39,29 @@ public class ClientNetworkHandler {
                 case TOGGLE_FLIGHT:
                     boolean toggleTo = packet.getFlag();
                     FalconFlightHelper.toggleEXO7FalconTo(clientPlayer, toggleTo);
-                    CaptainAmerica.LOGGER.debug("Client player {} has toggled their EXO-7 Falcon flight to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
+                    //CaptainAmerica.LOGGER.debug("Client player {} has toggled their EXO-7 Falcon flight to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
 
                     if(falconAbilityCap != null){
                         if(falconAbilityCap.isHovering() && !toggleTo){
                             falconAbilityCap.setHovering(false);
-                            CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", clientPlayer.getDisplayName().getString());
                         }
                     }
                     break;
                 case TAKEOFF_FLIGHT:
                     FalconFlightHelper.playFlightBoostSound(clientPlayer);
-                    CaptainAmerica.LOGGER.debug("Client player {} has taken off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Client player {} has taken off using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString());
                     break;
                 case BOOST_FLIGHT:
                     FalconFlightHelper.boostFlight(clientPlayer);
                     //FalconFlightHelper.animatePropulsion(clientPlayer);
-                    CaptainAmerica.LOGGER.debug("Client player {} has boosted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Client player {} has boosted their EXO-7 Falcon flight!", clientPlayer.getDisplayName().getString());
                     break;
                 case TOGGLE_HOVER:
                     if(falconAbilityCap == null) return;
 
                     falconAbilityCap.setHovering(packet.getFlag());
-                    CaptainAmerica.LOGGER.debug("Client player {} is {} hovering using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString(), packet.getFlag() ? "" : "no longer");
+                    //CaptainAmerica.LOGGER.debug("Client player {} is {} hovering using an EXO-7 Falcon!", clientPlayer.getDisplayName().getString(), packet.getFlag() ? "" : "no longer");
                     break;
                 case VERTICAL_FLIGHT:
                     if(falconAbilityCap == null) return;
@@ -109,15 +109,26 @@ public class ClientNetworkHandler {
             if(clientPlayer == null){
                 return;
             }
+            IFalconAbility falconAbilityCap = CapabilityHelper.getFalconAbilityCap(clientPlayer);
 
             switch (packet.getAction()){
                 case TOGGLE_HUD:
                     boolean toggleTo = packet.getFlag();
                     GogglesItem.toggleHUDTo(clientPlayer, toggleTo);
-                    CaptainAmerica.LOGGER.debug("Client player {} has toggled their HUD to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
+                    //CaptainAmerica.LOGGER.debug("Client player {} has toggled their HUD to: {}", clientPlayer.getDisplayName().getString(), toggleTo);
                     break;
                 case TOGGLE_EAGLE_EYES:
                     ForgeClientEvents.LOCAL_EAGLE_EYES = !ForgeClientEvents.LOCAL_EAGLE_EYES;
+                    break;
+                case TRACK_HURT:
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setLastHurtId(packet.getId());
+                    break;
+                case TRACK_HURT_BY:
+                    if(falconAbilityCap == null) return;
+
+                    falconAbilityCap.setLastHurtById(packet.getId());
                     break;
             }
         });
@@ -138,7 +149,7 @@ public class ClientNetworkHandler {
                     if(falconAbilityCap == null) return;
 
                     falconAbilityCap.setRenderLaser(true);
-                    CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Client player {} has started firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
                 case CONTINUE_LASER:
                     if(falconAbilityCap == null) return;
@@ -150,7 +161,7 @@ public class ClientNetworkHandler {
                         BlockPos blockPos = blockRTR.getBlockPos();
                         Direction direction = blockRTR.getDirection();
                         if (minecraft.level != null && !minecraft.level.isEmptyBlock(blockPos) && minecraft.gameMode != null) {
-                            CaptainAmerica.LOGGER.debug("Client player {} is attempting to break a block!", clientPlayer.getDisplayName().getString());
+                            //CaptainAmerica.LOGGER.debug("Client player {} is attempting to break a block!", clientPlayer.getDisplayName().getString());
                             if (minecraft.gameMode.continueDestroyBlock(blockPos, direction)) {
                                 minecraft.particleEngine.addBlockHitEffects(blockPos, blockRTR);
                             }
@@ -164,7 +175,7 @@ public class ClientNetworkHandler {
                     if (minecraft.gameMode != null) {
                         minecraft.gameMode.stopDestroyBlock();
                     }
-                    CaptainAmerica.LOGGER.debug("Client player {} has stopped firing their laser!", clientPlayer.getDisplayName().getString());
+                    //CaptainAmerica.LOGGER.debug("Client player {} has stopped firing their laser!", clientPlayer.getDisplayName().getString());
                     break;
                 case FIRING_MACHINE_GUN:
                     CALogicHelper.playShootBulletSound(clientPlayer);
