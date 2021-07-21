@@ -148,9 +148,9 @@ public class VibraniumShieldItem extends ShieldItem implements IHasRenderMateria
     }
 
     private static float getThrowFactor(LivingEntity thrower, ItemStack stack) {
-        float throwFactor = 3.0F;
-        if(isSuperSoldier(thrower)) throwFactor += 3.0F;
-        if(isFlipFlying(thrower)) throwFactor += 3.0F;
+        float throwFactor = 2.0F;
+        if(isSuperSoldier(thrower)) throwFactor += 2.0F;
+        if(isFlipFlying(thrower)) throwFactor += 2.0F;
         return throwFactor;
     }
 
