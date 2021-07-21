@@ -19,7 +19,7 @@ mixin {
     add sourceSets.main, "captain_america.refmap.json"
 }
 
-version = '0.0.1'
+version = '1.16.5-0.0.1'
 group = 'com.infamous.captain_america' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'captain_america'
 
