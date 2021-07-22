@@ -1,8 +1,8 @@
 package com.infamous.captain_america.server.network.packet;
 
 import com.infamous.captain_america.client.network.ClientNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -13,11 +13,11 @@ public class SShieldPacket {
         this.action = action;
     }
 
-    public static SShieldPacket decodePacket(PacketBuffer packetBuffer){
+    public static SShieldPacket decodePacket(FriendlyByteBuf packetBuffer){
         return new SShieldPacket(packetBuffer.readEnum(SShieldPacket.Action.class));
     }
 
-    public static void encodePacket(SShieldPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(SShieldPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.action);
     }
 

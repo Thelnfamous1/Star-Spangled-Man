@@ -1,9 +1,9 @@
 package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Potion;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -19,7 +19,7 @@ public class PotionRegistry implements IRegistryManager<Potion> {
                 boolean showIcon = true;
                 return new Potion(
                         "super_soldier",
-                        new EffectInstance(EffectRegistry.SUPER_SOLDIER.get(), duration, amplifier, ambient, visible, showIcon));
+                        new MobEffectInstance(EffectRegistry.SUPER_SOLDIER.get(), duration, amplifier, ambient, visible, showIcon));
             }
     );
 

@@ -1,23 +1,27 @@
 package com.infamous.captain_america.server.ai.goals;
 
 import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.pathfinding.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
 import java.util.EnumSet;
 
-public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
+public class DroneFollowOwnerGoal<T extends Mob & IDrone> extends Goal {
    private final T drone;
    protected LivingEntity owner;
-   private final IWorldReader level;
+   private final LevelReader level;
    private final double speedModifier;
-   private final PathNavigator navigation;
+   private final PathNavigation navigation;
    private int timeToRecalcPath;
    private final float stopDistance;
    private final float startDistance;
@@ -35,7 +39,7 @@ public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
       this.teleportDistanceSq = teleportDistance * teleportDistance;
       this.canFly = canFly;
       this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-      if (!(droneMob.getNavigation() instanceof GroundPathNavigator) && !(droneMob.getNavigation() instanceof FlyingPathNavigator)) {
+      if (!(droneMob.getNavigation() instanceof GroundPathNavigation) && !(droneMob.getNavigation() instanceof FlyingPathNavigation)) {
          throw new IllegalArgumentException("Unsupported mob type for DroneFollowOwnerGoal");
       }
    }
@@ -76,14 +80,14 @@ public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
 
    public void start() {
       this.timeToRecalcPath = 0;
-      this.oldWaterCost = this.drone.getPathfindingMalus(PathNodeType.WATER);
-      this.drone.setPathfindingMalus(PathNodeType.WATER, 0.0F);
+      this.oldWaterCost = this.drone.getPathfindingMalus(BlockPathTypes.WATER);
+      this.drone.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
    }
 
    public void stop() {
       this.owner = null;
       this.navigation.stop();
-      this.drone.setPathfindingMalus(PathNodeType.WATER, this.oldWaterCost);
+      this.drone.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
    }
 
    public void tick() {
@@ -140,16 +144,16 @@ public class DroneFollowOwnerGoal<T extends MobEntity & IDrone> extends Goal {
       } else if (!this.canTeleportTo(new BlockPos(p_226328_1_, p_226328_2_, p_226328_3_))) {
          return false;
       } else {
-         this.drone.moveTo((double)p_226328_1_ + 0.5D, (double)p_226328_2_, (double)p_226328_3_ + 0.5D, this.drone.yRot, this.drone.xRot);
+         this.drone.moveTo((double)p_226328_1_ + 0.5D, (double)p_226328_2_, (double)p_226328_3_ + 0.5D, this.drone.getYRot(), this.drone.getXRot());
          this.navigation.stop();
          return true;
       }
    }
 
    private boolean canTeleportTo(BlockPos pos) {
-      PathNodeType pathnodetype = WalkNodeProcessor.getBlockPathTypeStatic(this.level, pos.mutable());
-      boolean cannotTeleportToAir = !this.canFly || pathnodetype != PathNodeType.OPEN;
-      if (pathnodetype != PathNodeType.WALKABLE && cannotTeleportToAir) {
+      BlockPathTypes pathnodetype = WalkNodeEvaluator.getBlockPathTypeStatic(this.level, pos.mutable());
+      boolean cannotTeleportToAir = !this.canFly || pathnodetype != BlockPathTypes.OPEN;
+      if (pathnodetype != BlockPathTypes.WALKABLE && cannotTeleportToAir) {
          return false;
       } else {
          BlockState blockstate = this.level.getBlockState(pos.below());

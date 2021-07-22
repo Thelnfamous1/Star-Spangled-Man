@@ -24,27 +24,32 @@ import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
 import com.infamous.captain_america.server.network.packet.SHudPacket;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.monster.WitherSkeletonEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.*;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.*;
@@ -54,8 +59,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,7 +79,7 @@ public class ForgeCommonEvents {
 
     @SubscribeEvent
     public static void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof PlayerEntity) {
+        if (event.getObject() instanceof Player) {
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "drone_controller"), new DroneControllerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "shield_thrower"), new ShieldThrowerProvider());
             event.addCapability(new ResourceLocation(CaptainAmerica.MODID, "metal_arm"), new MetalArmProvider());
@@ -101,7 +106,7 @@ public class ForgeCommonEvents {
 
     private static void handleDiving(LivingEntity living){
         if(FalconFlightHelper.isDiving(living)){
-            CALogicHelper.dive(living, new Vector3d(living.xxa, living.yya, living.zza));
+            CALogicHelper.dive(living, new Vec3(living.xxa, living.yya, living.zza));
         }
     }
 
@@ -126,8 +131,7 @@ public class ForgeCommonEvents {
     private static void handleHover(LivingEntity living, IFalconAbility falconAbilityCap) {
         boolean wasHovering = falconAbilityCap.isHovering();
         if(!FalconFlightHelper.canHover(living)){
-            if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) living;
+            if(!living.level.isClientSide && living instanceof ServerPlayer serverPlayer){ // TODO: This should be generalized for all living entities
                 falconAbilityCap.setHovering(false);
                 if(wasHovering){
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, false));
@@ -136,7 +140,7 @@ public class ForgeCommonEvents {
             if(wasHovering){
                 //CaptainAmerica.LOGGER.debug("{} can no longer hover using an EXO-7 Falcon", living.getDisplayName().getString());
                 if(!living.level.isClientSide){
-                    living.sendMessage(new TranslationTextComponent("action.falcon.hoverOff").withStyle(TextFormatting.RED), Util.NIL_UUID);
+                    living.sendMessage(new TranslatableComponent("action.falcon.hoverOff").withStyle(ChatFormatting.RED), Util.NIL_UUID);
                 }
             }
         }
@@ -156,8 +160,7 @@ public class ForgeCommonEvents {
     private static void handleFlip(LivingEntity living, IFalconAbility falconAbilityCap) {
         boolean wasFlipping = falconAbilityCap.isFlipping();
         if(!FalconFlightHelper.canFlipFly(living)){
-            if(!living.level.isClientSide && living instanceof ServerPlayerEntity){ // TODO: This should be generalized for all living entities
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity) living;
+            if(!living.level.isClientSide && living instanceof ServerPlayer serverPlayer){ // TODO: This should be generalized for all living entities
                 falconAbilityCap.setFlipping(false);
                 if(wasFlipping){
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.STOP_FLIP));
@@ -165,13 +168,13 @@ public class ForgeCommonEvents {
             }
         }
         if(falconAbilityCap.isFlipping()){
-            Vector3d originalDeltaMove = living.getDeltaMovement();
+            Vec3 originalDeltaMove = living.getDeltaMovement();
             double momentumScale = CALogicHelper.FLIP_MOMENTUM_SCALE;
             boolean isFalling = originalDeltaMove.y <= 0.0D;
             double vertMomentumScale = isFalling ? 1 : momentumScale;
             double gravity = CALogicHelper.getGravity(living);
 
-            Vector3d deltaMoveWhileFlipping =
+            Vec3 deltaMoveWhileFlipping =
                     originalDeltaMove
                             .multiply(momentumScale, vertMomentumScale, momentumScale)
                             .subtract(0, gravity, 0);
@@ -191,7 +194,7 @@ public class ForgeCommonEvents {
         }
     }
 
-    private static void handleVisionEffect(LivingEntity living, FalconAbilityValue hudValue, FalconAbilityValue valueToCheckAgainst, Effect visionEffect, boolean isHudEnabled) {
+    private static void handleVisionEffect(LivingEntity living, FalconAbilityValue hudValue, FalconAbilityValue valueToCheckAgainst, MobEffect visionEffect, boolean isHudEnabled) {
         boolean hasVisionAbility = hudValue == valueToCheckAgainst;
         boolean hasVisionEffect = living.hasEffect(visionEffect);
         if((!hasVisionAbility || !isHudEnabled) && hasVisionEffect){
@@ -203,10 +206,10 @@ public class ForgeCommonEvents {
     Borrowed and reworked from tallestred's Big Brain mod
      */
     public static void chargingStar(LivingEntity shieldRunner) {
-        List<Entity> hitEntities = shieldRunner.level.getEntities(shieldRunner, shieldRunner.getBoundingBox().expandTowards(shieldRunner.getDeltaMovement()), EntityPredicates.pushableBy(shieldRunner));
-        if (!hitEntities.isEmpty() && shieldRunner.level instanceof ServerWorld) {
+        List<Entity> hitEntities = shieldRunner.level.getEntities(shieldRunner, shieldRunner.getBoundingBox().expandTowards(shieldRunner.getDeltaMovement()), EntitySelector.pushableBy(shieldRunner));
+        if (!hitEntities.isEmpty() && shieldRunner.level instanceof ServerLevel) {
             for (Entity hitEntity : hitEntities) {
-                final Vector3d preHitDeltaMove = shieldRunner.getDeltaMovement();
+                final Vec3 preHitDeltaMove = shieldRunner.getDeltaMovement();
                 if (hitEntity.distanceTo(shieldRunner) <= shieldRunner.distanceTo(hitEntity)) {
                     hitEntity.push(shieldRunner);
                     double initialChargeDamage = 10.0D;
@@ -225,20 +228,20 @@ public class ForgeCommonEvents {
                         double xSpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
                         double ySpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
                         double zSpeed = shieldRunner.getRandom().nextGaussian() * 0.02D;
-                        BasicParticleType particleType = hitEntity instanceof WitherEntity || hitEntity instanceof WitherSkeletonEntity ? ParticleTypes.SMOKE : ParticleTypes.CLOUD;
+                        SimpleParticleType particleType = hitEntity instanceof WitherBoss || hitEntity instanceof WitherSkeleton ? ParticleTypes.SMOKE : ParticleTypes.CLOUD;
                         // Collision is done on the server side, so a server side method must be used.
-                        ((ServerWorld) shieldRunner.level).sendParticles(particleType, shieldRunner.getRandomX(1.0D), shieldRunner.getRandomY() + 1.0D, shieldRunner.getRandomZ(1.0D), 1, xSpeed, ySpeed, zSpeed, 1.0D);
+                        ((ServerLevel) shieldRunner.level).sendParticles(particleType, shieldRunner.getRandomX(1.0D), shieldRunner.getRandomY() + 1.0D, shieldRunner.getRandomZ(1.0D), 1, xSpeed, ySpeed, zSpeed, 1.0D);
                     }
-                    DamageSource chargeDamageSource = shieldRunner instanceof PlayerEntity ? DamageSource.playerAttack((PlayerEntity) shieldRunner) : DamageSource.mobAttack(shieldRunner);
+                    DamageSource chargeDamageSource = shieldRunner instanceof Player ? DamageSource.playerAttack((Player) shieldRunner) : DamageSource.mobAttack(shieldRunner);
                     if (hitEntity.hurt(chargeDamageSource, scaledChargeDamage)) {
                         if (hitEntity instanceof LivingEntity) {
-                            ((LivingEntity) hitEntity).knockback(scaledChargeKnockback, (double) MathHelper.sin(shieldRunner.yRot * ((float) Math.PI / 180F)), (double) (-MathHelper.cos(shieldRunner.yRot * ((float) Math.PI / 180F))));
+                            ((LivingEntity) hitEntity).knockback(scaledChargeKnockback, (double) Mth.sin(shieldRunner.getYRot() * ((float) Math.PI / 180F)), (double) (-Mth.cos(shieldRunner.getYRot() * ((float) Math.PI / 180F))));
                             shieldRunner.setDeltaMovement(shieldRunner.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
                         }
                         if (!shieldRunner.isSilent())
-                            shieldRunner.level.playSound((PlayerEntity) null, shieldRunner.getX(), shieldRunner.getY(), shieldRunner.getZ(), SoundEvents.SHIELD_BLOCK, shieldRunner.getSoundSource(), 0.5F, 0.8F + shieldRunner.getRandom().nextFloat() * 0.4F);
-                        if (hitEntity instanceof PlayerEntity && ((PlayerEntity) hitEntity).getUseItem().isShield(((PlayerEntity) hitEntity)))
-                            ((PlayerEntity) hitEntity).disableShield(true);
+                            shieldRunner.level.playSound((Player) null, shieldRunner.getX(), shieldRunner.getY(), shieldRunner.getZ(), SoundEvents.SHIELD_BLOCK, shieldRunner.getSoundSource(), 0.5F, 0.8F + shieldRunner.getRandom().nextFloat() * 0.4F);
+                        if (hitEntity instanceof Player && ((Player) hitEntity).getUseItem().isShield(((Player) hitEntity)))
+                            ((Player) hitEntity).disableShield(true);
                     }
                     shieldRunner.setLastHurtMob(hitEntity);
                 }
@@ -248,8 +251,8 @@ public class ForgeCommonEvents {
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event){
-        PlayerEntity oldPlayer = event.getOriginal();
-        PlayerEntity newPlayer = event.getPlayer();
+        Player oldPlayer = event.getOriginal();
+        Player newPlayer = event.getPlayer();
         IDroneController oldDroneControllerCap = CapabilityHelper.getDroneControllerCap(oldPlayer);
         IDroneController newDroneControllerCap = CapabilityHelper.getDroneControllerCap(newPlayer);
         if(oldDroneControllerCap != null && newDroneControllerCap != null){
@@ -271,8 +274,7 @@ public class ForgeCommonEvents {
                 Optional<? extends Entity> optionalDrone = droneControllerCap.getDeployedDrone(living);
                 if(optionalDrone.isPresent()){
                     Entity deployedDrone = optionalDrone.get();
-                    if(deployedDrone instanceof IVisualLinker){
-                        IVisualLinker visualLinker = (IVisualLinker) deployedDrone;
+                    if(deployedDrone instanceof IVisualLinker visualLinker){
                         if(visualLinker.hasVisualLink()){
                             visualLinker.setVisualLink(false);
                         }
@@ -307,7 +309,7 @@ public class ForgeCommonEvents {
         LivingEntity entityLiving = event.getEntityLiving();
         if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null){
             float superSoldierJumpFactor = 0.1F * 2;
-            Vector3d deltaMovement = entityLiving.getDeltaMovement();
+            Vec3 deltaMovement = entityLiving.getDeltaMovement();
             double adjustedYDelta = deltaMovement.y + superSoldierJumpFactor;
             entityLiving.setDeltaMovement(deltaMovement.x, adjustedYDelta, deltaMovement.z);
         }
@@ -384,11 +386,11 @@ public class ForgeCommonEvents {
             if(attacker != null){
                 IFalconAbility attackerFAC = CapabilityHelper.getFalconAbilityCap(attacker);
                 IFalconAbility victimFAC = CapabilityHelper.getFalconAbilityCap(victim);
-                if(attackerFAC != null && attacker instanceof ServerPlayerEntity){
-                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)attacker), new SHudPacket(SHudPacket.Action.TRACK_HURT, victim.getId()));
+                if(attackerFAC != null && attacker instanceof ServerPlayer){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)attacker), new SHudPacket(SHudPacket.Action.TRACK_HURT, victim.getId()));
                 }
-                if(victimFAC != null && victim instanceof ServerPlayerEntity){
-                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)victim), new SHudPacket(SHudPacket.Action.TRACK_HURT_BY, attacker.getId()));
+                if(victimFAC != null && victim instanceof ServerPlayer){
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)victim), new SHudPacket(SHudPacket.Action.TRACK_HURT_BY, attacker.getId()));
                 }
             }
 
@@ -409,18 +411,18 @@ public class ForgeCommonEvents {
     @SubscribeEvent
     public static void onPotionApplicable(PotionEvent.PotionApplicableEvent event){
         LivingEntity entityLiving = event.getEntityLiving();
-        EffectInstance effectInstance = event.getPotionEffect();
-        Effect effect = effectInstance.getEffect();
+        MobEffectInstance effectInstance = event.getPotionEffect();
+        MobEffect effect = effectInstance.getEffect();
         if(entityLiving.getEffect(EffectRegistry.SUPER_SOLDIER.get()) != null
             && isImmuneTo(effect)){
             event.setResult(Event.Result.DENY);
         }
     }
 
-    private static boolean isImmuneTo(Effect effect){
-        return effect == Effects.POISON
-                || effect == Effects.CONFUSION
-                || effect == Effects.HUNGER;
+    private static boolean isImmuneTo(MobEffect effect){
+        return effect == MobEffects.POISON
+                || effect == MobEffects.CONFUSION
+                || effect == MobEffects.HUNGER;
     }
 
     @SubscribeEvent
@@ -428,14 +430,14 @@ public class ForgeCommonEvents {
         LivingEntity living = event.getEntityLiving();
         if(living.level.isClientSide) return;
 
-        ModifiableAttributeInstance attackDamage = living.getAttribute(Attributes.ATTACK_DAMAGE);
+        AttributeInstance attackDamage = living.getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackDamage != null) {
             if (attackDamage.getModifier(METAL_ARM_ATTACK_DAMAGE_UUID) != null) {
                 attackDamage.removeModifier(METAL_ARM_ATTACK_DAMAGE_UUID);
             }
         }
 
-        ModifiableAttributeInstance attackKnockback = living.getAttribute(Attributes.ATTACK_KNOCKBACK);
+        AttributeInstance attackKnockback = living.getAttribute(Attributes.ATTACK_KNOCKBACK);
         if (attackKnockback != null) {
             if (attackKnockback.getModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID) != null) {
                 attackKnockback.removeModifier(METAL_ARM_ATTACK_KNOCKBACK_UUID);
@@ -461,7 +463,7 @@ public class ForgeCommonEvents {
         boolean rollFlying = FalconFlightHelper.isRollFlying(living);
         boolean laterallyFlying = FalconFlightHelper.isLaterallyFlying(living);
         if(laterallyFlying && living.level.isClientSide){ // TODO: Kind of ugly
-            if(living instanceof net.minecraft.client.entity.player.ClientPlayerEntity){
+            if(living instanceof net.minecraft.client.player.LocalPlayer){
                 NetworkHandler.INSTANCE.sendToServer(new CFlightPacket(CFlightPacket.Action.LATERAL_FLIGHT, living.xxa));
             }
         }

@@ -1,15 +1,10 @@
 package com.infamous.captain_america.common.item;
 
-import java.util.function.Supplier;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
-import com.infamous.captain_america.CaptainAmerica;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.LazyValue;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import java.util.function.Supplier;
 
 public enum CAItemTier implements INamedItemTier {
    VIBRANIUM("vibranium", 3, 1561, 8.0F, 3.0F, 10, () -> {
@@ -22,7 +17,7 @@ public enum CAItemTier implements INamedItemTier {
    private final float speed;
    private final float damage;
    private final int enchantmentValue;
-   private final LazyValue<Ingredient> repairIngredient;
+   private final LazyLoadedValue<Ingredient> repairIngredient;
 
    CAItemTier(String nameIn, int levelIn, int usesIn, float speedIn, float damageIn, int enchantmentValueIn, Supplier<Ingredient> repairIngredientIn) {
       this.name = nameIn;
@@ -31,7 +26,7 @@ public enum CAItemTier implements INamedItemTier {
       this.speed = speedIn;
       this.damage = damageIn;
       this.enchantmentValue = enchantmentValueIn;
-      this.repairIngredient = new LazyValue<>(repairIngredientIn);
+      this.repairIngredient = new LazyLoadedValue<>(repairIngredientIn);
    }
 
    public int getUses() {

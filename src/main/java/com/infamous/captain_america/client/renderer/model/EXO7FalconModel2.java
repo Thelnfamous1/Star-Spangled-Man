@@ -4,51 +4,51 @@ package com.infamous.captain_america.client.renderer.model;// Made with Blockben
 
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
-public class EXO7FalconModel2<T extends LivingEntity> extends AgeableModel<T> {
-	public final ModelRenderer leftWing;
-	public final ModelRenderer rightWing;
-	private final ModelRenderer wingPack;
+public class EXO7FalconModel2<T extends LivingEntity> extends AgeableListModel<T> {
+	public final ModelPart leftWing;
+	public final ModelPart rightWing;
+	private final ModelPart wingPack;
 
 	public EXO7FalconModel2() {
 		texWidth = 64;
 		texHeight = 64;
 
-		ModelRenderer body = new ModelRenderer(this);
+		ModelPart body = new ModelPart(this);
 		body.setPos(0.0F, 0.0F, 0.0F);
 
-		this.leftWing = new ModelRenderer(this);
+		this.leftWing = new ModelPart(this);
 		this.leftWing.setPos(4.25F, 0.75F, 3.75F);
 		body.addChild(this.leftWing);
 		this.setRotationAngle(this.leftWing, (float) -Math.PI, 0.0F, (float)Math.PI / 2);
 		this.buildWings(this.leftWing);
 
-		this.rightWing = new ModelRenderer(this);
+		this.rightWing = new ModelPart(this);
 		this.rightWing.setPos(-4.25F, 0.75F, 3.75F);
 		body.addChild(this.rightWing);
 		this.setRotationAngle(this.rightWing, (float) Math.PI /*0.0F*/, 0.0F,  (float)-Math.PI / 2 /*(float)Math.PI / 2*/);
 		this.buildWings(this.rightWing);
 
-		this.wingPack = new ModelRenderer(this);
+		this.wingPack = new ModelPart(this);
 		this.wingPack.setPos(0.0F, 0.0F, 0.0F);
 		body.addChild(this.wingPack);
 		//wingPack.texOffs(0, 48).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.51F, false);
 		this.wingPack.texOffs(24, 47).addBox(-3.5F, 0.25F, 3.25F, 7.0F, 8.0F, 1.0F, 0.76F, false);
 		this.wingPack.texOffs(32, 49).addBox(-3.5F, 1.5F, 3.25F, 7.0F, 0.0F, 1.0F, 0.75F, false);
 
-		ModelRenderer bottom = new ModelRenderer(this);
+		ModelPart bottom = new ModelPart(this);
 		bottom.setPos(0.0F, 7.25F, 3.75F);
 		this.wingPack.addChild(bottom);
 		this.setRotationAngle(bottom, (float) Math.PI, 0.0F, 0.0F);
 		bottom.texOffs(32, 49).addBox(-3.5F, 1.5F, -0.5F, 7.0F, 0.0F, 1.0F, 0.75F, false);
 	}
 
-	private void buildWings(ModelRenderer wing) {
+	private void buildWings(ModelPart wing) {
 		wing.texOffs(8, 2).addBox(-12.0F, -2.25F, 0.75F, 23.0F, 34.0F, 1.0F, -2.24F, false);
 		wing.texOffs(8, 2).addBox(-12.0F, -2.25F, 1.75F, 23.0F, 34.0F, 1.0F, -2.24F, false);
 		wing.texOffs(43, 2).addBox(-0.1F, 0.0F, -0.5F, 0.0F, 8.0F, 1.0F, 0.0F, false);
@@ -117,11 +117,11 @@ public class EXO7FalconModel2<T extends LivingEntity> extends AgeableModel<T> {
 		wing.texOffs(44, 11).addBox(-0.9F, 7.8F, -0.5F, 0.0F, 3.0F, 1.0F, 0.0F, false);
 	}
 
-	protected Iterable<ModelRenderer> headParts() {
+	protected Iterable<ModelPart> headParts() {
 		return ImmutableList.of();
 	}
 
-	protected Iterable<ModelRenderer> bodyParts() {
+	protected Iterable<ModelPart> bodyParts() {
 		return ImmutableList.of(this.wingPack, this.leftWing, this.rightWing);
 	}
 
@@ -139,9 +139,9 @@ public class EXO7FalconModel2<T extends LivingEntity> extends AgeableModel<T> {
 
 		if (living.isFallFlying()) {
 			float fallFactor = 1.0F;
-			Vector3d deltaMove = living.getDeltaMovement();
+			Vec3 deltaMove = living.getDeltaMovement();
 			if (deltaMove.y < 0.0D) {
-				Vector3d normalDeltaMove = deltaMove.normalize();
+				Vec3 normalDeltaMove = deltaMove.normalize();
 				fallFactor = (1.0F - (float)Math.pow(-normalDeltaMove.y, 1.5D)) * -1;
 			}
 			leftWingZRot = fallFactor * ((float)Math.PI / 2F) + (1.0F - fallFactor) * -leftWingZRot;
@@ -160,8 +160,8 @@ public class EXO7FalconModel2<T extends LivingEntity> extends AgeableModel<T> {
 			//leftWingYPos += 3.0F;
 		}
 		this.leftWing.y = leftWingYPos;
-		if (living instanceof AbstractClientPlayerEntity) {
-			AbstractClientPlayerEntity abstractclientplayerentity = (AbstractClientPlayerEntity)living;
+		if (living instanceof AbstractClientPlayer) {
+			AbstractClientPlayer abstractclientplayerentity = (AbstractClientPlayer)living;
 			abstractclientplayerentity.elytraRotX = (float)((double)abstractclientplayerentity.elytraRotX + (double)(leftWingXRot - abstractclientplayerentity.elytraRotX) * 0.2D);
 			abstractclientplayerentity.elytraRotY = (float)((double)abstractclientplayerentity.elytraRotY + (double)(leftWingYRot - abstractclientplayerentity.elytraRotY) * 0.2D);
 			abstractclientplayerentity.elytraRotZ = (float)((double)abstractclientplayerentity.elytraRotZ + (double)(leftWingZRot - abstractclientplayerentity.elytraRotZ) * 0.2D);
@@ -182,7 +182,7 @@ public class EXO7FalconModel2<T extends LivingEntity> extends AgeableModel<T> {
 		this.rightWing.zRot = -this.leftWing.zRot;
 	}
 
-	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+	public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
 		modelRenderer.xRot = x;
 		modelRenderer.yRot = y;
 		modelRenderer.zRot = z;

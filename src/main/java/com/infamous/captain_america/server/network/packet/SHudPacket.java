@@ -1,8 +1,8 @@
 package com.infamous.captain_america.server.network.packet;
 
 import com.infamous.captain_america.client.network.ClientNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -35,7 +35,7 @@ public class SHudPacket {
         this.flag = flag;
     }
 
-    public static SHudPacket decodePacket(PacketBuffer packetBuffer){
+    public static SHudPacket decodePacket(FriendlyByteBuf packetBuffer){
         Action action = packetBuffer.readEnum(Action.class);
         int id = packetBuffer.readInt();
         float data = packetBuffer.readFloat();
@@ -43,7 +43,7 @@ public class SHudPacket {
         return new SHudPacket(action, id, data, flag);
     }
 
-    public static void encodePacket(SHudPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(SHudPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.action);
         packetBuffer.writeInt(packet.id);
         packetBuffer.writeFloat(packet.data);

@@ -1,12 +1,14 @@
 package com.infamous.captain_america.common.item.gauntlet;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
+
+import net.minecraft.world.item.Item.Properties;
 
 public abstract class AbstractGauntletItem extends Item {
 
@@ -15,7 +17,7 @@ public abstract class AbstractGauntletItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack heldItem = player.getItemInHand(hand);
         if(world.isClientSide){
             return this.useOnClient(world, player, hand, heldItem);
@@ -24,12 +26,12 @@ public abstract class AbstractGauntletItem extends Item {
         }
     }
 
-    protected abstract ActionResult<ItemStack> useOnServer(World world, PlayerEntity player, Hand hand, ItemStack heldItem);
+    protected abstract InteractionResultHolder<ItemStack> useOnServer(Level world, Player player, InteractionHand hand, ItemStack heldItem);
 
-    protected abstract ActionResult<ItemStack> useOnClient(World world, PlayerEntity player, Hand hand, ItemStack heldItem);
+    protected abstract InteractionResultHolder<ItemStack> useOnClient(Level world, Player player, InteractionHand hand, ItemStack heldItem);
 
     @Override
-    public void onUseTick(World usingWorld, LivingEntity usingEntity, ItemStack usingItem, int useTicksLeft) {
+    public void onUseTick(Level usingWorld, LivingEntity usingEntity, ItemStack usingItem, int useTicksLeft) {
         if(usingWorld.isClientSide){
             this.usingOnClient(usingWorld, usingEntity, usingItem, useTicksLeft);
         } else{
@@ -37,12 +39,12 @@ public abstract class AbstractGauntletItem extends Item {
         }
     }
 
-    protected abstract void usingOnClient(World useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft);
+    protected abstract void usingOnClient(Level useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft);
 
-    protected abstract void usingOnServer(World useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft);
+    protected abstract void usingOnServer(Level useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft);
 
     @Override
-    public void releaseUsing(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft) {
+    public void releaseUsing(ItemStack usedItem, Level usedWorld, LivingEntity usedEntity, int useTicksLeft) {
         if(usedWorld.isClientSide){
             this.releaseOnClient(usedItem, usedWorld, usedEntity, useTicksLeft);
         } else{
@@ -50,9 +52,9 @@ public abstract class AbstractGauntletItem extends Item {
         }
     }
 
-    protected abstract void releaseOnClient(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft);
+    protected abstract void releaseOnClient(ItemStack usedItem, Level usedWorld, LivingEntity usedEntity, int useTicksLeft);
 
-    protected abstract void releaseOnServer(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft);
+    protected abstract void releaseOnServer(ItemStack usedItem, Level usedWorld, LivingEntity usedEntity, int useTicksLeft);
 
     public static boolean isStackOfThis(ItemStack stack){
         return stack.getItem() instanceof AbstractGauntletItem;

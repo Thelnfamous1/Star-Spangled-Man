@@ -1,30 +1,32 @@
 package com.infamous.captain_america.common.item;
 
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.IParticleData;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleOptions;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class EXO7FalconItem extends CAArmorItem {
     public static final Predicate<Item> FALCON_PREDICATE =
             item -> item instanceof EXO7FalconItem;
-    public static final EquipmentSlotType SLOT = EquipmentSlotType.CHEST;
+    public static final EquipmentSlot SLOT = EquipmentSlot.CHEST;
     private final Supplier<EntityType<? extends RedwingEntity>> redwingTypeSupplier;
-    private final IParticleData propulsionParticle;
+    private final ParticleOptions propulsionParticle;
 
     public EXO7FalconItem(Supplier<EntityType<? extends RedwingEntity>> redwingTypeSupplier,
-                          IArmorMaterial armorMaterial,
+                          ArmorMaterial armorMaterial,
                           Properties properties,
-                          IParticleData propulsionParticle) {
+                          ParticleOptions propulsionParticle) {
         super(armorMaterial, SLOT, properties);
         this.redwingTypeSupplier = redwingTypeSupplier;
         this.propulsionParticle = propulsionParticle;
@@ -32,14 +34,13 @@ public class EXO7FalconItem extends CAArmorItem {
 
     public static Optional<EntityType<? extends RedwingEntity>> getRedwingType(ItemStack itemStack){
         Item item = itemStack.getItem();
-        if(item instanceof EXO7FalconItem){
-            EXO7FalconItem exo7FalconItem = (EXO7FalconItem) item;
+        if(item instanceof EXO7FalconItem exo7FalconItem){
             return Optional.of(exo7FalconItem.getRedwingType());
         }
         else return Optional.empty();
     }
 
-    public IParticleData getPropulsionParticle() {
+    public ParticleOptions getPropulsionParticle() {
         return this.propulsionParticle;
     }
 
@@ -55,12 +56,12 @@ public class EXO7FalconItem extends CAArmorItem {
         if(isBroken(exo7FalconStack)){
             return false;
         }
-        CompoundNBT compoundnbt = exo7FalconStack.getTag();
+        CompoundTag compoundnbt = exo7FalconStack.getTag();
         return compoundnbt != null && compoundnbt.getBoolean("FlightEnabled");
     }
 
     public static void setFlightEnabled(ItemStack exo7FalconStack, boolean flightEnabled) {
-        CompoundNBT compoundnbt = exo7FalconStack.getOrCreateTag();
+        CompoundTag compoundnbt = exo7FalconStack.getOrCreateTag();
         compoundnbt.putBoolean("FlightEnabled", flightEnabled);
     }
 

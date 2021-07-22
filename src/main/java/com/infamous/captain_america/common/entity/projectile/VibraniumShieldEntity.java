@@ -6,28 +6,28 @@ import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.entity.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -38,13 +38,32 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-public class VibraniumShieldEntity extends ProjectileEntity {
-   private static final DataParameter<Byte> ID_FLAGS = EntityDataManager.defineId(VibraniumShieldEntity.class, DataSerializers.BYTE);
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
-   private static final DataParameter<Boolean> ID_FOIL = EntityDataManager.defineId(VibraniumShieldEntity.class, DataSerializers.BOOLEAN);
-   private static final DataParameter<ItemStack> DATA_SHIELD_ITEM = EntityDataManager.defineId(VibraniumShieldEntity.class, DataSerializers.ITEM_STACK);
-   private static final DataParameter<Byte> DATA_THROW_TYPE = EntityDataManager.defineId(VibraniumShieldEntity.class, DataSerializers.BYTE);
-   private static final DataParameter<Byte> ID_LOYALTY = EntityDataManager.defineId(VibraniumShieldEntity.class, DataSerializers.BYTE);
+public class VibraniumShieldEntity extends Projectile {
+   private static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.BYTE);
+
+   private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.BOOLEAN);
+   private static final EntityDataAccessor<ItemStack> DATA_SHIELD_ITEM = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.ITEM_STACK);
+   private static final EntityDataAccessor<Byte> DATA_THROW_TYPE = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.BYTE);
 
    public static final int MAX_LIFE_TICKS = 1200;
 
@@ -68,19 +87,19 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    private IntOpenHashSet hitIgnoreEntityIds;
    private List<Entity> hitEntities;
 
-   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, World world) {
+   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, Level world) {
       super(entityType, world);
    }
 
-   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, double x, double y, double z, World world) {
+   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, double x, double y, double z, Level world) {
       this(entityType, world);
       this.setPos(x, y, z);
    }
 
-   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, LivingEntity shooter, World world, VibraniumShieldEntity.ThrowType throwType) {
+   public VibraniumShieldEntity(EntityType<? extends VibraniumShieldEntity> entityType, LivingEntity shooter, Level world, VibraniumShieldEntity.ThrowType throwType) {
       this(entityType, shooter.getX(), shooter.getEyeY() - (double)0.1F, shooter.getZ(), world);
       this.setOwner(shooter);
-      if (shooter instanceof PlayerEntity) {
+      if (shooter instanceof Player) {
          this.pickup = VibraniumShieldEntity.PickupStatus.ALLOWED;
       }
       this.setThrowTypeData((byte) throwType.ordinal());
@@ -142,11 +161,11 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
       super.tick();
 
-      Vector3d deltaMovement = this.getDeltaMovement();
+      Vec3 deltaMovement = this.getDeltaMovement();
       if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-         float horizontalDeltaMoveDist = MathHelper.sqrt(getHorizontalDistanceSqr(deltaMovement));
-         this.yRot = (float)(MathHelper.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
-         this.xRot = (float)(MathHelper.atan2(deltaMovement.y, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
+         float horizontalDeltaMoveDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
+         this.yRot = (float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
+         this.xRot = (float)(Mth.atan2(deltaMovement.y, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
          this.yRotO = this.yRot;
          this.xRotO = this.xRot;
       }
@@ -156,9 +175,9 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       if (!blockstate.isAir(this.level, blockpos) && !noPhysics) {
          VoxelShape collisionShape = blockstate.getCollisionShape(this.level, blockpos);
          if (!collisionShape.isEmpty()) {
-            Vector3d position = this.position();
+            Vec3 position = this.position();
 
-            for(AxisAlignedBB subBox : collisionShape.toAabbs()) {
+            for(AABB subBox : collisionShape.toAabbs()) {
                if (subBox.move(blockpos).contains(position)) {
                   this.inGround = true;
                   break;
@@ -203,7 +222,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
             this.remove();
          } else if (loyaltyLevel > 0) {
             this.setNoPhysics(true);
-            Vector3d distanceVec = new Vector3d(owner.getX() - this.getX(), owner.getEyeY() - this.getY(), owner.getZ() - this.getZ());
+            Vec3 distanceVec = new Vec3(owner.getX() - this.getX(), owner.getEyeY() - this.getY(), owner.getZ() - this.getZ());
             this.setPosRaw(this.getX(), this.getY() + distanceVec.y * 0.015D * (double)loyaltyLevel, this.getZ());
             if (this.level.isClientSide) {
                this.yOld = this.getY();
@@ -223,7 +242,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    private boolean isAcceptibleReturnOwner() {
       Entity owner = this.getOwner();
       if (owner != null && owner.isAlive()) {
-         return !(owner instanceof ServerPlayerEntity) || !owner.isSpectator();
+         return !(owner instanceof ServerPlayer) || !owner.isSpectator();
       } else {
          return false;
       }
@@ -231,29 +250,29 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
    private void tickCollision() {
       boolean noPhysics = this.isNoPhysics();
-      Vector3d deltaMovement = this.getDeltaMovement();
-      Vector3d posVec = this.position();
-      Vector3d nextPosVec = posVec.add(deltaMovement);
+      Vec3 deltaMovement = this.getDeltaMovement();
+      Vec3 posVec = this.position();
+      Vec3 nextPosVec = posVec.add(deltaMovement);
 
-      RayTraceResult rayTraceResult = this.level.clip(new RayTraceContext(posVec, nextPosVec, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
-      if (rayTraceResult.getType() != RayTraceResult.Type.MISS) {
+      HitResult rayTraceResult = this.level.clip(new ClipContext(posVec, nextPosVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+      if (rayTraceResult.getType() != HitResult.Type.MISS) {
          nextPosVec = rayTraceResult.getLocation();
       }
 
-      EntityRayTraceResult entityRTR = this.findHitEntity(posVec, nextPosVec);
+      EntityHitResult entityRTR = this.findHitEntity(posVec, nextPosVec);
       if (entityRTR != null) {
          rayTraceResult = entityRTR;
       }
 
-      if (rayTraceResult instanceof EntityRayTraceResult) {
-         Entity rayTraceEntity = ((EntityRayTraceResult)rayTraceResult).getEntity();
+      if (rayTraceResult instanceof EntityHitResult) {
+         Entity rayTraceEntity = ((EntityHitResult)rayTraceResult).getEntity();
          Entity owner = this.getOwner();
-         if (rayTraceEntity instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).canHarmPlayer((PlayerEntity)rayTraceEntity)) {
+         if (rayTraceEntity instanceof Player && owner instanceof Player && !((Player)owner).canHarmPlayer((Player)rayTraceEntity)) {
             rayTraceResult = null;
          }
       }
 
-      if (rayTraceResult != null && rayTraceResult.getType() != RayTraceResult.Type.MISS && !noPhysics && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, rayTraceResult)) {
+      if (rayTraceResult != null && rayTraceResult.getType() != HitResult.Type.MISS && !noPhysics && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, rayTraceResult)) {
          this.onHit(rayTraceResult);
          this.hasImpulse = true;
       }
@@ -261,7 +280,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
    private void tickMovement() {
       boolean noPhysics = this.isNoPhysics();
-      Vector3d deltaMovement = this.getDeltaMovement();
+      Vec3 deltaMovement = this.getDeltaMovement();
 
       double xDeltaMove = deltaMovement.x;
       double yDeltaMove = deltaMovement.y;
@@ -275,14 +294,14 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       double xMoveTo = this.getX() + xDeltaMove;
       double yMoveTo = this.getY() + yDeltaMove;
       double zMoveTo = this.getZ() + zDeltaMove;
-      float horizontalDeltaMoveDist = MathHelper.sqrt(getHorizontalDistanceSqr(deltaMovement));
+      float horizontalDeltaMoveDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
       if (noPhysics) {
-         this.yRot = (float)(MathHelper.atan2(-xDeltaMove, -zDeltaMove) * (double)(180F / (float)Math.PI));
+         this.yRot = (float)(Mth.atan2(-xDeltaMove, -zDeltaMove) * (double)(180F / (float)Math.PI));
       } else {
-         this.yRot = (float)(MathHelper.atan2(xDeltaMove, zDeltaMove) * (double)(180F / (float)Math.PI));
+         this.yRot = (float)(Mth.atan2(xDeltaMove, zDeltaMove) * (double)(180F / (float)Math.PI));
       }
 
-      this.xRot = (float)(MathHelper.atan2(yDeltaMove, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
+      this.xRot = (float)(Mth.atan2(yDeltaMove, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
       this.xRot = lerpRotation(this.xRotO, this.xRot);
       this.yRot = lerpRotation(this.yRotO, this.yRot);
       float inertia = this.getInertia();
@@ -298,7 +317,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
       this.setDeltaMovement(deltaMovement.scale((double)inertia));
       if (!this.isNoGravity() && !noPhysics) {
-         Vector3d deltaMovement1 = this.getDeltaMovement();
+         Vec3 deltaMovement1 = this.getDeltaMovement();
          this.setDeltaMovement(deltaMovement1.x, deltaMovement1.y - (double)gravity, deltaMovement1.z);
       }
 
@@ -306,19 +325,19 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    private boolean shouldFall() {
-      return this.inGround && this.level.noCollision((new AxisAlignedBB(this.position(), this.position())).inflate(0.06D));
+      return this.inGround && this.level.noCollision((new AABB(this.position(), this.position())).inflate(0.06D));
    }
 
    private void startFalling() {
       this.inGround = false;
-      Vector3d deltaMovement = this.getDeltaMovement();
+      Vec3 deltaMovement = this.getDeltaMovement();
       float fallFactor = 0.2F;
       this.setDeltaMovement(deltaMovement.multiply((double)(this.random.nextFloat() * fallFactor), (double)(this.random.nextFloat() * fallFactor), (double)(this.random.nextFloat() * fallFactor)));
       this.life = 0;
    }
 
    @Override
-   public void move(MoverType moverType, Vector3d moveVec) {
+   public void move(MoverType moverType, Vec3 moveVec) {
       super.move(moverType, moveVec);
       if (moverType != MoverType.SELF && this.shouldFall()) {
          this.startFalling();
@@ -340,11 +359,11 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Override
-   protected void onHitEntity(EntityRayTraceResult entityRTR) {
+   protected void onHitEntity(EntityHitResult entityRTR) {
       super.onHitEntity(entityRTR);
       Entity hitEntity = entityRTR.getEntity();
       float deltaMoveLength = (float)this.getDeltaMovement().length();
-      int damage = MathHelper.ceil(MathHelper.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
+      int damage = Mth.ceil(Mth.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
 
       this.initializeHitEntities();
 
@@ -376,7 +395,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
             LivingEntity livingHit = (LivingEntity)hitEntity;
 
             if (this.knockback > 0) {
-               Vector3d knockbackVector = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double)this.knockback * 0.6D);
+               Vec3 knockbackVector = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double)this.knockback * 0.6D);
                if (knockbackVector.lengthSqr() > 0.0D) {
                   livingHit.push(knockbackVector.x, 0.1D, knockbackVector.z);
                }
@@ -389,8 +408,8 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
             this.doPostHurtEffects(livingHit);
 
-            if (livingHit instanceof PlayerEntity && owner instanceof ServerPlayerEntity && !this.isSilent()) {
-               ServerPlayerEntity serverPlayer = (ServerPlayerEntity) owner;
+            if (livingHit instanceof Player && owner instanceof ServerPlayer && !this.isSilent()) {
+               ServerPlayer serverPlayer = (ServerPlayer) owner;
                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SShieldPacket(SShieldPacket.Action.SHIELD_HIT_PLAYER));
             }
 
@@ -419,14 +438,14 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Override
-   protected void onHitBlock(BlockRayTraceResult blockRTR) {
+   protected void onHitBlock(BlockHitResult blockRTR) {
       super.onHitBlock(blockRTR);
       this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
       if(blockRTR.getDirection().getAxis() == Direction.Axis.Y){
          this.inBlockState = this.level.getBlockState(blockRTR.getBlockPos());
-         Vector3d posDiff = blockRTR.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+         Vec3 posDiff = blockRTR.getLocation().subtract(this.getX(), this.getY(), this.getZ());
          this.setDeltaMovement(posDiff);
-         Vector3d vector3d1 = posDiff.normalize().scale((double)0.05F);
+         Vec3 vector3d1 = posDiff.normalize().scale((double)0.05F);
          this.setPosRaw(this.getX() - vector3d1.x, this.getY() - vector3d1.y, this.getZ() - vector3d1.z);
          this.inGround = true;
          this.setCritShield(false);
@@ -441,7 +460,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
 
 
-   private void handleThrowImpact(RayTraceResult rayTraceResult) {
+   private void handleThrowImpact(HitResult rayTraceResult) {
       if(!this.inGround){
          switch (VibraniumShieldEntity.ThrowType.byOrdinal(this.getThrowTypeData())){
             case BOOMERANG_THROW:
@@ -454,17 +473,17 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       }
    }
 
-   private void handleBoomerang(RayTraceResult rayTraceResult) {
-      if(rayTraceResult instanceof EntityRayTraceResult){
-         Entity entity = ((EntityRayTraceResult) rayTraceResult).getEntity();
+   private void handleBoomerang(HitResult rayTraceResult) {
+      if(rayTraceResult instanceof EntityHitResult){
+         Entity entity = ((EntityHitResult) rayTraceResult).getEntity();
          if(this.lastHitEntityId != entity.getId()){
             this.lastHitEntityId = entity.getId();
             this.boomerang();
          }
          this.lastHitBlockState = null;
       }
-      else if(rayTraceResult instanceof BlockRayTraceResult){
-         BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+      else if(rayTraceResult instanceof BlockHitResult){
+         BlockPos blockPos = ((BlockHitResult) rayTraceResult).getBlockPos();
          if(this.lastHitBlockState != this.level.getBlockState(blockPos)) {
             this.lastHitBlockState = this.level.getBlockState(blockPos);
             this.boomerang();
@@ -479,16 +498,16 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       this.yRotO += 180.0F;
    }
 
-   private void handleRicochet(RayTraceResult rayTraceResult) {
-      if(rayTraceResult instanceof EntityRayTraceResult){
-         Entity entity = ((EntityRayTraceResult) rayTraceResult).getEntity();
+   private void handleRicochet(HitResult rayTraceResult) {
+      if(rayTraceResult instanceof EntityHitResult){
+         Entity entity = ((EntityHitResult) rayTraceResult).getEntity();
          if(this.lastHitEntityId != entity.getId()){
             this.lastHitEntityId = entity.getId();
             this.ricochetOffEntity(entity);
          }
          this.lastHitBlockState = null;
-      } else if(rayTraceResult instanceof BlockRayTraceResult){
-         BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+      } else if(rayTraceResult instanceof BlockHitResult){
+         BlockPos blockPos = ((BlockHitResult) rayTraceResult).getBlockPos();
          if(this.lastHitBlockState != this.level.getBlockState(blockPos)){
             this.lastHitBlockState = this.level.getBlockState(blockPos);
             this.ricochetOffBlock();
@@ -498,10 +517,10 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    private void ricochetOffBlock() {
-      Vector3d deltaMovement = this.getDeltaMovement();
-      Vector3d xMovement = new Vector3d(deltaMovement.x, 0, 0);
-      Vector3d yMovement = new Vector3d(0, deltaMovement.y, 0);
-      Vector3d zMovement = new Vector3d(0, 0, deltaMovement.z);
+      Vec3 deltaMovement = this.getDeltaMovement();
+      Vec3 xMovement = new Vec3(deltaMovement.x, 0, 0);
+      Vec3 yMovement = new Vec3(0, deltaMovement.y, 0);
+      Vec3 zMovement = new Vec3(0, 0, deltaMovement.z);
       if(VibraniumShieldHelper.checkRicochetBlock(this, xMovement)){
          this.setDeltaMovement(deltaMovement.multiply(-1, 1, 1));
       }
@@ -514,10 +533,10 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    private void ricochetOffEntity(Entity entity){
-      Vector3d deltaMovement = this.getDeltaMovement();
-      Vector3d xMovement = new Vector3d(deltaMovement.x, 0, 0);
-      Vector3d yMovement = new Vector3d(0, deltaMovement.y, 0);
-      Vector3d zMovement = new Vector3d(0, 0, deltaMovement.z);
+      Vec3 deltaMovement = this.getDeltaMovement();
+      Vec3 xMovement = new Vec3(deltaMovement.x, 0, 0);
+      Vec3 yMovement = new Vec3(0, deltaMovement.y, 0);
+      Vec3 zMovement = new Vec3(0, 0, deltaMovement.z);
       if(VibraniumShieldHelper.checkRicochetEntityWithBlockCheck(this, xMovement, entity)){
          this.setDeltaMovement(deltaMovement.multiply(-1, 1, 1));
       }
@@ -550,8 +569,8 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
       Entity owner = this.getOwner();
 
-      if (!this.level.isClientSide && owner instanceof ServerPlayerEntity) {
-         ServerPlayerEntity serverPlayer = (ServerPlayerEntity)owner;
+      if (!this.level.isClientSide && owner instanceof ServerPlayer) {
+         ServerPlayer serverPlayer = (ServerPlayer)owner;
          if (this.hitEntities != null) {
             CACriteriaTriggers.HIT_BY_SHIELD.trigger(serverPlayer, this.hitEntities);
          } else {
@@ -583,22 +602,22 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Nullable
-   protected EntityRayTraceResult findHitEntity(Vector3d posVec, Vector3d nextPosVec) {
-      return ProjectileHelper.getEntityHitResult(this.level, this, posVec, nextPosVec, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
+   protected EntityHitResult findHitEntity(Vec3 posVec, Vec3 nextPosVec) {
+      return ProjectileUtil.getEntityHitResult(this.level, this, posVec, nextPosVec, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
    }
 
    @Override
-   public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+   public void addAdditionalSaveData(CompoundTag compoundNBT) {
       super.addAdditionalSaveData(compoundNBT);
       ItemStack shieldItem = this.getShieldItem();
       if (!shieldItem.isEmpty()) {
-         compoundNBT.put("ShieldItem", shieldItem.save(new CompoundNBT()));
+         compoundNBT.put("ShieldItem", shieldItem.save(new CompoundTag()));
       }
       compoundNBT.putByte("ThrowType", this.getThrowTypeData());
 
       compoundNBT.putShort("life", (short)this.life);
       if (this.inBlockState != null) {
-         compoundNBT.put("inBlockState", NBTUtil.writeBlockState(this.inBlockState));
+         compoundNBT.put("inBlockState", NbtUtils.writeBlockState(this.inBlockState));
       }
 
       compoundNBT.putBoolean("inGround", this.inGround);
@@ -612,7 +631,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Override
-   public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+   public void readAdditionalSaveData(CompoundTag compoundNBT) {
       super.readAdditionalSaveData(compoundNBT);
       ItemStack shieldItem = ItemStack.of(compoundNBT.getCompound("ShieldItem"));
       if (!shieldItem.isEmpty()) {
@@ -625,7 +644,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
 
       this.life = compoundNBT.getShort("life");
       if (compoundNBT.contains("inBlockState", 10)) {
-         this.inBlockState = NBTUtil.readBlockState(compoundNBT.getCompound("inBlockState"));
+         this.inBlockState = NbtUtils.readBlockState(compoundNBT.getCompound("inBlockState"));
       }
 
       this.inGround = compoundNBT.getBoolean("inGround");
@@ -651,14 +670,14 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    @Override
    public void setOwner(@Nullable Entity entity) {
       super.setOwner(entity);
-      if (entity instanceof PlayerEntity) {
-         this.pickup = ((PlayerEntity)entity).abilities.instabuild ? VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY : VibraniumShieldEntity.PickupStatus.ALLOWED;
+      if (entity instanceof Player) {
+         this.pickup = ((Player)entity).abilities.instabuild ? VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY : VibraniumShieldEntity.PickupStatus.ALLOWED;
       }
 
    }
 
    @Override
-   public void playerTouch(PlayerEntity player) {
+   public void playerTouch(Player player) {
       boolean leftOwner = this.getLeftOwner();
       if (!this.level.isClientSide && (leftOwner || this.inGround || this.isNoPhysics())) {
          boolean canPickUp =
@@ -668,7 +687,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
          ItemStack pickupItem = this.getPickupItem();
 
          boolean addedToHand = canPickUp
-                 && (this.setShieldInHand(player, Hand.OFF_HAND) || this.setShieldInHand(player, Hand.MAIN_HAND));
+                 && (this.setShieldInHand(player, InteractionHand.OFF_HAND) || this.setShieldInHand(player, InteractionHand.MAIN_HAND));
 
          if (canPickUp && !addedToHand && !player.inventory.add(pickupItem)) {
             canPickUp = false;
@@ -682,7 +701,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
       }
    }
 
-   private boolean setShieldInHand(PlayerEntity player, Hand hand) {
+   private boolean setShieldInHand(Player player, InteractionHand hand) {
       if(player.getItemInHand(hand).isEmpty()){
          player.setItemInHand(hand, this.getPickupItem());
          return true;
@@ -691,7 +710,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    private Boolean getLeftOwner() {
-      return ObfuscationReflectionHelper.getPrivateValue(ProjectileEntity.class, this, "field_234611_d_");
+      return ObfuscationReflectionHelper.getPrivateValue(Projectile.class, this, "field_234611_d_");
    }
 
    protected ItemStack getPickupItem(){
@@ -721,7 +740,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Override
-   protected float getEyeHeight(Pose pose, EntitySize entitySize) {
+   protected float getEyeHeight(Pose pose, EntityDimensions entitySize) {
       return 0.13F;
    }
 
@@ -810,7 +829,7 @@ public class VibraniumShieldEntity extends ProjectileEntity {
    }
 
    @Override
-   public IPacket<?> getAddEntityPacket() {
+   public Packet<?> getAddEntityPacket() {
       return NetworkHooks.getEntitySpawningPacket(this);
    }
 

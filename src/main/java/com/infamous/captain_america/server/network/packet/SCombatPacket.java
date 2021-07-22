@@ -1,8 +1,8 @@
 package com.infamous.captain_america.server.network.packet;
 
 import com.infamous.captain_america.client.network.ClientNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -29,14 +29,14 @@ public class SCombatPacket {
         this.flag = flag;
     }
 
-    public static SCombatPacket decodePacket(PacketBuffer packetBuffer){
+    public static SCombatPacket decodePacket(FriendlyByteBuf packetBuffer){
         Action action = packetBuffer.readEnum(Action.class);
         float data = packetBuffer.readFloat();
         boolean flag = packetBuffer.readBoolean();
         return new SCombatPacket(action, data, flag);
     }
 
-    public static void encodePacket(SCombatPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(SCombatPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.action);
         packetBuffer.writeFloat(packet.data);
         packetBuffer.writeBoolean(packet.flag);

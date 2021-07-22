@@ -1,18 +1,18 @@
 package com.infamous.captain_america.common.entity.drone;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
 public interface IDrone {
 
-    default void readDroneNBT(CompoundNBT compoundNBT) {
+    default void readDroneNBT(CompoundTag compoundNBT) {
         UUID uuid = null;
         if (compoundNBT.hasUUID("Owner")) {
             uuid = compoundNBT.getUUID("Owner");
@@ -24,7 +24,7 @@ public interface IDrone {
         }
     }
 
-    default void addDroneNBT(CompoundNBT compoundNBT) {
+    default void addDroneNBT(CompoundTag compoundNBT) {
         if (this.getOwnerUUID() != null) {
             compoundNBT.putUUID("Owner", this.getOwnerUUID());
         }
@@ -56,15 +56,15 @@ public interface IDrone {
     LivingEntity getOwner();
 
     default boolean wantsToAttack(LivingEntity target, LivingEntity owner) {
-        if (target instanceof WolfEntity) {
-            WolfEntity wolfentity = (WolfEntity)target;
+        if (target instanceof Wolf) {
+            Wolf wolfentity = (Wolf)target;
             return !wolfentity.isTame() || wolfentity.getOwner() != owner;
-        } else if (target instanceof PlayerEntity && owner instanceof PlayerEntity && !((PlayerEntity)owner).canHarmPlayer((PlayerEntity)target)) {
+        } else if (target instanceof Player && owner instanceof Player && !((Player)owner).canHarmPlayer((Player)target)) {
             return false;
-        } else if (target instanceof AbstractHorseEntity && ((AbstractHorseEntity)target).isTamed()) {
+        } else if (target instanceof AbstractHorse && ((AbstractHorse)target).isTamed()) {
             return false;
-        } else if(target instanceof TameableEntity){
-            return !((TameableEntity)target).isTame();
+        } else if(target instanceof TamableAnimal){
+            return !((TamableAnimal)target).isTame();
         } else{
             return !(target instanceof IDrone) || ((IDrone)target).isOwned();
         }

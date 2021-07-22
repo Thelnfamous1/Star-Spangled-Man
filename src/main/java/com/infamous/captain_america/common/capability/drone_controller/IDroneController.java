@@ -1,11 +1,11 @@
 package com.infamous.captain_america.common.capability.drone_controller;
 
 import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -15,11 +15,11 @@ public interface IDroneController {
 
     void copyValuesFrom(IDroneController droneController);
 
-    void setDroneNBT(CompoundNBT droneNBT);
+    void setDroneNBT(CompoundTag droneNBT);
 
     void setDroneUUID(@Nullable UUID droneUUID);
 
-    CompoundNBT getDroneNBT();
+    CompoundTag getDroneNBT();
 
     @Nullable
     UUID getDroneUUID();
@@ -31,7 +31,7 @@ public interface IDroneController {
         }
 
         if(this.canControlDrone(controller)
-                && controller.level instanceof ServerWorld){
+                && controller.level instanceof ServerLevel){
 
             if(this.getDroneNBT().isEmpty()
                     && this.getDroneUUID() == null){
@@ -52,10 +52,10 @@ public interface IDroneController {
                         IDrone drone = (IDrone) entity;
                         drone.own(controller);
                         entity.setPos(controller.getX(), controller.getEyeY(), controller.getZ());
-                        boolean deployed = ((ServerWorld)controller.level).addWithUUID(entity);
+                        boolean deployed = ((ServerLevel)controller.level).addWithUUID(entity);
                         if(deployed){
                             this.setDroneUUID(entity.getUUID());
-                            this.setDroneNBT(new CompoundNBT());
+                            this.setDroneNBT(new CompoundTag());
                             return true;
                         }
                     }
@@ -116,10 +116,10 @@ public interface IDroneController {
 
     default <T extends Entity & IDrone> Optional<T> getDeployedDrone(LivingEntity controller){
         if(this.canControlDrone(controller)
-                && controller.level instanceof ServerWorld
+                && controller.level instanceof ServerLevel
                 && this.getDroneUUID() != null
                 && this.getDroneNBT().isEmpty()){
-            Entity entity = ((ServerWorld)controller.level).getEntity(this.getDroneUUID());
+            Entity entity = ((ServerLevel)controller.level).getEntity(this.getDroneUUID());
             if(entity instanceof IDrone){
                 //noinspection unchecked
                 T drone = (T) entity;
@@ -131,12 +131,12 @@ public interface IDroneController {
 
     default void resetDroneData() {
         this.setDroneUUID(null);
-        this.setDroneNBT(new CompoundNBT());
+        this.setDroneNBT(new CompoundTag());
         this.setDronePatrolling(false);
         this.setDroneRecalled(false);
     }
 
-    default boolean attachDrone(CompoundNBT droneNBT) {
+    default boolean attachDrone(CompoundTag droneNBT) {
         if (this.getDroneNBT().isEmpty()) {
             this.setDroneNBT(droneNBT);
             return true;

@@ -14,41 +14,41 @@ import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.common.util.KeyBindAction;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.util.Mth;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 
-public class CAKeyBinding extends KeyBinding{
+public class CAKeyBinding extends KeyMapping{
 
     private boolean held;
     private boolean initialPress;
     private boolean initialRelease;
 
-    private final Consumer<ClientPlayerEntity> onInitialPress;
-    private final Consumer<ClientPlayerEntity> onHeld;
-    private final Consumer<ClientPlayerEntity> onInitialRelease;
+    private final Consumer<LocalPlayer> onInitialPress;
+    private final Consumer<LocalPlayer> onHeld;
+    private final Consumer<LocalPlayer> onInitialRelease;
 
     public CAKeyBinding(String description,
                         IKeyConflictContext keyConflictContext,
-                        final InputMappings.Type inputType,
+                        final InputConstants.Type inputType,
                         final int keyCode,
                         String category,
-                        Consumer<ClientPlayerEntity> onInitialPress,
-                        Consumer<ClientPlayerEntity> onHeld,
-                        Consumer<ClientPlayerEntity> onInitialRelease){
+                        Consumer<LocalPlayer> onInitialPress,
+                        Consumer<LocalPlayer> onHeld,
+                        Consumer<LocalPlayer> onInitialRelease){
         super(description, keyConflictContext, inputType, keyCode, category);
         this.onInitialPress = onInitialPress;
         this.onHeld = onHeld;
         this.onInitialRelease = onInitialRelease;
     }
 
-    public void handleKey(ClientPlayerEntity clientPlayer){
+    public void handleKey(LocalPlayer clientPlayer){
         if(this.initialPress){
             this.onInitialPress.accept(clientPlayer);
         } else if(this.held){
@@ -86,14 +86,14 @@ public class CAKeyBinding extends KeyBinding{
     public static final String FALCON_TECH_KEY_CATEGORY = "key.categories.falconTech";
     public static final String CAP_TECH_KEY_CATEGORY = "key.categories.capTech";
 
-    public static final Consumer<ClientPlayerEntity> SHIELD_THROW_ON_INITIAL_PRESS = (clientPlayer) -> {
+    public static final Consumer<LocalPlayer> SHIELD_THROW_ON_INITIAL_PRESS = (clientPlayer) -> {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
         if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
             shieldThrowerCap.setShieldChargingTicks(0);
             shieldThrowerCap.setShieldChargingScale(0.0F);
         }
     };
-    public static final Consumer<ClientPlayerEntity> SHIELD_THROW_ON_HELD = (clientPlayer) -> {
+    public static final Consumer<LocalPlayer> SHIELD_THROW_ON_HELD = (clientPlayer) -> {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(clientPlayer);
         if (VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null) {
             shieldThrowerCap.addShieldChargingTicks(1);
@@ -110,7 +110,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.flightAbility",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     FLIGHT_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.FLIGHT)),
@@ -122,7 +122,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.droneAbility",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     DRONE_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.DRONE)),
@@ -134,7 +134,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.hudAbility",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     HUD_ABILITY_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> NetworkHandler.INSTANCE.sendToServer(new CUseAbilityPacket(KeyBindAction.INITIAL_PRESS, FalconAbilityKey.HUD)),
@@ -145,7 +145,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.boomerangThrowShield",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     BOOMERANG_THROW_SHIELD_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
@@ -155,7 +155,7 @@ public class CAKeyBinding extends KeyBinding{
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             //CaptainAmerica.LOGGER.info("Client player {} wants to boomerang-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
-                            int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
+                            int shieldCharge = Mth.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
                             NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.BOOMERANG_THROW, shieldCharge));
                         }
                     });
@@ -164,7 +164,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.ricochetThrowShield",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     RICOCHET_THROW_SHIELD_KEYCODE,
                     CAP_TECH_KEY_CATEGORY,
                     SHIELD_THROW_ON_INITIAL_PRESS,
@@ -174,7 +174,7 @@ public class CAKeyBinding extends KeyBinding{
                         if(VibraniumShieldItem.hasVibraniumShield(clientPlayer) && shieldThrowerCap != null){
                             //CaptainAmerica.LOGGER.info("Client player {} wants to ricochet-throw their Vibranium Shield!", clientPlayer.getDisplayName().getString());
                             shieldThrowerCap.setShieldChargingTicks(-10);
-                            int shieldCharge = MathHelper.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
+                            int shieldCharge = Mth.floor(shieldThrowerCap.getShieldChargingScale() * 100.0F);
                             NetworkHandler.INSTANCE.sendToServer(new CShieldPacket(VibraniumShieldEntity.ThrowType.RICOCHET_THROW, shieldCharge));
                         }
                     });
@@ -183,7 +183,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.verticalFlight",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     VERTICAL_FLIGHT_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {},
@@ -202,7 +202,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.verticalFlightInverted",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     INVERTED_VERTICAL_FLIGHT_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {},
@@ -221,7 +221,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                    "key.toggleFlight",
                    KeyConflictContext.IN_GAME,
-                   InputMappings.Type.KEYSYM,
+                   InputConstants.Type.KEYSYM,
                     TOGGLE_FLIGHT_KEYCODE,
                    FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
@@ -238,7 +238,7 @@ public class CAKeyBinding extends KeyBinding{
             new CAKeyBinding(
                     "key.toggleHUD",
                     KeyConflictContext.IN_GAME,
-                    InputMappings.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     TOGGLE_HUD_KEYCODE,
                     FALCON_TECH_KEY_CATEGORY,
                     (clientPlayer) -> {
@@ -251,7 +251,7 @@ public class CAKeyBinding extends KeyBinding{
                     (clientPlayer) -> {}
             );
 
-    public static void handleAllKeys(int key, ClientPlayerEntity clientPlayer) {
+    public static void handleAllKeys(int key, LocalPlayer clientPlayer) {
         if(key == keyFlightAbility.getKey().getValue()){
             keyFlightAbility.handleKey(clientPlayer);
         }

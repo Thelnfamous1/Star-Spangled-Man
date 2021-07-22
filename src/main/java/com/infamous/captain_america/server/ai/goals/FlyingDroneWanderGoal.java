@@ -1,10 +1,10 @@
 package com.infamous.captain_america.server.ai.goals;
 
 import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.passive.IFlyingAnimal;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 
-public class FlyingDroneWanderGoal<T extends CreatureEntity & IDrone & IFlyingAnimal> extends FlyingDroneHoverGoal<T> {
+public class FlyingDroneWanderGoal<T extends PathfinderMob & IDrone & FlyingAnimal> extends FlyingDroneHoverGoal<T> {
 
     public FlyingDroneWanderGoal(T droneCreature, double speedModifier) {
         super(droneCreature, speedModifier);

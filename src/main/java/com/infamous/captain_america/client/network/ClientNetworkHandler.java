@@ -1,6 +1,5 @@
 package com.infamous.captain_america.client.network;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.ForgeClientEvents;
 import com.infamous.captain_america.common.capability.CapabilityHelper;
 import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbility;
@@ -9,18 +8,18 @@ import com.infamous.captain_america.common.item.GogglesItem;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.*;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -29,7 +28,7 @@ public class ClientNetworkHandler {
     public static void handleFlight(SFlightPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer == null){
                 return;
             }
@@ -89,13 +88,13 @@ public class ClientNetworkHandler {
     public static void handleShield(SShieldPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer == null){
                 return;
             }
             switch (packet.getAction()){
                 case SHIELD_HIT_PLAYER:
-                    clientPlayer.level.playSound(clientPlayer, clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ(), SoundEvents.SHIELD_BLOCK, SoundCategory.PLAYERS, 0.18F, 0.45F);
+                    clientPlayer.level.playSound(clientPlayer, clientPlayer.getX(), clientPlayer.getY(), clientPlayer.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 0.18F, 0.45F);
                     break;
             }
         });
@@ -105,7 +104,7 @@ public class ClientNetworkHandler {
     public static void handleHUD(SHudPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer == null){
                 return;
             }
@@ -138,7 +137,7 @@ public class ClientNetworkHandler {
     public static void handleCombat(SCombatPacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer == null){
                 return;
             }
@@ -155,9 +154,9 @@ public class ClientNetworkHandler {
                     if(falconAbilityCap == null) return;
 
                     falconAbilityCap.setRenderLaser(true);
-                    RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(clientPlayer);
-                    if(rayTraceResult instanceof BlockRayTraceResult){
-                        BlockRayTraceResult blockRTR = (BlockRayTraceResult)rayTraceResult;
+                    HitResult rayTraceResult = CALogicHelper.getLaserRayTrace(clientPlayer);
+                    if(rayTraceResult instanceof BlockHitResult){
+                        BlockHitResult blockRTR = (BlockHitResult)rayTraceResult;
                         BlockPos blockPos = blockRTR.getBlockPos();
                         Direction direction = blockRTR.getDirection();
                         if (minecraft.level != null && !minecraft.level.isEmptyBlock(blockPos) && minecraft.gameMode != null) {
@@ -187,11 +186,11 @@ public class ClientNetworkHandler {
     public static void handleDrone(SDronePacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() ->{
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer == null){
                 return;
             }
-            World clientWorld = clientPlayer.level;
+            Level clientWorld = clientPlayer.level;
 
             switch (packet.getAction()){
                 case TOGGLE_CAMERA:
@@ -202,7 +201,7 @@ public class ClientNetworkHandler {
                         if(visualLinker.hasVisualLink()){
                             ForgeClientEvents.PREVIOUS_CONTROLLED_POV = minecraft.options.getCameraType();
                             minecraft.setCameraEntity(deployedDrone);
-                            minecraft.options.setCameraType(PointOfView.THIRD_PERSON_BACK);
+                            minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);
                         }
                     }
                     break;

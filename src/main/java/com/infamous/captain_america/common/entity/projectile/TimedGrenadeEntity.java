@@ -1,21 +1,19 @@
 package com.infamous.captain_america.common.entity.projectile;
 
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.ShulkerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -23,19 +21,19 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
-    private static final DataParameter<Integer> DATA_EXPLOSION_TIMER = EntityDataManager.defineId(TimedGrenadeEntity.class, DataSerializers.INT);
-    private static final DataParameter<Integer> DATA_MAX_EXPLOSION_TIMER = EntityDataManager.defineId(TimedGrenadeEntity.class, DataSerializers.INT);
-    private static final DataParameter<OptionalInt> DATA_ATTACHED_TO_TARGET_ID = EntityDataManager.defineId(TimedGrenadeEntity.class, DataSerializers.OPTIONAL_UNSIGNED_INT);
-    private static final DataParameter<Optional<UUID>> DATA_ATTACHED_TO_TARGET_UUID = EntityDataManager.defineId(TimedGrenadeEntity.class, DataSerializers.OPTIONAL_UUID);
-    protected static final DataParameter<Optional<BlockPos>> DATA_ATTACH_POS_ID = EntityDataManager.defineId(TimedGrenadeEntity.class, DataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Integer> DATA_EXPLOSION_TIMER = SynchedEntityData.defineId(TimedGrenadeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_MAX_EXPLOSION_TIMER = SynchedEntityData.defineId(TimedGrenadeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<OptionalInt> DATA_ATTACHED_TO_TARGET_ID = SynchedEntityData.defineId(TimedGrenadeEntity.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
+    private static final EntityDataAccessor<Optional<UUID>> DATA_ATTACHED_TO_TARGET_UUID = SynchedEntityData.defineId(TimedGrenadeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    protected static final EntityDataAccessor<Optional<BlockPos>> DATA_ATTACH_POS_ID = SynchedEntityData.defineId(TimedGrenadeEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
 
     private Entity attachedToEntity;
 
-    public TimedGrenadeEntity(EntityType<? extends TimedGrenadeEntity> entityType, World world) {
+    public TimedGrenadeEntity(EntityType<? extends TimedGrenadeEntity> entityType, Level world) {
         super(entityType, world);
     }
 
-    public TimedGrenadeEntity(LivingEntity shooter, World world) {
+    public TimedGrenadeEntity(LivingEntity shooter, Level world) {
         super(EntityTypeRegistry.TIMED_GRENADE.get(), shooter, world);
     }
 
@@ -83,7 +81,7 @@ public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
     }
 
     @Override
-    protected void postHitBlock(BlockRayTraceResult blockRTR) {
+    protected void postHitBlock(BlockHitResult blockRTR) {
         if(!this.level.isClientSide){
             this.setAttachedBlockPos(blockRTR.getBlockPos());
             this.setExplosionTimer(this.getMaxExplosionTimer());
@@ -91,7 +89,7 @@ public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
     }
 
     @Override
-    protected void postHitEntity(EntityRayTraceResult entityRTR) {
+    protected void postHitEntity(EntityHitResult entityRTR) {
         if(!this.level.isClientSide){
             this.setAttachedToEntity(entityRTR.getEntity());
             this.setExplosionTimer(this.getMaxExplosionTimer());
@@ -113,8 +111,8 @@ public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
             if (this.attachedToEntity == null) {
                 if(!this.level.isClientSide){
                     this.getAttachedToEntityUUIDRaw().ifPresent((uuid) -> {
-                        if(this.level instanceof ServerWorld){
-                            ServerWorld serverWorld = (ServerWorld) this.level;
+                        if(this.level instanceof ServerLevel){
+                            ServerLevel serverWorld = (ServerLevel) this.level;
                             Entity entity = serverWorld.getEntity(uuid);
                             if (entity != null) {
                                 this.attachedToEntity = entity;
@@ -141,7 +139,7 @@ public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+    public void addAdditionalSaveData(CompoundTag compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
         if (this.getAttachedToEntityUUIDRaw().isPresent()) {
             compoundNBT.putUUID("AttachedToEntity", this.getAttachedToEntityUUIDRaw().get());
@@ -159,7 +157,7 @@ public class TimedGrenadeEntity extends ExplosiveProjectileEntity{
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+    public void readAdditionalSaveData(CompoundTag compoundNBT) {
         super.readAdditionalSaveData(compoundNBT);
         UUID uuid = null;
         if (compoundNBT.hasUUID("AttachedToEntity")) {

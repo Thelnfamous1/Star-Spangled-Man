@@ -14,16 +14,16 @@ import com.infamous.captain_america.common.item.gauntlet.WeaponGauntletItem;
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.server.network.packet.SCombatPacket;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 public class CombatAbilityManagers {
@@ -37,15 +37,15 @@ public class CombatAbilityManagers {
                                 missile.pickup = CAProjectileEntity.PickupStatus.CREATIVE_ONLY;
                             }
 
-                            Vector3d upVector = serverPlayer.getUpVector(1.0F);
+                            Vec3 upVector = serverPlayer.getUpVector(1.0F);
                             Quaternion quaternion = new Quaternion(new Vector3f(upVector), 0, true);
-                            Vector3d viewVector = serverPlayer.getViewVector(1.0F);
+                            Vec3 viewVector = serverPlayer.getViewVector(1.0F);
                             Vector3f viewVectorF = new Vector3f(viewVector);
                             viewVectorF.transform(quaternion);
                             missile.shoot((double)viewVectorF.x(), (double)viewVectorF.y(), (double)viewVectorF.z(), 3.2F, 0);
 
                             serverPlayer.level.addFreshEntity(missile);
-                            serverPlayer.level.playSound((PlayerEntity)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            serverPlayer.level.playSound((Player)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
                             CaptainAmerica.LOGGER.info("Server player {} has fired a missile!", serverPlayer.getDisplayName().getString());
                         }
                     })
@@ -59,15 +59,15 @@ public class CombatAbilityManagers {
                                 timedGrenade.pickup = CAProjectileEntity.PickupStatus.CREATIVE_ONLY;
                             }
 
-                            Vector3d upVector = serverPlayer.getUpVector(1.0F);
+                            Vec3 upVector = serverPlayer.getUpVector(1.0F);
                             Quaternion quaternion = new Quaternion(new Vector3f(upVector), 0, true);
-                            Vector3d viewVector = serverPlayer.getViewVector(1.0F);
+                            Vec3 viewVector = serverPlayer.getViewVector(1.0F);
                             Vector3f viewVectorF = new Vector3f(viewVector);
                             viewVectorF.transform(quaternion);
                             timedGrenade.shoot((double)viewVectorF.x(), (double)viewVectorF.y(), (double)viewVectorF.z(), 3.2F, 0);
 
                             serverPlayer.level.addFreshEntity(timedGrenade);
-                            serverPlayer.level.playSound((PlayerEntity)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            serverPlayer.level.playSound((Player)null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), SoundEvents.FIREWORK_ROCKET_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
                             CaptainAmerica.LOGGER.info("Server player {} has fired a timed grenade!", serverPlayer.getDisplayName().getString());
                         }
                     })
@@ -82,9 +82,9 @@ public class CombatAbilityManagers {
                     })
                     .onHeld(serverPlayer -> {
                         if(WeaponGauntletItem.isHoldingThis(serverPlayer)){
-                            RayTraceResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
-                            if(rayTraceResult instanceof EntityRayTraceResult){
-                                Entity target = ((EntityRayTraceResult) rayTraceResult).getEntity();
+                            HitResult rayTraceResult = CALogicHelper.getLaserRayTrace(serverPlayer);
+                            if(rayTraceResult instanceof EntityHitResult){
+                                Entity target = ((EntityHitResult) rayTraceResult).getEntity();
                                 DamageSource laserDamageSource = DamageSource.playerAttack(serverPlayer).setIsFire();
                                 boolean didHurt = target.hurt(laserDamageSource, 2.0F / 20);
                                 if(didHurt){

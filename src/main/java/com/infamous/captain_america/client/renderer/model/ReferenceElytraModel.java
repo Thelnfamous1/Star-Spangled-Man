@@ -1,33 +1,33 @@
 package com.infamous.captain_america.client.renderer.model;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ReferenceElytraModel<T extends LivingEntity> extends AgeableModel<T> {
-   private final ModelRenderer rightWing;
-   private final ModelRenderer leftWing;
+public class ReferenceElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
+   private final ModelPart rightWing;
+   private final ModelPart leftWing;
 
    public ReferenceElytraModel() {
-      this.leftWing = new ModelRenderer(this, 22, 0);
+      this.leftWing = new ModelPart(this, 22, 0);
       this.leftWing.addBox(-10.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);
 
-      this.rightWing = new ModelRenderer(this, 22, 0);
+      this.rightWing = new ModelPart(this, 22, 0);
       this.rightWing.mirror = true;
       this.rightWing.addBox(0.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);
    }
 
-   protected Iterable<ModelRenderer> headParts() {
+   protected Iterable<ModelPart> headParts() {
       return ImmutableList.of();
    }
 
-   protected Iterable<ModelRenderer> bodyParts() {
+   protected Iterable<ModelPart> bodyParts() {
       return ImmutableList.of(this.leftWing, this.rightWing);
    }
 
@@ -39,9 +39,9 @@ public class ReferenceElytraModel<T extends LivingEntity> extends AgeableModel<T
 
       if (living.isFallFlying()) {
          float fallFactor = 1.0F;
-         Vector3d deltaMove = living.getDeltaMovement();
+         Vec3 deltaMove = living.getDeltaMovement();
          if (deltaMove.y < 0.0D) {
-            Vector3d normalDeltaMove = deltaMove.normalize();
+            Vec3 normalDeltaMove = deltaMove.normalize();
             fallFactor = 1.0F - (float)Math.pow(-normalDeltaMove.y, 1.5D);
          }
 
@@ -56,8 +56,7 @@ public class ReferenceElytraModel<T extends LivingEntity> extends AgeableModel<T
 
       this.leftWing.x = 5.0F;
       this.leftWing.y = leftWingYPos;
-      if (living instanceof AbstractClientPlayerEntity) {
-         AbstractClientPlayerEntity abstractclientplayerentity = (AbstractClientPlayerEntity)living;
+      if (living instanceof AbstractClientPlayer abstractclientplayerentity) {
          abstractclientplayerentity.elytraRotX = (float)((double)abstractclientplayerentity.elytraRotX + (double)(leftWingXRot - abstractclientplayerentity.elytraRotX) * 0.1D);
          abstractclientplayerentity.elytraRotY = (float)((double)abstractclientplayerentity.elytraRotY + (double)(leftWingYRot - abstractclientplayerentity.elytraRotY) * 0.1D);
          abstractclientplayerentity.elytraRotZ = (float)((double)abstractclientplayerentity.elytraRotZ + (double)(leftWingZRot - abstractclientplayerentity.elytraRotZ) * 0.1D);

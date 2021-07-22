@@ -1,17 +1,18 @@
 package com.infamous.captain_america.server.ai.goals;
 
 import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class DroneHurtByTargetGoal<T extends CreatureEntity & IDrone> extends HurtByTargetGoal {
+public class DroneHurtByTargetGoal<T extends PathfinderMob & IDrone> extends HurtByTargetGoal {
     private final T drone;
 
     public static final String TO_IGNORE_ALERT_FIELD_NAME = "field_220797_i";
@@ -34,12 +35,12 @@ public class DroneHurtByTargetGoal<T extends CreatureEntity & IDrone> extends Hu
 
     protected void alertOthers() {
         double followDistance = this.getFollowDistance();
-        AxisAlignedBB followZone = AxisAlignedBB.unitCubeFromLowerCorner(this.mob.position()).inflate(followDistance, 10.0D, followDistance);
-        List<MobEntity> mobsInFollowZone = this.mob.level.getLoadedEntitiesOfClass(this.mob.getClass(), followZone);
-        Iterator<MobEntity> nearbyMobIterator = mobsInFollowZone.iterator();
+        AABB followZone = AABB.unitCubeFromLowerCorner(this.mob.position()).inflate(followDistance, 10.0D, followDistance);
+        List<? extends Mob> mobsInFollowZone = this.mob.level.getEntitiesOfClass(this.mob.getClass(), followZone, EntitySelector.NO_SPECTATORS);
+        Iterator<? extends Mob> nearbyMobIterator = mobsInFollowZone.iterator();
 
         while(true) {
-            MobEntity currentNearbyMob;
+            Mob currentNearbyMob;
             while(true) {
                 if (!nearbyMobIterator.hasNext()) {
                     return;
@@ -74,11 +75,11 @@ public class DroneHurtByTargetGoal<T extends CreatureEntity & IDrone> extends Hu
         }
     }
 
-    private boolean neitherTameableOrHaveSameOwner(MobEntity nearbyMob) {
-        boolean goalOwnerNotTameable = !(this.mob instanceof TameableEntity);
-        boolean nearbyMobNotTameable = !(nearbyMob instanceof TameableEntity);
+    private boolean neitherTameableOrHaveSameOwner(Mob nearbyMob) {
+        boolean goalOwnerNotTameable = !(this.mob instanceof TamableAnimal);
+        boolean nearbyMobNotTameable = !(nearbyMob instanceof TamableAnimal);
         boolean bothTameable = !goalOwnerNotTameable && !nearbyMobNotTameable;
-        boolean haveSameOwner = bothTameable && ((TameableEntity) this.mob).getOwner() == ((TameableEntity) nearbyMob).getOwner();
+        boolean haveSameOwner = bothTameable && ((TamableAnimal) this.mob).getOwner() == ((TamableAnimal) nearbyMob).getOwner();
         return !bothTameable || haveSameOwner;
     }
 

@@ -1,6 +1,6 @@
 package com.infamous.captain_america.common.util;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -9,7 +9,7 @@ public interface IAbilityValue extends ITranslatable{
 
     Supplier<? extends IAbilityKey> getParentSupplier();
 
-    Consumer<ServerPlayerEntity> getHandlerForKeyBindAction(KeyBindAction keyBindAction);
+    Consumer<ServerPlayer> getHandlerForKeyBindAction(KeyBindAction keyBindAction);
 
     default boolean isValidForKey(IAbilityKey key){
         return this.getParentSupplier().get() == key;

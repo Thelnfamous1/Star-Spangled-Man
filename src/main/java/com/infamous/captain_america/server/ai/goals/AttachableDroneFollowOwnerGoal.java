@@ -1,14 +1,13 @@
 package com.infamous.captain_america.server.ai.goals;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.entity.drone.IAttachableDrone;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Mob;
 
-public class AttachableDroneFollowOwnerGoal<T extends MobEntity & IAttachableDrone> extends DroneFollowOwnerGoal<T>{
+public class AttachableDroneFollowOwnerGoal<T extends Mob & IAttachableDrone> extends DroneFollowOwnerGoal<T>{
     private final T attachableDrone;
 
     public AttachableDroneFollowOwnerGoal(T attachableDroneMob, double speedModifier, float startDistance, float stopDistance, float teleportDistance, boolean canFly) {
@@ -22,8 +21,8 @@ public class AttachableDroneFollowOwnerGoal<T extends MobEntity & IAttachableDro
         boolean attached = this.attachableDrone.attachDrone(this.owner);
         if(attached){
             //CaptainAmerica.LOGGER.info("Drone {} was attached to owner {} ", this.attachableDrone, this.owner);
-            if(this.owner instanceof ServerPlayerEntity){
-                ((ServerPlayerEntity)this.owner).sendMessage(new TranslationTextComponent("action.redwing.attached").withStyle(TextFormatting.RED), Util.NIL_UUID);
+            if(this.owner instanceof ServerPlayer){
+                ((ServerPlayer)this.owner).sendMessage(new TranslatableComponent("action.redwing.attached").withStyle(ChatFormatting.RED), Util.NIL_UUID);
             }
         }
     }

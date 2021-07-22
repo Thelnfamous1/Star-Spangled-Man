@@ -7,53 +7,54 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SChangeGameStatePacket;
-import net.minecraft.network.play.server.SSpawnObjectPacket;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 /**
  * This is basically AbstractArrowEntity, but with increased extensibility
  */
-public abstract class CAProjectileEntity extends ProjectileEntity {
-   private static final DataParameter<Byte> ID_FLAGS = EntityDataManager.defineId(CAProjectileEntity.class, DataSerializers.BYTE);
-   private static final DataParameter<Byte> PIERCE_LEVEL = EntityDataManager.defineId(CAProjectileEntity.class, DataSerializers.BYTE);
+public abstract class CAProjectileEntity extends Projectile {
+   private static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(CAProjectileEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<Byte> PIERCE_LEVEL = SynchedEntityData.defineId(CAProjectileEntity.class, EntityDataSerializers.BYTE);
    @Nullable
    private BlockState lastState;
    protected boolean inGround;
@@ -67,19 +68,19 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
    private IntOpenHashSet piercingIgnoreEntityIds;
    private List<Entity> piercedAndKilledEntities;
 
-   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, World world) {
+   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, Level world) {
       super(entityType, world);
    }
 
-   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, double x, double y, double z, World world) {
+   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, double x, double y, double z, Level world) {
       this(entityType, world);
       this.setPos(x, y, z);
    }
 
-   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, LivingEntity shooter, World world) {
+   protected CAProjectileEntity(EntityType<? extends CAProjectileEntity> entityType, LivingEntity shooter, Level world) {
       this(entityType, shooter.getX(), shooter.getEyeY() - (double)0.1F, shooter.getZ(), world);
       this.setOwner(shooter);
-      if (shooter instanceof PlayerEntity) {
+      if (shooter instanceof Player) {
          this.pickup = CAProjectileEntity.PickupStatus.ALLOWED;
       }
 
@@ -127,11 +128,11 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       boolean preTick = this.preBaseProjectileTick();
       if(preTick){
          boolean noPhysics = this.isNoPhysics();
-         Vector3d deltaMovement = this.getDeltaMovement();
+         Vec3 deltaMovement = this.getDeltaMovement();
          if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float horizontalDist = MathHelper.sqrt(getHorizontalDistanceSqr(deltaMovement));
-            this.yRot = (float)(MathHelper.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
-            this.xRot = (float)(MathHelper.atan2(deltaMovement.y, (double)horizontalDist) * (double)(180F / (float)Math.PI));
+            float horizontalDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
+            this.yRot = (float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
+            this.xRot = (float)(Mth.atan2(deltaMovement.y, (double)horizontalDist) * (double)(180F / (float)Math.PI));
             this.yRotO = this.yRot;
             this.xRotO = this.xRot;
          }
@@ -141,9 +142,9 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
          if (!blockstate.isAir(this.level, blockpos) && !noPhysics) {
             VoxelShape voxelshape = blockstate.getCollisionShape(this.level, blockpos);
             if (!voxelshape.isEmpty()) {
-               Vector3d vector3d1 = this.position();
+               Vec3 vector3d1 = this.position();
 
-               for(AxisAlignedBB axisalignedbb : voxelshape.toAabbs()) {
+               for(AABB axisalignedbb : voxelshape.toAabbs()) {
                   if (axisalignedbb.move(blockpos).contains(vector3d1)) {
                      this.inGround = true;
                      break;
@@ -180,7 +181,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
    protected void tickMovement() {
       boolean noPhysics = this.isNoPhysics();
-      Vector3d deltaMovement = this.getDeltaMovement();
+      Vec3 deltaMovement = this.getDeltaMovement();
       double d3 = deltaMovement.x;
       double d4 = deltaMovement.y;
       double d0 = deltaMovement.z;
@@ -193,14 +194,14 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       double d5 = this.getX() + d3;
       double d1 = this.getY() + d4;
       double d2 = this.getZ() + d0;
-      float f1 = MathHelper.sqrt(getHorizontalDistanceSqr(deltaMovement));
+      float f1 = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
       if (noPhysics) {
-         this.yRot = (float)(MathHelper.atan2(-d3, -d0) * (double)(180F / (float)Math.PI));
+         this.yRot = (float)(Mth.atan2(-d3, -d0) * (double)(180F / (float)Math.PI));
       } else {
-         this.yRot = (float)(MathHelper.atan2(d3, d0) * (double)(180F / (float)Math.PI));
+         this.yRot = (float)(Mth.atan2(d3, d0) * (double)(180F / (float)Math.PI));
       }
 
-      this.xRot = (float)(MathHelper.atan2(d4, (double)f1) * (double)(180F / (float)Math.PI));
+      this.xRot = (float)(Mth.atan2(d4, (double)f1) * (double)(180F / (float)Math.PI));
       this.xRot = lerpRotation(this.xRotO, this.xRot);
       this.yRot = lerpRotation(this.yRotO, this.yRot);
       float f2 = this.getInertia();
@@ -216,7 +217,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
       this.setDeltaMovement(deltaMovement.scale((double)f2));
       if (!this.isNoGravity() && !noPhysics) {
-         Vector3d vector3d4 = this.getDeltaMovement();
+         Vec3 vector3d4 = this.getDeltaMovement();
          this.setDeltaMovement(vector3d4.x, vector3d4.y - (double)f3, vector3d4.z);
       }
 
@@ -225,30 +226,30 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
    protected void tickCollision() {
       boolean noPhysics = this.isNoPhysics();
-      Vector3d deltaMovement = this.getDeltaMovement();
-      Vector3d fromPos = this.position();
-      Vector3d toPos = fromPos.add(deltaMovement);
-      RayTraceResult raytraceresult = this.level.clip(new RayTraceContext(fromPos, toPos, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
-      if (raytraceresult.getType() != RayTraceResult.Type.MISS) {
+      Vec3 deltaMovement = this.getDeltaMovement();
+      Vec3 fromPos = this.position();
+      Vec3 toPos = fromPos.add(deltaMovement);
+      HitResult raytraceresult = this.level.clip(new ClipContext(fromPos, toPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+      if (raytraceresult.getType() != HitResult.Type.MISS) {
          toPos = raytraceresult.getLocation();
       }
 
       while(this.isAlive()) {
-         EntityRayTraceResult entityraytraceresult = this.findHitEntity(fromPos, toPos);
+         EntityHitResult entityraytraceresult = this.findHitEntity(fromPos, toPos);
          if (entityraytraceresult != null) {
             raytraceresult = entityraytraceresult;
          }
 
-         if (raytraceresult instanceof EntityRayTraceResult) {
-            Entity target = ((EntityRayTraceResult)raytraceresult).getEntity();
+         if (raytraceresult instanceof EntityHitResult) {
+            Entity target = ((EntityHitResult)raytraceresult).getEntity();
             Entity shooter = this.getOwner();
-            if (target instanceof PlayerEntity && shooter instanceof PlayerEntity && !((PlayerEntity)shooter).canHarmPlayer((PlayerEntity)target)) {
+            if (target instanceof Player && shooter instanceof Player && !((Player)shooter).canHarmPlayer((Player)target)) {
                raytraceresult = null;
                entityraytraceresult = null;
             }
          }
 
-         if (raytraceresult != null && raytraceresult.getType() != RayTraceResult.Type.MISS && !noPhysics && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
+         if (raytraceresult != null && raytraceresult.getType() != HitResult.Type.MISS && !noPhysics && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
             this.onHit(raytraceresult);
             this.hasImpulse = true;
          }
@@ -278,17 +279,17 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
    }
 
    private boolean shouldFall() {
-      return this.inGround && this.level.noCollision((new AxisAlignedBB(this.position(), this.position())).inflate(0.06D));
+      return this.inGround && this.level.noCollision((new AABB(this.position(), this.position())).inflate(0.06D));
    }
 
    private void startFalling() {
       this.inGround = false;
-      Vector3d vector3d = this.getDeltaMovement();
+      Vec3 vector3d = this.getDeltaMovement();
       this.setDeltaMovement(vector3d.multiply((double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F)));
       this.life = 0;
    }
 
-   public void move(MoverType moverType, Vector3d vector3d) {
+   public void move(MoverType moverType, Vec3 vector3d) {
       super.move(moverType, vector3d);
       if (moverType != MoverType.SELF && this.shouldFall()) {
          this.startFalling();
@@ -299,7 +300,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
    protected void tickDespawn() {
       ++this.life;
       if (this.life >= 1200) {
-         this.remove();
+         this.discard();
       }
 
    }
@@ -315,11 +316,11 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
    }
 
-   protected void onHitEntity(EntityRayTraceResult entityRTR) {
+   protected void onHitEntity(EntityHitResult entityRTR) {
       super.onHitEntity(entityRTR);
       Entity target = entityRTR.getEntity();
       float deltaMoveLength = (float)this.getDeltaMovement().length();
-      int damageAmount = MathHelper.ceil(MathHelper.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
+      int damageAmount = Mth.ceil(Mth.clamp((double)deltaMoveLength * this.baseDamage, 0.0D, 2.147483647E9D));
       if (updatePierced(target)) return;
 
       if (this.isCritArrow()) {
@@ -352,7 +353,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
             }
 
             if (this.knockback > 0) {
-               Vector3d vector3d = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double)this.knockback * 0.6D);
+               Vec3 vector3d = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double)this.knockback * 0.6D);
                if (vector3d.lengthSqr() > 0.0D) {
                   livingentity.push(vector3d.x, 0.1D, vector3d.z);
                }
@@ -364,8 +365,8 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
             }
 
             this.doPostHurtEffects(livingentity);
-            if (livingentity != shooter && livingentity instanceof PlayerEntity && shooter instanceof ServerPlayerEntity && !this.isSilent()) {
-               ((ServerPlayerEntity)shooter).connection.send(new SChangeGameStatePacket(SChangeGameStatePacket.ARROW_HIT_PLAYER, 0.0F));
+            if (livingentity != shooter && livingentity instanceof Player && shooter instanceof ServerPlayer && !this.isSilent()) {
+               ((ServerPlayer)shooter).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
             }
 
             updatePiercedAndKilled(target, shooter, livingentity);
@@ -373,7 +374,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
          this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
          if (this.getPierceLevel() <= 0) {
-            this.remove();
+            this.discard();
          }
       } else {
          target.setRemainingFireTicks(remainingFireTicks);
@@ -402,7 +403,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
          }
 
          if (this.piercingIgnoreEntityIds.size() >= this.getPierceLevel() + 1) {
-            this.remove();
+            this.discard();
             return true;
          }
 
@@ -416,8 +417,8 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
          this.piercedAndKilledEntities.add(livingentity);
       }
 
-      if (!this.level.isClientSide && shooter instanceof ServerPlayerEntity) {
-         ServerPlayerEntity serverplayerentity = (ServerPlayerEntity) shooter;
+      if (!this.level.isClientSide && shooter instanceof ServerPlayer) {
+         ServerPlayer serverplayerentity = (ServerPlayer) shooter;
          if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
             CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(serverplayerentity, this.piercedAndKilledEntities);
          } else if (!target.isAlive() && this.shotFromCrossbow()) {
@@ -426,12 +427,12 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       }
    }
 
-   protected void onHitBlock(BlockRayTraceResult blockRTR) {
+   protected void onHitBlock(BlockHitResult blockRTR) {
       this.lastState = this.level.getBlockState(blockRTR.getBlockPos());
       super.onHitBlock(blockRTR);
-      Vector3d vector3d = blockRTR.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+      Vec3 vector3d = blockRTR.getLocation().subtract(this.getX(), this.getY(), this.getZ());
       this.setDeltaMovement(vector3d);
-      Vector3d vector3d1 = vector3d.normalize().scale((double)0.05F);
+      Vec3 vector3d1 = vector3d.normalize().scale((double)0.05F);
       this.setPosRaw(this.getX() - vector3d1.x, this.getY() - vector3d1.y, this.getZ() - vector3d1.z);
       this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
       this.inGround = true;
@@ -455,8 +456,8 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
    }
 
    @Nullable
-   protected EntityRayTraceResult findHitEntity(Vector3d vector3d, Vector3d vector3d1) {
-      return ProjectileHelper.getEntityHitResult(this.level, this, vector3d, vector3d1, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
+   protected EntityHitResult findHitEntity(Vec3 vector3d, Vec3 vector3d1) {
+      return ProjectileUtil.getEntityHitResult(this.level, this, vector3d, vector3d1, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
    }
 
    protected boolean canHitEntity(Entity entity) {
@@ -467,11 +468,11 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       return this.piercingIgnoreEntityIds == null || !this.piercingIgnoreEntityIds.contains(entity.getId());
    }
 
-   public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+   public void addAdditionalSaveData(CompoundTag compoundNBT) {
       super.addAdditionalSaveData(compoundNBT);
       compoundNBT.putShort("life", (short)this.life);
       if (this.lastState != null) {
-         compoundNBT.put("inBlockState", NBTUtil.writeBlockState(this.lastState));
+         compoundNBT.put("inBlockState", NbtUtils.writeBlockState(this.lastState));
       }
 
       compoundNBT.putByte("shake", (byte)this.shakeTime);
@@ -484,11 +485,11 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       compoundNBT.putBoolean("ShotFromCrossbow", this.shotFromCrossbow());
    }
 
-   public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+   public void readAdditionalSaveData(CompoundTag compoundNBT) {
       super.readAdditionalSaveData(compoundNBT);
       this.life = compoundNBT.getShort("life");
       if (compoundNBT.contains("inBlockState", 10)) {
-         this.lastState = NBTUtil.readBlockState(compoundNBT.getCompound("inBlockState"));
+         this.lastState = NbtUtils.readBlockState(compoundNBT.getCompound("inBlockState"));
       }
 
       this.shakeTime = compoundNBT.getByte("shake") & 255;
@@ -514,22 +515,22 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
 
    public void setOwner(@Nullable Entity p_212361_1_) {
       super.setOwner(p_212361_1_);
-      if (p_212361_1_ instanceof PlayerEntity) {
-         this.pickup = ((PlayerEntity)p_212361_1_).abilities.instabuild ? CAProjectileEntity.PickupStatus.CREATIVE_ONLY : CAProjectileEntity.PickupStatus.ALLOWED;
+      if (p_212361_1_ instanceof Player) {
+         this.pickup = ((Player)p_212361_1_).getAbilities().instabuild ? CAProjectileEntity.PickupStatus.CREATIVE_ONLY : CAProjectileEntity.PickupStatus.ALLOWED;
       }
 
    }
 
-   public void playerTouch(PlayerEntity player) {
+   public void playerTouch(Player player) {
       if (!this.level.isClientSide && (this.inGround || this.isNoPhysics()) && this.shakeTime <= 0) {
-         boolean flag = this.pickup == CAProjectileEntity.PickupStatus.ALLOWED || this.pickup == CAProjectileEntity.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild || this.isNoPhysics() && this.getOwner().getUUID() == player.getUUID();
-         if (this.pickup == CAProjectileEntity.PickupStatus.ALLOWED && !player.inventory.add(this.getPickupItem())) {
+         boolean flag = this.pickup == CAProjectileEntity.PickupStatus.ALLOWED || this.pickup == CAProjectileEntity.PickupStatus.CREATIVE_ONLY && player.getAbilities().instabuild || this.isNoPhysics() && this.getOwner().getUUID() == player.getUUID();
+         if (this.pickup == CAProjectileEntity.PickupStatus.ALLOWED && !player.getInventory().add(this.getPickupItem())) {
             flag = false;
          }
 
          if (flag) {
             player.take(this, 1);
-            this.remove();
+            this.discard();
          }
 
       }
@@ -557,7 +558,7 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       return false;
    }
 
-   protected float getEyeHeight(Pose pose, EntitySize entitySize) {
+   protected float getEyeHeight(Pose pose, EntityDimensions entitySize) {
       return 0.13F;
    }
 
@@ -632,9 +633,9 @@ public abstract class CAProjectileEntity extends ProjectileEntity {
       this.setFlag(4, shotFromCrossbow);
    }
 
-   public IPacket<?> getAddEntityPacket() {
-      Entity entity = this.getOwner();
-      return new SSpawnObjectPacket(this, entity == null ? 0 : entity.getId());
+   @Override
+   public Packet<?> getAddEntityPacket() {
+      return NetworkHooks.getEntitySpawningPacket(this);
    }
 
    public static enum PickupStatus {

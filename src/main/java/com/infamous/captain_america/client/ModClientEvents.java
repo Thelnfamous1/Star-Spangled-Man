@@ -12,10 +12,10 @@ import com.infamous.captain_america.client.renderer.model.CARenderMaterial;
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.*;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.world.entity.Mob;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -27,12 +27,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.util.Map;
 
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModClientEvents {
 
     @SubscribeEvent
     public static void onStitch(TextureStitchEvent.Pre event) {
-        if (event.getMap().location().equals(AtlasTexture.LOCATION_BLOCKS)) {
+        if (event.getMap().location().equals(TextureAtlas.LOCATION_BLOCKS)) {
             CaptainAmerica.LOGGER.info("Stitching shield textures!");
             event.addSprite(CARenderMaterial.VIBRANIUM_SHIELD.texture());
             event.addSprite(CARenderMaterial.CAPTAIN_AMERICA_SHIELD.texture());
@@ -44,7 +46,7 @@ public class ModClientEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onClientSetup(final FMLClientSetupEvent event){
         Minecraft minecraft = Minecraft.getInstance();
-        EntityRendererManager manager = minecraft.getEntityRenderDispatcher();
+        EntityRenderDispatcher manager = minecraft.getEntityRenderDispatcher();
         addLayersToSkinMaps(manager);
         addLayersToBipeds(manager);
         registerKeyBindings();
@@ -54,7 +56,7 @@ public class ModClientEvents {
 
     private static void registerEntityRenderers() {
         CaptainAmerica.LOGGER.info("Registering entity renderers!");
-        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.BULLET.get(), (manager) -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.BULLET.get(), (manager) -> new ThrownItemRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.MISSILE.get(), MissileRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.TIMED_GRENADE.get(), TimedGrenadeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.FALCON_REDWING.get(), RedwingRenderer::new);
@@ -79,7 +81,7 @@ public class ModClientEvents {
         CaptainAmerica.LOGGER.info("Finished registering key bindings!");
     }
 
-    private static void addLayersToSkinMaps(EntityRendererManager manager) {
+    private static void addLayersToSkinMaps(EntityRenderDispatcher manager) {
         CaptainAmerica.LOGGER.info("Adding layers to skin maps!");
         Map<String, PlayerRenderer> skinMap = manager.getSkinMap();
         for(PlayerRenderer playerRenderer : skinMap.values()){
@@ -92,12 +94,12 @@ public class ModClientEvents {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends MobEntity, M extends BipedModel<T>> void addLayersToBipeds(EntityRendererManager manager) {
+    private static <T extends Mob, M extends HumanoidModel<T>> void addLayersToBipeds(EntityRenderDispatcher manager) {
         CaptainAmerica.LOGGER.info("Adding layers to bipeds!");
         for(EntityRenderer<?> entityRenderer : manager.renderers.values()){
-            if(entityRenderer instanceof BipedRenderer){
-                BipedRenderer<T, M> bipedRenderer = (BipedRenderer<T, M>) entityRenderer;
-                bipedRenderer.addLayer(new MetalArmLayer<>(bipedRenderer, new BipedModel<>(0.0F)));
+            if(entityRenderer instanceof HumanoidMobRenderer){
+                HumanoidMobRenderer<T, M> bipedRenderer = (HumanoidMobRenderer<T, M>) entityRenderer;
+                bipedRenderer.addLayer(new MetalArmLayer<>(bipedRenderer, new HumanoidModel<>(0.0F)));
             }
         }
         CaptainAmerica.LOGGER.info("Finished adding layers to bipeds!");

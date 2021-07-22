@@ -1,27 +1,29 @@
 package com.infamous.captain_america.common.capability.metal_arm;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nullable;
+
+import Tag;
 
 public class MetalArmStorage implements Capability.IStorage<IMetalArm> {
 
     @Nullable
     @Override
-    public INBT writeNBT(Capability<IMetalArm> capability, IMetalArm instance, Direction side) {
-        CompoundNBT tag = new CompoundNBT();
-        tag.put("metalArmMainHand", instance.getMetalArmMainHand().save(new CompoundNBT()));
-        tag.put("metalArmOffHand", instance.getMetalArmOffHand().save(new CompoundNBT()));
+    public Tag writeNBT(Capability<IMetalArm> capability, IMetalArm instance, Direction side) {
+        CompoundTag tag = new CompoundTag();
+        tag.put("metalArmMainHand", instance.getMetalArmMainHand().save(new CompoundTag()));
+        tag.put("metalArmOffHand", instance.getMetalArmOffHand().save(new CompoundTag()));
         return tag;
     }
 
     @Override
-    public void readNBT(Capability<IMetalArm> capability, IMetalArm instance, Direction side, INBT nbt) {
-        CompoundNBT tag = (CompoundNBT) nbt;
+    public void readNBT(Capability<IMetalArm> capability, IMetalArm instance, Direction side, Tag nbt) {
+        CompoundTag tag = (CompoundTag) nbt;
 
         if (tag.contains("metalArmMainHand", 10)) {
             instance.setMetalArmMainHand(ItemStack.of(tag.getCompound("metalArmMainHand")));

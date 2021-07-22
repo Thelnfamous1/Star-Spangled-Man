@@ -1,14 +1,14 @@
 package com.infamous.captain_america.server.ai.goals;
 
 import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public class DronePatrollingTargetGoal<T extends MobEntity & IDrone, E extends LivingEntity> extends NearestAttackableTargetGoal<E> {
+public class DronePatrollingTargetGoal<T extends Mob & IDrone, E extends LivingEntity> extends NearestAttackableTargetGoal<E> {
    public static final boolean MUST_REACH = false;
    public static final int RANDOM_INTERVAL = 10;
    private final T drone;

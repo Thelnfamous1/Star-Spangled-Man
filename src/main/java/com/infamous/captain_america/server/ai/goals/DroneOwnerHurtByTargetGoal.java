@@ -1,15 +1,15 @@
 package com.infamous.captain_america.server.ai.goals;
 
+import com.infamous.captain_america.common.entity.drone.IDrone;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+
 import java.util.EnumSet;
 
-import com.infamous.captain_america.common.entity.drone.IDrone;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.TargetGoal;
-
-public class DroneOwnerHurtByTargetGoal<T extends MobEntity & IDrone> extends TargetGoal {
+public class DroneOwnerHurtByTargetGoal<T extends Mob & IDrone> extends TargetGoal {
    private final T drone;
    private LivingEntity ownerLastHurtBy;
    private int timestamp;
@@ -28,7 +28,7 @@ public class DroneOwnerHurtByTargetGoal<T extends MobEntity & IDrone> extends Ta
          } else {
             this.ownerLastHurtBy = owner.getLastHurtByMob();
             int i = owner.getLastHurtByMobTimestamp();
-            return i != this.timestamp && this.canAttack(this.ownerLastHurtBy, EntityPredicate.DEFAULT) && this.drone.wantsToAttack(this.ownerLastHurtBy, owner);
+            return i != this.timestamp && this.canAttack(this.ownerLastHurtBy, TargetingConditions.DEFAULT) && this.drone.wantsToAttack(this.ownerLastHurtBy, owner);
          }
       } else {
          return false;

@@ -1,16 +1,15 @@
 package com.infamous.captain_america.common.item.gauntlet;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.screen.FalconAbilitySelectionScreen;
 import com.infamous.captain_america.common.util.CALogicHelper;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class ControlGauntletItem extends AbstractGauntletItem {
 
@@ -19,13 +18,13 @@ public class ControlGauntletItem extends AbstractGauntletItem {
     }
 
     @Override
-    protected ActionResult<ItemStack> useOnServer(World world, PlayerEntity player, Hand hand, ItemStack heldItem) {
+    protected InteractionResultHolder<ItemStack> useOnServer(Level world, Player player, InteractionHand hand, ItemStack heldItem) {
         boolean canUseControl = canUseControl(player, hand);
-        return canUseControl ? ActionResult.consume(heldItem) : ActionResult.pass(heldItem);
+        return canUseControl ? InteractionResultHolder.consume(heldItem) : InteractionResultHolder.pass(heldItem);
     }
 
     @Override
-    protected ActionResult<ItemStack> useOnClient(World world, PlayerEntity player, Hand hand, ItemStack heldItem) {
+    protected InteractionResultHolder<ItemStack> useOnClient(Level world, Player player, InteractionHand hand, ItemStack heldItem) {
         net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
         boolean canUseControl = canUseControl(player, hand);
         if(minecraft.screen == null
@@ -35,44 +34,44 @@ public class ControlGauntletItem extends AbstractGauntletItem {
                 && canUseControl){
             //CaptainAmerica.LOGGER.info("Opening falcon screen for client player {}!", player.getDisplayName().getString());
             minecraft.setScreen(new FalconAbilitySelectionScreen());
-            return ActionResult.consume(heldItem);
+            return InteractionResultHolder.consume(heldItem);
         } else{
-            return ActionResult.pass(heldItem);
+            return InteractionResultHolder.pass(heldItem);
         }
     }
 
-    private boolean canUseControl(PlayerEntity player, Hand hand) {
+    private boolean canUseControl(Player player, InteractionHand hand) {
         return !player.isSecondaryUseActive()
-                || hand == Hand.OFF_HAND
+                || hand == InteractionHand.OFF_HAND
                 || !WeaponGauntletItem.hasThisInOppositeHand(player, hand);
     }
 
     @Override
-    protected void usingOnClient(World useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft) {
+    protected void usingOnClient(Level useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft) {
 
     }
 
     @Override
-    protected void usingOnServer(World useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft) {
+    protected void usingOnServer(Level useWorld, LivingEntity useEntity, ItemStack useItem, int useTicksLeft) {
 
     }
 
     @Override
-    protected void releaseOnClient(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft) {
+    protected void releaseOnClient(ItemStack usedItem, Level usedWorld, LivingEntity usedEntity, int useTicksLeft) {
     }
 
     @Override
-    protected void releaseOnServer(ItemStack usedItem, World usedWorld, LivingEntity usedEntity, int useTicksLeft) {
+    protected void releaseOnServer(ItemStack usedItem, Level usedWorld, LivingEntity usedEntity, int useTicksLeft) {
     }
 
-    public static boolean hasThisInOppositeHand(LivingEntity livingEntity, Hand handIn){
-        Hand oppositeHand = CALogicHelper.getOppositeHand(handIn);
+    public static boolean hasThisInOppositeHand(LivingEntity livingEntity, InteractionHand handIn){
+        InteractionHand oppositeHand = CALogicHelper.getOppositeHand(handIn);
         Item itemInOppositeHand = livingEntity.getItemInHand(oppositeHand).getItem();
         return itemInOppositeHand instanceof ControlGauntletItem;
     }
 
     public static boolean isHoldingThis(LivingEntity livingEntity){
-        return livingEntity.isHolding(item -> item instanceof ControlGauntletItem);
+        return livingEntity.isHolding(itemStack -> itemStack.getItem() instanceof ControlGauntletItem);
     }
 
     public static boolean isStackOfThis(ItemStack stack){

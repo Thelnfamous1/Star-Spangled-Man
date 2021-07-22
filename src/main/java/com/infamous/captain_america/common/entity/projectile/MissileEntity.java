@@ -1,18 +1,18 @@
 package com.infamous.captain_america.common.entity.projectile;
 
 import com.infamous.captain_america.common.registry.EntityTypeRegistry;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class MissileEntity extends ExplosiveProjectileEntity {
 
-    public MissileEntity(EntityType<? extends MissileEntity> entityType, World world) {
+    public MissileEntity(EntityType<? extends MissileEntity> entityType, Level world) {
         super(entityType, world);
     }
 
-    public MissileEntity(LivingEntity shooter, World world) {
+    public MissileEntity(LivingEntity shooter, Level world) {
         super(EntityTypeRegistry.MISSILE.get(), shooter, world);
     }
 

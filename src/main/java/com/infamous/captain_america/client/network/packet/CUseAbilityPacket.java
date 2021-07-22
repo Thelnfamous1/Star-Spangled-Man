@@ -3,8 +3,8 @@ package com.infamous.captain_america.client.network.packet;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.KeyBindAction;
 import com.infamous.captain_america.server.network.ServerNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -17,13 +17,13 @@ public class CUseAbilityPacket {
         this.abilityKey = abilityKey;
     }
 
-    public static CUseAbilityPacket decodePacket(PacketBuffer packetBuffer){
+    public static CUseAbilityPacket decodePacket(FriendlyByteBuf packetBuffer){
         KeyBindAction keyBindAction = packetBuffer.readEnum(KeyBindAction.class);
         FalconAbilityKey abilityKey = packetBuffer.readEnum(FalconAbilityKey.class);
         return new CUseAbilityPacket(keyBindAction, abilityKey);
     }
 
-    public static void encodePacket(CUseAbilityPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(CUseAbilityPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.keyBindAction);
         packetBuffer.writeEnum(packet.abilityKey);
     }

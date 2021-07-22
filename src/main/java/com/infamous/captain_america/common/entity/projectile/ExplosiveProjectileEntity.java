@@ -1,17 +1,17 @@
 package com.infamous.captain_america.common.entity.projectile;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.IndirectEntityDamageSource;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -19,18 +19,18 @@ import net.minecraftforge.fml.network.NetworkHooks;
 public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
     protected float explosionStrength = 1.0F;
     protected int explosionRadius = 3;
-    protected Explosion.Mode explosion$mode = Explosion.Mode.BREAK;
+    protected Explosion.BlockInteraction explosion$mode = Explosion.BlockInteraction.BREAK;
     protected boolean dud;
 
-    protected ExplosiveProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, World world){
+    protected ExplosiveProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, Level world){
         super(entityType, world);
     }
 
-    protected ExplosiveProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, LivingEntity shooter, World world) {
+    protected ExplosiveProjectileEntity(EntityType<? extends ExplosiveProjectileEntity> entityType, LivingEntity shooter, Level world) {
         super(entityType, shooter, world);
     }
 
-    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+    public void addAdditionalSaveData(CompoundTag compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
 
         compoundNBT.putByte("ExplosionRadius", (byte)this.explosionRadius);
@@ -39,7 +39,7 @@ public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
         compoundNBT.putBoolean("Dud", this.dud);
     }
 
-    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+    public void readAdditionalSaveData(CompoundTag compoundNBT) {
         super.readAdditionalSaveData(compoundNBT);
 
         if (compoundNBT.contains("ExplosionRadius", 99)) {
@@ -55,20 +55,20 @@ public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
     }
 
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRTR) {
+    protected void onHitBlock(BlockHitResult blockRTR) {
         super.onHitBlock(blockRTR);
         this.postHitBlock(blockRTR);
     }
 
-    protected void postHitBlock(BlockRayTraceResult blockRTR) {
+    protected void postHitBlock(BlockHitResult blockRTR) {
         this.explode();
     }
 
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRTR) {
+    protected void onHitEntity(EntityHitResult entityRTR) {
         Entity target = entityRTR.getEntity();
         float deltaMoveLength = (float)this.getDeltaMovement().length();
-        int actualDamage = MathHelper.ceil(MathHelper.clamp((double)deltaMoveLength * this.getBaseDamage(), 0.0D, 2.147483647E9D));
+        int actualDamage = Mth.ceil(Mth.clamp((double)deltaMoveLength * this.getBaseDamage(), 0.0D, 2.147483647E9D));
 
         Entity shooter = this.getOwner();
         DamageSource missileDamageSource;
@@ -94,7 +94,7 @@ public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
         this.postHitEntity(entityRTR);
     }
 
-    protected void postHitEntity(EntityRayTraceResult entityRTR) {
+    protected void postHitEntity(EntityHitResult entityRTR) {
         this.explode();
     }
 
@@ -111,21 +111,16 @@ public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
         }
     }
 
-    public static Explosion.Mode explosionModeByOrdinal(int ordinal) {
-        if (ordinal < 0 || ordinal > Explosion.Mode.values().length) {
+    public static Explosion.BlockInteraction explosionModeByOrdinal(int ordinal) {
+        if (ordinal < 0 || ordinal > Explosion.BlockInteraction.values().length) {
             ordinal = 0;
         }
 
-        return Explosion.Mode.values()[ordinal];
+        return Explosion.BlockInteraction.values()[ordinal];
     }
 
     @OnlyIn(Dist.CLIENT)
     public boolean shouldRender(double x, double y, double z) {
         return true;
-    }
-
-    @Override
-    public IPacket<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

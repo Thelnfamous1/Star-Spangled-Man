@@ -2,17 +2,17 @@ package com.infamous.captain_america.common.registry;
 
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.potion.UncurableEffect;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class EffectRegistry implements IRegistryManager<Effect> {
-    private static final DeferredRegister<Effect> EFFECTS = DeferredRegister.create(ForgeRegistries.POTIONS, CaptainAmerica.MODID);
+public class EffectRegistry implements IRegistryManager<MobEffect> {
+    private static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.POTIONS, CaptainAmerica.MODID);
 
     private static final double MOVE_SPEED_MODIFER_VALUE_SERUM = 1.0F;
     private static final double SWIM_SPEED_MODIFIER_VALUE_SERUM = 1.0F;
@@ -24,23 +24,23 @@ public class EffectRegistry implements IRegistryManager<Effect> {
     private static final double MAX_HEALTH_MODIFIER_VALUE_SERUM = 1.0F;
 
     public static final int INDIGO = 0x7000ff;
-    public static final RegistryObject<Effect> HUD_NIGHT_VISION = EFFECTS.register(
-      "hud_night_vision", () -> new UncurableEffect(EffectType.BENEFICIAL, INDIGO)
+    public static final RegistryObject<MobEffect> HUD_NIGHT_VISION = EFFECTS.register(
+      "hud_night_vision", () -> new UncurableEffect(MobEffectCategory.BENEFICIAL, INDIGO)
     );
 
     public static final int RED = 0xff0000;
-    public static final RegistryObject<Effect> HUD_INFRARED = EFFECTS.register(
-            "hud_infrared", () -> new UncurableEffect(EffectType.BENEFICIAL, RED)
+    public static final RegistryObject<MobEffect> HUD_INFRARED = EFFECTS.register(
+            "hud_infrared", () -> new UncurableEffect(MobEffectCategory.BENEFICIAL, RED)
     );
 
     public static final int BURNT_ORANGE = 0xcc5500;
-    public static final RegistryObject<Effect> HUD_COMBAT_TRACKER = EFFECTS.register(
-            "hud_combat_tracker", () -> new UncurableEffect(EffectType.BENEFICIAL, BURNT_ORANGE)
+    public static final RegistryObject<MobEffect> HUD_COMBAT_TRACKER = EFFECTS.register(
+            "hud_combat_tracker", () -> new UncurableEffect(MobEffectCategory.BENEFICIAL, BURNT_ORANGE)
     );
 
-    public static final RegistryObject<Effect> SUPER_SOLDIER = EFFECTS.register(
+    public static final RegistryObject<MobEffect> SUPER_SOLDIER = EFFECTS.register(
             "super_soldier", () ->
-                    (new UncurableEffect(EffectType.BENEFICIAL, 0x0087ff))
+                    (new UncurableEffect(MobEffectCategory.BENEFICIAL, 0x0087ff))
                             .addAttributeModifier(
                                     Attributes.MOVEMENT_SPEED,
                                     "e1a9a2b7-d5e2-4697-93b9-fd6da2f345ea",
@@ -89,7 +89,7 @@ public class EffectRegistry implements IRegistryManager<Effect> {
     }
 
     @Override
-    public DeferredRegister<Effect> getDeferredRegister() {
+    public DeferredRegister<MobEffect> getDeferredRegister() {
         return EFFECTS;
     }
 }

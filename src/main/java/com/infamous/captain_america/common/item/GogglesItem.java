@@ -1,20 +1,22 @@
 package com.infamous.captain_america.common.item;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import net.minecraft.world.item.Item.Properties;
+
 public class GogglesItem extends CAArmorItem {
 
     public static final Predicate<Item> GOGGLES_PREDICATE = item -> item instanceof GogglesItem;
-    public static final EquipmentSlotType SLOT = EquipmentSlotType.HEAD;
-    public GogglesItem(IArmorMaterial armorMaterial, Properties properties) {
+    public static final EquipmentSlot SLOT = EquipmentSlot.HEAD;
+    public GogglesItem(ArmorMaterial armorMaterial, Properties properties) {
         super(armorMaterial, SLOT, properties);
     }
 
@@ -48,12 +50,12 @@ public class GogglesItem extends CAArmorItem {
     }
 
     public static boolean isHUDEnabled(ItemStack gogglesStack) {
-        CompoundNBT compoundnbt = gogglesStack.getTag();
+        CompoundTag compoundnbt = gogglesStack.getTag();
         return compoundnbt != null && compoundnbt.getBoolean("HUDEnabled");
     }
 
     public static void setHUDEnabled(ItemStack gogglesStack, boolean enabled) {
-        CompoundNBT compoundnbt = gogglesStack.getOrCreateTag();
+        CompoundTag compoundnbt = gogglesStack.getOrCreateTag();
         compoundnbt.putBoolean("HUDEnabled", enabled);
     }
 }

@@ -1,29 +1,27 @@
 package com.infamous.captain_america.common.capability.drone_controller;
 
-import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.common.entity.drone.IDrone;
 import com.infamous.captain_america.common.entity.drone.RedwingEntity;
 import com.infamous.captain_america.common.item.EXO7FalconItem;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
 public class RedwingController implements IDroneController {
-    private CompoundNBT droneNBT;
+    private CompoundTag droneNBT;
     private UUID droneUUID;
     private boolean droneRecalled;
     private boolean dronePatrolling;
 
     public RedwingController(){
-        this.droneNBT = new CompoundNBT();
+        this.droneNBT = new CompoundTag();
         this.droneUUID = null;
         this.droneRecalled = false;
         this.dronePatrolling = false;
@@ -38,7 +36,7 @@ public class RedwingController implements IDroneController {
     }
 
     @Override
-    public void setDroneNBT(CompoundNBT droneNBT) {
+    public void setDroneNBT(CompoundTag droneNBT) {
         this.droneNBT = droneNBT;
     }
 
@@ -48,7 +46,7 @@ public class RedwingController implements IDroneController {
     }
 
     @Override
-    public CompoundNBT getDroneNBT() {
+    public CompoundTag getDroneNBT() {
         return this.droneNBT;
     }
 

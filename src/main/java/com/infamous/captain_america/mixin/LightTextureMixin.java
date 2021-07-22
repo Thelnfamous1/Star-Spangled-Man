@@ -1,20 +1,20 @@
 package com.infamous.captain_america.mixin;
 
 import com.infamous.captain_america.common.registry.EffectRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
+import net.minecraft.client.gui.screens.MenuScreens;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(LightTexture.class)
+@Mixin(MenuScreens.class)
 public class LightTextureMixin {
 
     @Final
     @Shadow
-    private Minecraft minecraft;
+    private LootItemConditionalFunction minecraft;
 
     @ModifyVariable(at = @At(value = "STORE"), method = "updateLightTexture", ordinal = 4)
     private float checkHUDNightVision(float original){

@@ -5,5 +5,5 @@ import javax.annotation.Nullable;
 public interface IHasRenderMaterial {
 
     @Nullable
-    net.minecraft.client.renderer.model.RenderMaterial getRenderMaterial();
+    net.minecraft.client.resources.model.Material getRenderMaterial();
 }

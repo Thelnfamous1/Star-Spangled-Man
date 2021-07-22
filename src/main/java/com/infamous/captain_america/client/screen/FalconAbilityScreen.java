@@ -5,13 +5,13 @@ import com.infamous.captain_america.client.network.packet.CSetFalconAbilityPacke
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -27,7 +27,7 @@ public abstract class FalconAbilityScreen extends Screen {
     private int previousPage;
 
     public FalconAbilityScreen(FalconAbilityKey key) {
-        super(new TranslationTextComponent("test.screen.thing"));
+        super(new TranslatableComponent("test.screen.thing"));
         this.key = key;
     }
 
@@ -61,7 +61,7 @@ public abstract class FalconAbilityScreen extends Screen {
     }
 
     protected void addFalconButton(int relX, int relY, int offset, FalconAbilityValue value){
-        this.addButton(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslationTextComponent(this.key.getTranslationKey(value)), p -> {
+        this.addButton(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslatableComponent(this.key.getTranslationKey(value)), p -> {
             NetworkHandler.INSTANCE.sendToServer(new CSetFalconAbilityPacket(this.key, value));
             Minecraft.getInstance().setScreen(new FalconAbilitySelectionScreen());
         }));
@@ -70,7 +70,7 @@ public abstract class FalconAbilityScreen extends Screen {
     @Override
     public void tick() {
         if (this.page != this.previousPage){
-            List<Widget> buttonList = this.buttons;
+            List<AbstractWidget> buttonList = this.buttons;
             if (this.page > this.previousPage) {
                 System.out.println(buttonList.get(0).y);
                 for (int i = 0; i < buttonList.size(); i++) {
@@ -91,7 +91,7 @@ public abstract class FalconAbilityScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack stack, int rouseX, int rouseY, float partialTicks){
+    public void render(PoseStack stack, int rouseX, int rouseY, float partialTicks){
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.minecraft != null) {

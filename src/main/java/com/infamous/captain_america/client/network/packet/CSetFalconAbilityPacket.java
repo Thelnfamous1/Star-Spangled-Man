@@ -3,8 +3,8 @@ package com.infamous.captain_america.client.network.packet;
 import com.infamous.captain_america.common.util.FalconAbilityKey;
 import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.infamous.captain_america.server.network.ServerNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -17,13 +17,13 @@ public class CSetFalconAbilityPacket {
         this.value = value;
     }
 
-    public static CSetFalconAbilityPacket decodePacket(PacketBuffer packetBuffer){
+    public static CSetFalconAbilityPacket decodePacket(FriendlyByteBuf packetBuffer){
         FalconAbilityKey key = packetBuffer.readEnum(FalconAbilityKey.class);
         FalconAbilityValue value = packetBuffer.readEnum(FalconAbilityValue.class);
         return new CSetFalconAbilityPacket(key, value);
     }
 
-    public static void encodePacket(CSetFalconAbilityPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(CSetFalconAbilityPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.key);
         packetBuffer.writeEnum(packet.value);
     }

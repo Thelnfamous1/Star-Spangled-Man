@@ -1,11 +1,6 @@
 package com.infamous.captain_america;
 
 import com.infamous.captain_america.common.registry.*;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Potion;
-import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;

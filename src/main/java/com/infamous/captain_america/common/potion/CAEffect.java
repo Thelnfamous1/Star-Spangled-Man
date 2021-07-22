@@ -1,15 +1,15 @@
 package com.infamous.captain_america.common.potion;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
 import javax.annotation.Nullable;
 
-public class CAEffect extends Effect {
+public class CAEffect extends MobEffect {
 
-    public CAEffect(EffectType effectType, int color) {
+    public CAEffect(MobEffectCategory effectType, int color) {
         super(effectType, color);
     }
 

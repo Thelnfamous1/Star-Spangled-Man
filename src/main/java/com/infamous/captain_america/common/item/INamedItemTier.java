@@ -1,7 +1,7 @@
 package com.infamous.captain_america.common.item;
 
-import net.minecraft.item.IItemTier;
+import net.minecraft.world.item.Tier;
 
-public interface INamedItemTier extends IItemTier {
+public interface INamedItemTier extends Tier {
     String getName();
 }

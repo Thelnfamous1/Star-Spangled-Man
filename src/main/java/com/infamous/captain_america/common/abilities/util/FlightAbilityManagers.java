@@ -9,9 +9,9 @@ import com.infamous.captain_america.common.capability.falcon_ability.IFalconAbil
 import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.infamous.captain_america.server.network.packet.SFlightPacket;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.Util;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 public class FlightAbilityManagers {
@@ -35,7 +35,7 @@ public class FlightAbilityManagers {
                         falconAbilityCap.setHovering(!falconAbilityCap.isHovering() && FalconFlightHelper.canHover(serverPlayer));
                         CaptainAmerica.LOGGER.debug("Server player {} is {} hovering using an EXO-7 Falcon!", serverPlayer.getDisplayName().getString(), falconAbilityCap.isHovering() ? "" : "no longer");
                         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SFlightPacket(SFlightPacket.Action.TOGGLE_HOVER, falconAbilityCap.isHovering()));
-                        TranslationTextComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslationTextComponent("action.falcon.hoverOn") : new TranslationTextComponent("action.falcon.hoverOff");
+                        TranslatableComponent hoverToggleMessage = falconAbilityCap.isHovering() ? new TranslatableComponent("action.falcon.hoverOn") : new TranslatableComponent("action.falcon.hoverOff");
                         if (wasHovering != falconAbilityCap.isHovering()) {
                             serverPlayer.sendMessage(hoverToggleMessage, Util.NIL_UUID);
                         }
@@ -46,7 +46,7 @@ public class FlightAbilityManagers {
 
     }
 
-    private static void haltIfFlying(ServerPlayerEntity serverPlayer) {
+    private static void haltIfFlying(ServerPlayer serverPlayer) {
         if (FalconFlightHelper.isFlying(serverPlayer)) {
             FalconFlightHelper.haltFlight(serverPlayer);
             CaptainAmerica.LOGGER.debug("Server player {} has halted their EXO-7 Falcon flight!", serverPlayer.getDisplayName().getString());

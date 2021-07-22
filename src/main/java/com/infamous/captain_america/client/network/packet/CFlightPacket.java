@@ -1,9 +1,8 @@
 package com.infamous.captain_america.client.network.packet;
 
 import com.infamous.captain_america.server.network.ServerNetworkHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CEntityActionPacket;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -30,14 +29,14 @@ public class CFlightPacket {
         this.flag = flag;
     }
 
-    public static CFlightPacket decodePacket(PacketBuffer packetBuffer){
+    public static CFlightPacket decodePacket(FriendlyByteBuf packetBuffer){
         Action action = packetBuffer.readEnum(Action.class);
         float data = packetBuffer.readFloat();
         boolean flag = packetBuffer.readBoolean();
         return new CFlightPacket(action, data, flag);
     }
 
-    public static void encodePacket(CFlightPacket packet, PacketBuffer packetBuffer){
+    public static void encodePacket(CFlightPacket packet, FriendlyByteBuf packetBuffer){
         packetBuffer.writeEnum(packet.action);
         packetBuffer.writeFloat(packet.data);
         packetBuffer.writeBoolean(packet.flag);

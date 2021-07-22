@@ -3,6 +3,7 @@ package com.infamous.captain_america.client;
 import com.infamous.captain_america.CaptainAmerica;
 import com.infamous.captain_america.client.keybindings.CAKeyBinding;
 import com.infamous.captain_america.client.network.packet.CFlightPacket;
+import com.infamous.captain_america.client.renderer.CAItemStackTileEntityRenderer;
 import com.infamous.captain_america.client.sound.HoverSound;
 import com.infamous.captain_america.client.util.CARenderHelper;
 import com.infamous.captain_america.client.util.LaserBeamHelper;
@@ -21,29 +22,28 @@ import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.registry.EffectRegistry;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -55,9 +55,11 @@ import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeClientEvents {
+    public static BlockEntityWithoutLevelRenderer BEWLR = new CAItemStackTileEntityRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+
     private static final ResourceLocation GOGGLES_OVERLAY = new ResourceLocation(CaptainAmerica.MODID, "textures/misc/goggles_overlay.png");
 
-    public static PointOfView PREVIOUS_CONTROLLED_POV = PointOfView.FIRST_PERSON;
+    public static CameraType PREVIOUS_CONTROLLED_POV = CameraType.FIRST_PERSON;
     public static boolean LOCAL_EAGLE_EYES;
     private static boolean LOCAL_BOOSTING;
     private static boolean LOCAL_HOVERING;
@@ -66,7 +68,7 @@ public class ForgeClientEvents {
     public static void onClientTick(TickEvent.ClientTickEvent event){
         if(event.phase == TickEvent.Phase.END){
             Minecraft minecraft = Minecraft.getInstance();
-            ClientPlayerEntity clientPlayer = minecraft.player;
+            LocalPlayer clientPlayer = minecraft.player;
             if(clientPlayer != null){
                 // HANDLE BOOST
                 if(minecraft.options.keySprint.isDown() && FalconFlightHelper.canBoostFlight(clientPlayer)){
@@ -103,7 +105,7 @@ public class ForgeClientEvents {
 
     @SubscribeEvent
     public static void onFOVEvent(FOVUpdateEvent event){
-        PlayerEntity player = event.getEntity();
+        Player player = event.getEntity();
         if(player == Minecraft.getInstance().player){
             float newFOV = event.getNewfov();
             if(FalconFlightHelper.isFlying(player) && LOCAL_BOOSTING){
@@ -124,7 +126,7 @@ public class ForgeClientEvents {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event){
         Minecraft minecraft = Minecraft.getInstance();
-        ClientPlayerEntity clientPlayer = minecraft.player;
+        LocalPlayer clientPlayer = minecraft.player;
         if(clientPlayer != null){
             int key = event.getKey();
             CAKeyBinding.handleAllKeys(key, clientPlayer);
@@ -142,15 +144,21 @@ public class ForgeClientEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onRenderXP(RenderGameOverlayEvent.Pre event){
+    public static void onRenderOverlayPre(RenderGameOverlayEvent.Pre event){
         Minecraft minecraft = Minecraft.getInstance();
-        PlayerEntity player = minecraft.player;
+        Player player = minecraft.player;
         if(player == null) return;
         if(minecraft.getCameraEntity() instanceof IVisualLinker){
             event.setCanceled(true);
-        } else{
-            renderShieldThrowMeter(event, player);
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onRenderOverlayPreLayer(RenderGameOverlayEvent.PreLayer event){
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        if(player == null) return;
+        renderShieldThrowMeter(event, player);
     }
 
 
@@ -159,7 +167,7 @@ public class ForgeClientEvents {
         float fogRed = event.getRed();
         float fogGreen = event.getGreen();
         float fogBlue = event.getBlue();
-        ActiveRenderInfo info = event.getInfo();
+        Camera info = event.getInfo();
 
         Entity renderEntity = info.getEntity();
         if(!(renderEntity instanceof LivingEntity)) return;
@@ -189,7 +197,7 @@ public class ForgeClientEvents {
         }
     }
 
-    private static void renderShieldThrowMeter(RenderGameOverlayEvent.Pre event, PlayerEntity player) {
+    private static void renderShieldThrowMeter(RenderGameOverlayEvent.PreLayer event, Player player) {
         IShieldThrower shieldThrowerCap = CapabilityHelper.getShieldThrowerCap(player);
         if (shieldThrowerCap != null
                 && shieldThrowerCap.getShieldChargingScale() > 0.0F
@@ -200,21 +208,21 @@ public class ForgeClientEvents {
         }
     }
 
-    private static boolean shouldReplaceElement(RenderGameOverlayEvent event) {
-        return event.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE
-                || event.getType() == RenderGameOverlayEvent.ElementType.JUMPBAR;
+    private static boolean shouldReplaceElement(RenderGameOverlayEvent.PreLayer event) {
+        return event.getOverlay() == ForgeIngameGui.EXPERIENCE_BAR_ELEMENT
+                || event.getOverlay() == ForgeIngameGui.JUMP_BAR_ELEMENT;
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void postRenderLiving(RenderLivingEvent.Post<?, ?> event){
         LivingEntity living = event.getEntity();
-        LivingRenderer<?, ?> livingRenderer = event.getRenderer();
-        if(livingRenderer.getModel() instanceof BipedModel){
-            BipedModel<?> bipedModel = (BipedModel<?>) livingRenderer.getModel();
+        LivingEntityRenderer<?, ?> livingRenderer = event.getRenderer();
+        if(livingRenderer.getModel() instanceof HumanoidModel){
+            HumanoidModel<?> bipedModel = (HumanoidModel<?>) livingRenderer.getModel();
             IMetalArm metalArmCap = CapabilityHelper.getMetalArmCap(living);
             if(metalArmCap != null){
-                ItemStack leftArmStack = getStackForHandSide(living, HandSide.LEFT, metalArmCap);
-                ItemStack rightArmStack = getStackForHandSide(living, HandSide.RIGHT, metalArmCap);
+                ItemStack leftArmStack = getStackForHandSide(living, HumanoidArm.LEFT, metalArmCap);
+                ItemStack rightArmStack = getStackForHandSide(living, HumanoidArm.RIGHT, metalArmCap);
 
                 if(bipedModel.leftArm.visible && MetalArmItem.isMetalArmStack(leftArmStack)){
                     bipedModel.leftArm.visible = false; // only render the arm from the metal arm layer
@@ -226,8 +234,8 @@ public class ForgeClientEvents {
         }
     }
 
-    private static ItemStack getStackForHandSide(LivingEntity living, HandSide handSide, IMetalArm metalArmCap) {
-        HandSide mainSide = living.getMainArm();
+    private static ItemStack getStackForHandSide(LivingEntity living, HumanoidArm handSide, IMetalArm metalArmCap) {
+        HumanoidArm mainSide = living.getMainArm();
         ItemStack metalArmStack;
         if(mainSide == handSide){
             metalArmStack = metalArmCap.getMetalArmMainHand();
@@ -248,9 +256,9 @@ public class ForgeClientEvents {
     @SubscribeEvent
     public static void renderWorld(RenderWorldLastEvent event){
         if (Minecraft.getInstance().level != null) {
-            List<AbstractClientPlayerEntity> players = Minecraft.getInstance().level.players();
+            List<AbstractClientPlayer> players = Minecraft.getInstance().level.players();
 
-            ClientPlayerEntity localPlayer = Minecraft.getInstance().player;
+            LocalPlayer localPlayer = Minecraft.getInstance().player;
             if(localPlayer != null){
                 handleLaserRendering(event, players, localPlayer);
                 handleRedwingCamera(localPlayer);
@@ -263,53 +271,52 @@ public class ForgeClientEvents {
         }
     }
 
-    private static void renderGogglesOverlay(RenderWorldLastEvent event, ClientPlayerEntity localPlayer) {
+    private static void renderGogglesOverlay(RenderWorldLastEvent event, LocalPlayer localPlayer) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.enableTexture();
-        minecraft.getTextureManager().bind(GOGGLES_OVERLAY);
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        minecraft.getTextureManager().bindForSetup(GOGGLES_OVERLAY);
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        // These values follow the values used in OverlayRenderer#renderWater
-        float scaledNegYRot = -localPlayer.yRot / 64.0F;
-        float scaledXRot = localPlayer.xRot / 64.0F;
+        // These values follow the values used in ScreenEffectRenderer#renderWater
+        float scaledNegYRot = -localPlayer.getYRot() / 64.0F;
+        float scaledXRot = localPlayer.getXRot() / 64.0F;
 
         final float brightness = 1.0F;
         final float alpha = 0.5F;
 
         Matrix4f matrix4f = event.getMatrixStack().last().pose();
-        bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         bufferBuilder.vertex(-1.0F, -1.0F, -0.5F).color(brightness, brightness, brightness, alpha).uv(4.0F + scaledNegYRot, 4.0F + scaledXRot).endVertex();
         bufferBuilder.vertex(1.0F, -1.0F, -0.5F).color(brightness, brightness, brightness, alpha).uv(0.0F + scaledNegYRot, 4.0F + scaledXRot).endVertex();
         bufferBuilder.vertex(1.0F, 1.0F, -0.5F).color(brightness, brightness, brightness, alpha).uv(0.0F + scaledNegYRot, 0.0F + scaledXRot).endVertex();
         bufferBuilder.vertex(-1.0F, 1.0F, -0.5F).color(brightness, brightness, brightness, alpha).uv(4.0F + scaledNegYRot, 0.0F + scaledXRot).endVertex();
         bufferBuilder.end();
-        WorldVertexBufferUploader.end(bufferBuilder);
+        BufferUploader.end(bufferBuilder);
         RenderSystem.disableBlend();
     }
 
-    private static void handleRedwingCamera(ClientPlayerEntity localPlayer) {
+    private static void handleRedwingCamera(LocalPlayer localPlayer) {
         Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
-        if (cameraEntity instanceof IVisualLinker) {
-            IVisualLinker visualLinker = (IVisualLinker) cameraEntity;
+        if (cameraEntity instanceof IVisualLinker visualLinker) {
             boolean shouldResetCamera =
                     !visualLinker.hasVisualLink()
                             || !cameraEntity.isAlive()
                             || !ControlGauntletItem.isHoldingThis(localPlayer)
-                            || !GogglesItem.getGoggles(localPlayer).isPresent();
+                            || GogglesItem.getGoggles(localPlayer).isEmpty();
             if (shouldResetCamera && !localPlayer.isSpectator()) {
                 Minecraft.getInstance().setCameraEntity(localPlayer);
                 if(PREVIOUS_CONTROLLED_POV != null){
-                    PointOfView previousControlledPOV = PointOfView.values()[PREVIOUS_CONTROLLED_POV.ordinal()];
+                    CameraType previousControlledPOV = CameraType.values()[PREVIOUS_CONTROLLED_POV.ordinal()];
                     Minecraft.getInstance().options.setCameraType(previousControlledPOV);
                 }
             }
         }
     }
 
-    private static void handleLaserRendering(RenderWorldLastEvent event, List<AbstractClientPlayerEntity> players, ClientPlayerEntity localPlayer) {
-        for (PlayerEntity player : players) {
+    private static void handleLaserRendering(RenderWorldLastEvent event, List<AbstractClientPlayer> players, LocalPlayer localPlayer) {
+        for (Player player : players) {
             if (player.distanceToSqr(localPlayer) > 500){
                 continue;
             }
@@ -325,25 +332,25 @@ public class ForgeClientEvents {
 
     @SubscribeEvent
     public static void preRenderPlayer(RenderPlayerEvent.Pre event){
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         ItemStack useItem = player.getUseItem();
-        Hand useHand = player.getUsedItemHand();
+        InteractionHand useHand = player.getUsedItemHand();
         boolean notSwinging = !player.swinging;
         boolean isUsingGauntlet = AbstractGauntletItem.isStackOfThis(useItem);
         if (isUsingGauntlet && notSwinging) {
             PlayerRenderer playerRenderer = event.getRenderer();
             PlayerModel<?> playerModel = playerRenderer.getModel();
-            if(player.getMainArm() == HandSide.RIGHT){
-                if(useHand == Hand.MAIN_HAND){
-                    playerModel.rightArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+            if(player.getMainArm() == HumanoidArm.RIGHT){
+                if(useHand == InteractionHand.MAIN_HAND){
+                    playerModel.rightArmPose = HumanoidModel.ArmPose.CROSSBOW_HOLD;
                 } else{
-                    playerModel.leftArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                    playerModel.leftArmPose = HumanoidModel.ArmPose.CROSSBOW_HOLD;
                 }
             } else{
-                if(useHand == Hand.MAIN_HAND){
-                    playerModel.leftArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                if(useHand == InteractionHand.MAIN_HAND){
+                    playerModel.leftArmPose = HumanoidModel.ArmPose.CROSSBOW_HOLD;
                 } else{
-                    playerModel.rightArmPose = BipedModel.ArmPose.CROSSBOW_HOLD;
+                    playerModel.rightArmPose = HumanoidModel.ArmPose.CROSSBOW_HOLD;
                 }
             }
         }
