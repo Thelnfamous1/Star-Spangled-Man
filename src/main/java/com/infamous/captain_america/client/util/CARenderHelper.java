@@ -26,12 +26,12 @@ public class CARenderHelper {
             CaptainAmerica.LOGGER.info("RenderHelper.minecraft was updated to the current Minecraft instance!");
         }
         minecraft = minecraftChanged ? Minecraft.getInstance() : minecraft;
-        minecraft.getTextureManager().bindForSetup(SHIELD_THROW_METER_LOCATION);
+        RenderSystem.setShaderTexture(0, SHIELD_THROW_METER_LOCATION);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
 
         minecraft.getProfiler().push("shieldThrowBar");
-        minecraft.getTextureManager().bindForSetup(SHIELD_THROW_METER_LOCATION);
+        RenderSystem.setShaderTexture(0, SHIELD_THROW_METER_LOCATION);
 
         float shieldChargingScale = shieldThrowerCap.getShieldChargingScale();
         int barLength = 182;

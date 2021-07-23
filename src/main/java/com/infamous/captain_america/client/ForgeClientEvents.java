@@ -274,7 +274,7 @@ public class ForgeClientEvents {
     private static void renderGogglesOverlay(RenderWorldLastEvent event, LocalPlayer localPlayer) {
         Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.enableTexture();
-        minecraft.getTextureManager().bindForSetup(GOGGLES_OVERLAY);
+        RenderSystem.setShaderTexture(0, GOGGLES_OVERLAY);
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

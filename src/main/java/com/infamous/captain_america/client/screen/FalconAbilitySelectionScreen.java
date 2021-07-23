@@ -24,16 +24,16 @@ public class FalconAbilitySelectionScreen extends Screen {
         super.init();
         int relX = (this.width - WIDTH) / 2;
         int relY = (this.height - HEIGHT) / 2;
-        this.addButton(new FalconButton(relX +7 , relY + 10-3, 65, 15, new TranslatableComponent("ability.falcon.flight"), button -> Minecraft.getInstance().setScreen(new FalconFlightScreen())));
-        this.addButton(new FalconButton(relX +7, relY + 30-3, 65, 15, new TranslatableComponent("ability.falcon.combat"), button -> Minecraft.getInstance().setScreen(new FalconCombatScreen())));
-        this.addButton(new FalconButton(relX +7, relY + 50-3, 65, 15, new TranslatableComponent("ability.falcon.drone"), button -> Minecraft.getInstance().setScreen(new FalconDroneScreen())));
-        this.addButton(new FalconButton(relX +7, relY + 70-3, 65, 15, new TranslatableComponent("ability.falcon.hud"), button -> Minecraft.getInstance().setScreen(new FalconHUDScreen())));
+        this.addRenderableWidget(new FalconButton(relX +7 , relY + 10-3, 65, 15, new TranslatableComponent("ability.falcon.flight"), button -> Minecraft.getInstance().setScreen(new FalconFlightScreen())));
+        this.addRenderableWidget(new FalconButton(relX +7, relY + 30-3, 65, 15, new TranslatableComponent("ability.falcon.combat"), button -> Minecraft.getInstance().setScreen(new FalconCombatScreen())));
+        this.addRenderableWidget(new FalconButton(relX +7, relY + 50-3, 65, 15, new TranslatableComponent("ability.falcon.drone"), button -> Minecraft.getInstance().setScreen(new FalconDroneScreen())));
+        this.addRenderableWidget(new FalconButton(relX +7, relY + 70-3, 65, 15, new TranslatableComponent("ability.falcon.hud"), button -> Minecraft.getInstance().setScreen(new FalconHUDScreen())));
     }
 
     @Override
     public void render(PoseStack stack, int rouseX, int rouseY, float partialTicks){
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(GUI);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, GUI);
         int relX = (this.width - WIDTH) / 2;
         int relY = (this.height - HEIGHT) / 2;
         this.blit(stack, relX, relY, 77, 0, 100, HEIGHT);

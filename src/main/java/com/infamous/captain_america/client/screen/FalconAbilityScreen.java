@@ -8,6 +8,7 @@ import com.infamous.captain_america.common.util.FalconAbilityValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.resources.ResourceLocation;
@@ -61,7 +62,7 @@ public abstract class FalconAbilityScreen extends Screen {
     }
 
     protected void addFalconButton(int relX, int relY, int offset, FalconAbilityValue value){
-        this.addButton(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslatableComponent(this.key.getTranslationKey(value)), p -> {
+        this.addRenderableWidget(new FalconButton(relX + 6, relY-4+offset, 65, 15, new TranslatableComponent(this.key.getTranslationKey(value)), p -> {
             NetworkHandler.INSTANCE.sendToServer(new CSetFalconAbilityPacket(this.key, value));
             Minecraft.getInstance().setScreen(new FalconAbilitySelectionScreen());
         }));
@@ -70,33 +71,30 @@ public abstract class FalconAbilityScreen extends Screen {
     @Override
     public void tick() {
         if (this.page != this.previousPage){
-            List<AbstractWidget> buttonList = this.buttons;
+            List<Widget> buttonList = this.renderables;
             if (this.page > this.previousPage) {
-                System.out.println(buttonList.get(0).y);
-                for (int i = 0; i < buttonList.size(); i++) {
-                    buttonList.get(i).y += this.height;
+                for (Widget currentWidget : buttonList) {
+                    if (currentWidget instanceof AbstractWidget abstractWidget) {
+                        abstractWidget.y += this.height;
+                    }
                 }
 
-                System.out.println(buttonList.get(0).y);
-                this.previousPage = this.page;
             } else {
-                System.out.println(buttonList.get(0).y);
-                for (int i = 0; i < buttonList.size(); i++) {
-                    buttonList.get(i).y -= this.height;
+                for (Widget currentWidget : buttonList) {
+                    if (currentWidget instanceof AbstractWidget abstractWidget) {
+                        abstractWidget.y -= this.height;
+                    }
                 }
-                System.out.println(buttonList.get(0).y);
-                this.previousPage = this.page;
             }
+            this.previousPage = this.page;
         }
     }
 
     @Override
     public void render(PoseStack stack, int rouseX, int rouseY, float partialTicks){
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.minecraft != null) {
-            this.minecraft.getTextureManager().bind(GUI);
-        }
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, GUI);
         int relX = (this.width - WIDTH) / 2;
         int relY = (this.height - HEIGHT) / 2;
 

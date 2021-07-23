@@ -41,8 +41,8 @@ public class FalconButton extends Button  {
 
         Minecraft minecraft = Minecraft.getInstance();
         Font fontrenderer = minecraft.font;
-        minecraft.getTextureManager().bindForSetup(WIDGETS_SOLARFORGE);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_SOLARFORGE);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         int i = this.getYImage(this.isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
