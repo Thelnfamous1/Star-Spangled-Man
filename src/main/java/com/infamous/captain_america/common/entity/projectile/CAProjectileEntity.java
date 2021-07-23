@@ -130,16 +130,16 @@ public abstract class CAProjectileEntity extends Projectile {
          boolean noPhysics = this.isNoPhysics();
          Vec3 deltaMovement = this.getDeltaMovement();
          if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float horizontalDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
-            this.yRot = (float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
-            this.xRot = (float)(Mth.atan2(deltaMovement.y, (double)horizontalDist) * (double)(180F / (float)Math.PI));
-            this.yRotO = this.yRot;
-            this.xRotO = this.xRot;
+            double horizontalDist = deltaMovement.horizontalDistance();
+            this.setYRot((float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI)));
+            this.setXRot((float)(Mth.atan2(deltaMovement.y, (double)horizontalDist) * (double)(180F / (float)Math.PI)));
+            this.yRotO = this.getYRot();
+            this.xRotO = this.getXRot();
          }
 
          BlockPos blockpos = this.blockPosition();
          BlockState blockstate = this.level.getBlockState(blockpos);
-         if (!blockstate.isAir(this.level, blockpos) && !noPhysics) {
+         if (!blockstate.isAir() && !noPhysics) {
             VoxelShape voxelshape = blockstate.getCollisionShape(this.level, blockpos);
             if (!voxelshape.isEmpty()) {
                Vec3 vector3d1 = this.position();
@@ -194,16 +194,16 @@ public abstract class CAProjectileEntity extends Projectile {
       double d5 = this.getX() + d3;
       double d1 = this.getY() + d4;
       double d2 = this.getZ() + d0;
-      float f1 = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
+      double f1 = deltaMovement.horizontalDistance();
       if (noPhysics) {
-         this.yRot = (float)(Mth.atan2(-d3, -d0) * (double)(180F / (float)Math.PI));
+         this.setYRot((float)(Mth.atan2(-d3, -d0) * (double)(180F / (float)Math.PI)));
       } else {
-         this.yRot = (float)(Mth.atan2(d3, d0) * (double)(180F / (float)Math.PI));
+         this.setYRot((float)(Mth.atan2(d3, d0) * (double)(180F / (float)Math.PI)));
       }
 
-      this.xRot = (float)(Mth.atan2(d4, (double)f1) * (double)(180F / (float)Math.PI));
-      this.xRot = lerpRotation(this.xRotO, this.xRot);
-      this.yRot = lerpRotation(this.yRotO, this.yRot);
+      this.setXRot((float)(Mth.atan2(d4, (double)f1) * (double)(180F / (float)Math.PI)));
+      this.setXRot(lerpRotation(this.xRotO, this.getXRot()));
+      this.setYRot(lerpRotation(this.yRotO, this.getYRot()));
       float f2 = this.getInertia();
       float f3 = getGravity();
       if (this.isInWater()) {
@@ -379,14 +379,14 @@ public abstract class CAProjectileEntity extends Projectile {
       } else {
          target.setRemainingFireTicks(remainingFireTicks);
          this.setDeltaMovement(this.getDeltaMovement().scale(-0.1D));
-         this.yRot += 180.0F;
+         this.setYRot(this.getYRot() + 180.0F);
          this.yRotO += 180.0F;
          if (!this.level.isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
             if (this.pickup == CAProjectileEntity.PickupStatus.ALLOWED) {
                this.spawnAtLocation(this.getPickupItem(), 0.1F);
             }
 
-            this.remove();
+            this.discard();
          }
       }
 

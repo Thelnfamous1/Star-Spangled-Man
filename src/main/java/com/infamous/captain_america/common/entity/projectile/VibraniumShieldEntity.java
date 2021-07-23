@@ -6,56 +6,44 @@ import com.infamous.captain_america.common.network.NetworkHandler;
 import com.infamous.captain_america.common.util.VibraniumShieldHelper;
 import com.infamous.captain_america.server.network.packet.SShieldPacket;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.entity.*;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 public class VibraniumShieldEntity extends Projectile {
    private static final EntityDataAccessor<Byte> ID_FLAGS = SynchedEntityData.defineId(VibraniumShieldEntity.class, EntityDataSerializers.BYTE);
@@ -163,16 +151,16 @@ public class VibraniumShieldEntity extends Projectile {
 
       Vec3 deltaMovement = this.getDeltaMovement();
       if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-         float horizontalDeltaMoveDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
-         this.yRot = (float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI));
-         this.xRot = (float)(Mth.atan2(deltaMovement.y, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
-         this.yRotO = this.yRot;
-         this.xRotO = this.xRot;
+         double horizontalDist = deltaMovement.horizontalDistance();
+         this.setYRot((float)(Mth.atan2(deltaMovement.x, deltaMovement.z) * (double)(180F / (float)Math.PI)));
+         this.setXRot((float)(Mth.atan2(deltaMovement.y, (double)horizontalDist) * (double)(180F / (float)Math.PI)));
+         this.yRotO = this.getYRot();
+         this.xRotO = this.getXRot();
       }
 
       BlockPos blockpos = this.blockPosition();
       BlockState blockstate = this.level.getBlockState(blockpos);
-      if (!blockstate.isAir(this.level, blockpos) && !noPhysics) {
+      if (!blockstate.isAir() && !noPhysics) {
          VoxelShape collisionShape = blockstate.getCollisionShape(this.level, blockpos);
          if (!collisionShape.isEmpty()) {
             Vec3 position = this.position();
@@ -219,7 +207,7 @@ public class VibraniumShieldEntity extends Projectile {
                this.spawnAtLocation(this.getPickupItem(), 0.1F);
             }
 
-            this.remove();
+            this.discard();
          } else if (loyaltyLevel > 0) {
             this.setNoPhysics(true);
             Vec3 distanceVec = new Vec3(owner.getX() - this.getX(), owner.getEyeY() - this.getY(), owner.getZ() - this.getZ());
@@ -294,16 +282,16 @@ public class VibraniumShieldEntity extends Projectile {
       double xMoveTo = this.getX() + xDeltaMove;
       double yMoveTo = this.getY() + yDeltaMove;
       double zMoveTo = this.getZ() + zDeltaMove;
-      float horizontalDeltaMoveDist = Mth.sqrt(getHorizontalDistanceSqr(deltaMovement));
+      double f1 = deltaMovement.horizontalDistance();
       if (noPhysics) {
-         this.yRot = (float)(Mth.atan2(-xDeltaMove, -zDeltaMove) * (double)(180F / (float)Math.PI));
+         this.setYRot((float)(Mth.atan2(-xDeltaMove, -zDeltaMove) * (double)(180F / (float)Math.PI)));
       } else {
-         this.yRot = (float)(Mth.atan2(xDeltaMove, zDeltaMove) * (double)(180F / (float)Math.PI));
+         this.setYRot((float)(Mth.atan2(xDeltaMove, zDeltaMove) * (double)(180F / (float)Math.PI)));
       }
 
-      this.xRot = (float)(Mth.atan2(yDeltaMove, (double)horizontalDeltaMoveDist) * (double)(180F / (float)Math.PI));
-      this.xRot = lerpRotation(this.xRotO, this.xRot);
-      this.yRot = lerpRotation(this.yRotO, this.yRot);
+      this.setXRot((float)(Mth.atan2(yDeltaMove, (double)f1) * (double)(180F / (float)Math.PI)));
+      this.setXRot(lerpRotation(this.xRotO, this.getXRot()));
+      this.setYRot(lerpRotation(this.yRotO, this.getYRot()));
       float inertia = this.getInertia();
       float gravity = getGravity();
       if (this.isInWater()) {
@@ -353,7 +341,7 @@ public class VibraniumShieldEntity extends Projectile {
             if (this.pickup == PickupStatus.ALLOWED) {
                this.spawnAtLocation(this.getPickupItem(), 0.1F);
             }
-            this.remove();
+            this.discard();
          }
       }
    }
@@ -433,7 +421,7 @@ public class VibraniumShieldEntity extends Projectile {
             this.spawnAtLocation(this.getPickupItem(), 0.1F);
          }
 
-         this.remove();
+         this.discard();
       }
    }
 
@@ -494,7 +482,7 @@ public class VibraniumShieldEntity extends Projectile {
 
    private void boomerang() {
       this.setDeltaMovement(this.getDeltaMovement().scale(-1.0D));
-      this.yRot += 180.0F;
+      this.setYRot(this.getYRot() + 180.0F);
       this.yRotO += 180.0F;
    }
 
@@ -671,7 +659,7 @@ public class VibraniumShieldEntity extends Projectile {
    public void setOwner(@Nullable Entity entity) {
       super.setOwner(entity);
       if (entity instanceof Player) {
-         this.pickup = ((Player)entity).abilities.instabuild ? VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY : VibraniumShieldEntity.PickupStatus.ALLOWED;
+         this.pickup = ((Player)entity).getAbilities().instabuild ? VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY : VibraniumShieldEntity.PickupStatus.ALLOWED;
       }
 
    }
@@ -682,20 +670,20 @@ public class VibraniumShieldEntity extends Projectile {
       if (!this.level.isClientSide && (leftOwner || this.inGround || this.isNoPhysics())) {
          boolean canPickUp =
                  this.pickup == VibraniumShieldEntity.PickupStatus.ALLOWED
-                         || this.pickup == VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild
+                         || this.pickup == VibraniumShieldEntity.PickupStatus.CREATIVE_ONLY && player.getAbilities().instabuild
                          || this.isNoPhysics() && this.getOwner() != null && this.getOwner().getUUID() == player.getUUID();
          ItemStack pickupItem = this.getPickupItem();
 
          boolean addedToHand = canPickUp
                  && (this.setShieldInHand(player, InteractionHand.OFF_HAND) || this.setShieldInHand(player, InteractionHand.MAIN_HAND));
 
-         if (canPickUp && !addedToHand && !player.inventory.add(pickupItem)) {
+         if (canPickUp && !addedToHand && !player.getInventory().add(pickupItem)) {
             canPickUp = false;
          }
 
          if (canPickUp) {
             VibraniumShieldHelper.take(player, this, 1);
-            this.remove();
+            this.discard();
          }
 
       }
@@ -718,8 +706,8 @@ public class VibraniumShieldEntity extends Projectile {
    }
 
    @Override
-   protected boolean isMovementNoisy() {
-      return false;
+   protected Entity.MovementEmission getMovementEmission() {
+      return Entity.MovementEmission.NONE;
    }
 
    public void setBaseDamage(double baseDamage) {

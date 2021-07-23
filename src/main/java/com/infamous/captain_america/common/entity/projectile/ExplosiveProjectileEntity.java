@@ -1,20 +1,18 @@
 package com.infamous.captain_america.common.entity.projectile;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
 
 public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
     protected float explosionStrength = 1.0F;
@@ -100,7 +98,7 @@ public abstract class ExplosiveProjectileEntity extends CAProjectileEntity{
 
     protected void explode() {
         if(!this.level.isClientSide && !this.dud){
-            this.remove();
+            this.discard();
             this.level.explode(
                     this,
                     this.getX(),

@@ -26,17 +26,6 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         super(entityType, world);
     }
 
-    @Inject(at = @At("RETURN"), method = "createAttributes")
-    private static void addKnockbackAttribute(CallbackInfoReturnable<AttributeSupplier.Builder> cir){
-        AttributeSupplier.Builder mutableAttribute = cir.getReturnValue();
-        mutableAttribute.add(Attributes.ATTACK_KNOCKBACK);
-    }
-
-    @ModifyVariable(at = @At("STORE"), method = "attack", ordinal = 0)
-    private int getKnockbackAttributeValue(int knockbackValue, Entity target){
-        return (int) this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-    }
-
     @Inject(at = @At("HEAD"), method = "disableShield", cancellable = true)
     private void disableShieldHook(boolean guaranteeDisable, CallbackInfo callbackInfo){
         if(VibraniumShieldItem.SHIELD_PREDICATE.test(this.useItem.getItem())){
