@@ -28,6 +28,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import java.util.Map;
 
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraftforge.fmlclient.registry.ClientRegistry;
+import net.minecraftforge.fmlclient.registry.RenderingRegistry;
 
 @Mod.EventBusSubscriber(modid = CaptainAmerica.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModClientEvents {

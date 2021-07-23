@@ -7,7 +7,10 @@ import com.infamous.captain_america.common.registry.ItemRegistry;
 import com.infamous.captain_america.common.util.FalconFlightHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -22,10 +25,11 @@ public class EXO7FalconLayer<T extends LivingEntity, M extends EntityModel<T>> e
     private static final ResourceLocation FALCON_WINGS_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/falcon_wings.png");
     private static final ResourceLocation CAPTAIN_AMERICA_WINGS_TEXTURE = new ResourceLocation(CaptainAmerica.MODID, "textures/entity/captain_america_wings.png");
 
-    private final EXO7FalconModel2<T> elytraModel = new EXO7FalconModel2<>();
+    private final EXO7FalconModel2<T> elytraModel;
 
-    public EXO7FalconLayer(RenderLayerParent<T, M> entityRenderer) {
-        super(entityRenderer);
+    public EXO7FalconLayer(RenderLayerParent<T, M> parent, EntityModelSet entityModelSet) {
+        super(parent);
+        this.elytraModel = new EXO7FalconModel2<>(entityModelSet.bakeLayer(ModelLayers.ELYTRA));
     }
 
     @Override
